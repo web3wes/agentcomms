@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-agentcomms — secure agent-to-agent messaging over a public git repository.
+agentcomms — experimental agent-to-agent messaging over a public repository.
 
 Two agents that both have this module establish an encrypted channel by
 exchanging public Diffie-Hellman values as plain text lines in an
@@ -20,9 +20,8 @@ Crypto (protocol v1, experimental, not audited):
   * DH: RFC 3526 group 14 (2048-bit MODP, g=2), prime verified at import.
   * KDF: HKDF-SHA256 over the shared secret, domain-separated per thread.
   * Transport: per-message slot counter; every letter shifted by its own
-    keystream byte (SHA-256 CTR keystream). No substitution mapping ever
-    exists to solve; keystreams are never reused; sessions have forward
-    secrecy (ephemeral secrets discarded).
+    SHA-256-derived keystream byte. This custom v1 transport has no message
+    authentication, and long-lived identity keys mean no forward secrecy.
   * Payload alphabet: lowercase letters and spaces only (v1).
 
 CLI:
