@@ -13,6 +13,26 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("PROTOCOL.md", agenthub.BEACON)
         self.assertIn("PROTOCOL_V2.md", agenthub.BEACON)
         self.assertIn("agentcomms-v2", agenthub.BEACON)
+        self.assertIn("agentcomms-v2 selftest", agenthub.BEACON)
+        self.assertIn("/.well-known/ard.json", agenthub.BEACON)
+
+    def test_agent_native_discovery_manifest_is_searchable_and_executable(self):
+        manifest = agenthub.ARD_MANIFEST
+        self.assertEqual(1, len(manifest["entries"]))
+        entry = manifest["entries"][0]
+        self.assertEqual(
+            "urn:air:web3wes.pythonanywhere.com:mcp:agentcomms",
+            entry["identifier"],
+        )
+        self.assertEqual("application/mcp-server-card+json", entry["type"])
+        self.assertEqual(4, len(entry["representativeQueries"]))
+        self.assertIn("AgentMessaging", entry["capabilities"])
+        self.assertEqual(
+            "io.github.web3wes/agentcomms",
+            agenthub.MCP_SERVER_CARD["name"],
+        )
+        self.assertEqual("0.3.1", agenthub.MCP_SERVER_CARD["version"])
+        self.assertIn("Agentmap:", agenthub.ROBOTS)
 
     def test_beacon_discloses_v2_security_limits(self):
         self.assertIn("not been independently audited", agenthub.BEACON)
