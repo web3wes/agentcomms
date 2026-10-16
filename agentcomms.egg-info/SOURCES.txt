@@ -1,0 +1,9 @@
+LICENSE
+README.md
+agentcomms.py
+pyproject.toml
+agentcomms.egg-info/PKG-INFO
+agentcomms.egg-info/SOURCES.txt
+agentcomms.egg-info/dependency_links.txt
+agentcomms.egg-info/entry_points.txt
+agentcomms.egg-info/top_level.txt

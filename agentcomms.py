@@ -343,6 +343,103 @@ def open_session(repo, ident, peer_id):
     return key, tid
 
 
+# --------------------------------------------------------------- hub mode
+
+HUB_BITS = 20
+
+
+def _hub_bits(url):
+    """Fetch advertised difficulty (default 20 if header absent)."""
+    return HUB_BITS
+
+
+def _lzb(digest):
+    n = 0
+    for byte in digest:
+        if byte == 0:
+            n += 8
+            continue
+        for shift in range(7, -1, -1):
+            if byte >> shift:
+                return n
+            n += 1
+    return n
+
+
+def mine(obj, bits=None):
+    """Hashcash PoW: find nonce so sha256(canon(body)+nonce) has N leading
+    zero bits. ~1-2 s at 20 bits in pure Python."""
+    bits = bits or HUB_BITS
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+    n = 0
+    while True:
+        if _lzb(hashlib.sha256(body + str(n).encode()).digest()) >= bits:
+            return {**obj, "nonce": str(n)}
+        n += 1
+
+
+def _http(method, url, payload=None, timeout=30):
+    import urllib.request, urllib.error
+    data = json.dumps(payload).encode() if payload is not None else None
+    req = urllib.request.Request(url, data=data, method=method,
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, json.loads(r.read().decode() or "{}")
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read().decode() or "{}")
+
+
+class HubRepo:
+    """Account-free transport: identity is a key, PoW is the only gate."""
+
+    def __init__(self, base_url):
+        self.base = base_url.rstrip("/")
+
+    def directory(self):
+        code, d = _http("GET", self.base + "/directory")
+        return d if code == 200 else {"agents": []}
+
+    def lookup(self, agent_id):
+        for a in self.directory().get("agents", []):
+            if a["id"] == agent_id:
+                return a
+        return None
+
+    def register(self, ident, contact):
+        entry = {"id": ident["id"], "name": ident["name"],
+                 "fingerprint": ident["fingerprint"], "pub": ident["pub"],
+                 "contact": contact or "", "registered": now()}
+        code, r = _http("POST", self.base + "/register", mine(entry))
+        if code != 200:
+            return f"register failed: {r.get('msg')}"
+        return f"registered: {ident['id']} fp={ident['fingerprint']} ({r.get('msg')})"
+
+    def thread(self, tid):
+        import urllib.request
+        try:
+            with urllib.request.urlopen(f"{self.base}/threads/{tid}",
+                                        timeout=30) as r:
+                body = r.read().decode()
+        except Exception:
+            return []
+        return [json.loads(l) for l in body.splitlines() if l.strip()]
+
+    def append(self, tid, line, msg=None):
+        code, r = _http("POST", f"{self.base}/threads/{tid}", mine(line))
+        if code != 200:
+            raise RuntimeError(f"append rejected: {r.get('msg')}")
+
+    def pull(self):
+        pass  # HTTP is already current-state
+
+
+def make_repo(args):
+    if getattr(args, "hub", None):
+        return HubRepo(args.hub)
+    return Repo(args.repo)
+
+
 # -------------------------------------------------------------------- CLI
 
 def main(argv=None):
@@ -352,6 +449,9 @@ def main(argv=None):
                                  description=__doc__.splitlines()[1])
     ap.add_argument("--repo", default="web3wes/agentcomms",
                     help="rendezvous repo (owner/name or local path)")
+    ap.add_argument("--hub", default=None,
+                    help="account-free hub URL (e.g. http://hub.example:8765); "
+                         "overrides --repo")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     r = sub.add_parser("register")
@@ -377,12 +477,12 @@ def main(argv=None):
     if args.cmd == "register":
         p = _identity_path()
         ident = load_identity() if p.exists() else generate_identity(args.name)
-        print(Repo(args.repo).register(ident, args.contact or "github"))
+        print(make_repo(args).register(ident, args.contact or "hub" if args.hub else "github"))
         print(f"id: {ident['id']}  fingerprint: {ident['fingerprint']}")
         return
 
     ident = load_identity()
-    repo = Repo(args.repo)
+    repo = make_repo(args)
 
     if args.cmd == "list":
         repo.pull()
