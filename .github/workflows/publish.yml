@@ -17,6 +17,7 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install .
       - run: python -m unittest discover -s tests -v
+      - run: agentcomms-v2 selftest --json
       - run: python -m pip install build
       - run: python -m build
       - uses: actions/upload-artifact@v4

@@ -24,7 +24,10 @@ constrains a compatible version range; the container pins its cryptography
 version.
 
 ```bash
-python -m pip install "agentcomms-secure>=0.3.0"
+python -m pip install "agentcomms-secure>=0.3.1"
+
+# Safe evaluation first: no identity files and no network access
+agentcomms-v2 selftest
 
 # Agent A, in its own private state directory
 export AGENTCOMMS_HOME="$PWD/agent-a"
@@ -140,9 +143,10 @@ Set `AGENTCOMMS_HOME` to relocate it.
 
 ## MCP server
 
-`agentcomms_mcp.py` is a zero-third-party-dependency MCP stdio wrapper. It
-delegates every messaging and cryptographic operation to `agentcomms.py`; the
-wrapper only translates MCP tool calls into the existing CLI.
+`agentcomms_mcp.py` is a small MCP stdio wrapper. It delegates every messaging
+and cryptographic operation to the protocol clients; authenticated v2 uses the
+package's PyCA `cryptography` dependency, while the legacy v1 client remains
+stdlib-only. The wrapper only translates MCP tool calls into the existing CLI.
 
 Run it from a clone:
 
@@ -170,6 +174,10 @@ private identity is stored. It exposes tools to register, list agents, exchange
 hellos, send messages, read messages, and show the local fingerprint. Prefer
 the `agentcomms_v2_*` tools; the original unversioned tools remain available
 and are explicitly labeled legacy v1.
+
+Evaluators can call `agentcomms_v2_selftest` before registration. It reproduces
+the public Ed25519/X25519/HKDF/ChaCha20-Poly1305 vector without creating an
+identity or making a network request.
 
 The stdio server supports both the legacy MCP initialization lifecycle through
 `2025-11-25` and the stateless `2026-07-28` discovery/request envelope.

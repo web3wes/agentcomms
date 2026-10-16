@@ -37,7 +37,7 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by installed CLI
     raise SystemExit(
         "Protocol v2 requires PyCA cryptography. Install with: "
-        "python -m pip install 'agentcomms-secure>=0.3.0'"
+        "python -m pip install 'agentcomms-secure>=0.3.1'"
     ) from exc
 
 import agentcomms
@@ -624,6 +624,149 @@ def make_repo(args):
     return agentcomms.Repo(args.repo)
 
 
+def interoperability_selftest():
+    """Reproduce the public PROTOCOL_V2.md vector without state or network I/O."""
+
+    def require(label, actual, expected):
+        if actual != expected:
+            raise SecurityError(
+                f"interoperability selftest failed at {label}: "
+                f"expected {expected!r}, got {actual!r}"
+            )
+
+    a_sign = ed25519.Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
+    b_sign = ed25519.Ed25519PrivateKey.from_private_bytes(bytes(range(32, 64)))
+    a_id = agent_id(raw_public(a_sign.public_key()))
+    b_id = agent_id(raw_public(b_sign.public_key()))
+    require("A id", a_id, "agent-56475aa75463474c0285df5dbf2bcab7")
+    require("B id", b_id, "agent-24f6ed6acbfe1009c030d7ca567c33ca")
+
+    a_x = x25519.X25519PrivateKey.from_private_bytes(bytes(range(64, 96)))
+    b_x = x25519.X25519PrivateKey.from_private_bytes(bytes(range(96, 128)))
+    a_body = {
+        "v": 2,
+        "kind": "key",
+        "from": a_id,
+        "to": b_id,
+        "offer": "AAECAwQFBgcICQoLDA0ODw",
+        "eph": "eaYx7t4b-cmPEgMs3q3Q56B5OY_HhriMyEbsia-FpRo",
+        "ts": "2026-01-01T00:00:00+00:00",
+    }
+    b_body = {
+        "v": 2,
+        "kind": "key",
+        "from": b_id,
+        "to": a_id,
+        "offer": "EBESExQVFhcYGRobHB0eHw",
+        "eph": "Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8",
+        "ts": "2026-01-01T00:00:01+00:00",
+    }
+    a_offer = {**a_body, "sig": b64u(a_sign.sign(canonical(a_body)))}
+    b_offer = {**b_body, "sig": b64u(b_sign.sign(canonical(b_body)))}
+    require(
+        "A offer signature",
+        a_offer["sig"],
+        "cXA8Hwhe1ZnYi99Cwh-u0yfuyPTbVN5a9fSaNuzofS8JXX8fFKcgqwmeMDOEMXXy"
+        "y1P1rABW0sjZRUbiprOJAw",
+    )
+    require(
+        "B offer signature",
+        b_offer["sig"],
+        "MLO-l2ERsYPMB__v_LyiqxkIZDi0V__5QCpYlxnVsr8hDAiz4mkmICw1sv4c_wDT_"
+        "mGQ7i1Hk1KZiPl9NzX3AQ",
+    )
+    a_sign.public_key().verify(unb64u(a_offer["sig"]), canonical(a_body))
+    b_sign.public_key().verify(unb64u(b_offer["sig"]), canonical(b_body))
+
+    transcript = canonical(sorted([a_offer, b_offer], key=lambda offer: offer["from"]))
+    tid = "__".join(sorted([a_id, b_id]))
+    shared = a_x.exchange(b_x.public_key())
+    require(
+        "X25519 shared secret",
+        shared.hex(),
+        "d6fb939511b2381bc8599b4b8edc5968829450dfd7a87aebe78a703cd04cd54e",
+    )
+    require("X25519 symmetry", b_x.exchange(a_x.public_key()), shared)
+    session = hashlib.sha256(b"agentcomms-v2/session\0" + transcript).hexdigest()[:32]
+    require("session id", session, "61821bb89d208bc5e557a5f4fa6de55b")
+    root = HKDF(
+        algorithm=hashes.SHA256(),
+        length=64,
+        salt=hashlib.sha256(transcript).digest(),
+        info=b"agentcomms-v2/root\0" + tid.encode("ascii"),
+    ).derive(shared)
+    require(
+        "HKDF root",
+        root.hex(),
+        "e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576"
+        "c7079e0c701f53a3abd2b27b19773b5cf3720f237d5bd483cf70134bd61a5800",
+    )
+
+    a_chain = root[32:]
+    message_key = hmac.new(
+        a_chain, b"agentcomms-v2/message", hashlib.sha256
+    ).digest()
+    require(
+        "message key",
+        message_key.hex(),
+        "95c51ffa1d688342050e3956906da49b634c7082e7744e44ee5cdb1f0dc959db",
+    )
+    nonce = hmac.new(
+        message_key, b"agentcomms-v2/nonce", hashlib.sha256
+    ).digest()[:12]
+    require("nonce", nonce.hex(), "5aaeda08a1b98f17edb1bfa2")
+    header = {
+        "v": 2,
+        "kind": "msg",
+        "from": a_id,
+        "to": b_id,
+        "session": session,
+        "seq": 0,
+        "ts": "2026-01-01T00:00:02+00:00",
+    }
+    plaintext = b"hello v2"
+    padded = len(plaintext).to_bytes(4, "big") + plaintext
+    padded += bytes(PAD_BLOCK - len(padded))
+    cipher = ChaCha20Poly1305(message_key).encrypt(
+        nonce, padded, canonical(header)
+    )
+    require(
+        "ciphertext",
+        b64u(cipher),
+        "cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7s"
+        "W-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmV"
+        "xKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80"
+        "pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuE"
+        "Ngdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_Z"
+        "TfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM",
+    )
+    message_body = {**header, "cipher": b64u(cipher)}
+    message_sig = b64u(a_sign.sign(canonical(message_body)))
+    require(
+        "message signature",
+        message_sig,
+        "-TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wj"
+        "yoUjI7Rl0xscNmWXFz0gDQ",
+    )
+    a_sign.public_key().verify(unb64u(message_sig), canonical(message_body))
+    opened = ChaCha20Poly1305(message_key).decrypt(
+        nonce, cipher, canonical(header)
+    )
+    size = int.from_bytes(opened[:4], "big")
+    require("decrypted plaintext", opened[4:4 + size], plaintext)
+    require("zero vector padding", opened[4 + size:], bytes(PAD_BLOCK - 4 - size))
+    return {
+        "ok": True,
+        "protocol": PROTOCOL,
+        "vector": "PROTOCOL_V2.md#deterministic-interoperability-vector",
+        "checks": 14,
+        "a_id": a_id,
+        "b_id": b_id,
+        "session": session,
+        "plaintext": plaintext.decode("ascii"),
+    }
+
+
 def main(argv=None):
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -645,7 +788,23 @@ def main(argv=None):
     say_parser.add_argument("--to", required=True, dest="peer")
     say_parser.add_argument("--text", required=True)
     sub.add_parser("fingerprint")
+    selftest_parser = sub.add_parser(
+        "selftest",
+        help="verify the published v2 interoperability vector without state or network",
+    )
+    selftest_parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
+
+    if args.cmd == "selftest":
+        result = interoperability_selftest()
+        if args.as_json:
+            print(json.dumps(result, sort_keys=True))
+        else:
+            print(
+                "agentcomms v2 interoperability selftest OK "
+                f"({result['checks']} checks; {result['session']})"
+            )
+        return
 
     if args.cmd == "register":
         ident = load_identity() if identity_path().exists() else generate_identity(args.name)

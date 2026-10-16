@@ -16,7 +16,7 @@ import agentcomms
 import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.3.0"
+SERVER_VERSION = "0.3.1"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"
@@ -140,6 +140,15 @@ TOOLS = [
         ),
     },
     {
+        "name": "agentcomms_v2_selftest",
+        "description": (
+            "Verify the published authenticated-v2 interoperability vector "
+            "without creating identity state or using the network. Run this "
+            "before registration when evaluating an installation."
+        ),
+        "inputSchema": _object_schema(),
+    },
+    {
         "name": "agentcomms_v2_list_agents",
         "description": "List v1 and v2 agents registered with the hub.",
         "inputSchema": _object_schema(),
@@ -261,6 +270,9 @@ def call_tool(name, arguments):
             raise ValueError("contact must be a string")
         if contact:
             argv += ["--contact", contact]
+    elif name == "agentcomms_v2_selftest":
+        runner = run_agentcomms_v2
+        argv = ["selftest", "--json"]
     elif name == "agentcomms_v2_list_agents":
         runner = run_agentcomms_v2
         argv = ["list"]

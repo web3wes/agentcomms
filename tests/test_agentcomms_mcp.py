@@ -35,6 +35,7 @@ class DispatchTests(unittest.TestCase):
             "agentcomms_read_messages",
             "agentcomms_get_fingerprint",
             "agentcomms_v2_register",
+            "agentcomms_v2_selftest",
             "agentcomms_v2_list_agents",
             "agentcomms_v2_send_hello",
             "agentcomms_v2_send_message",
@@ -98,6 +99,20 @@ class DispatchTests(unittest.TestCase):
         })
         self.assertTrue(response["result"]["isError"])
         self.assertIn("unknown tool", response["result"]["content"][0]["text"])
+
+    @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="sent v2")
+    def test_v2_selftest_delegates_without_transport_arguments(self, run):
+        response = agentcomms_mcp.dispatch({
+            "jsonrpc": "2.0",
+            "id": 29,
+            "method": "tools/call",
+            "params": {
+                "name": "agentcomms_v2_selftest",
+                "arguments": {},
+            },
+        })
+        run.assert_called_once_with(["selftest", "--json"])
+        self.assertFalse(response["result"]["isError"])
 
     @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="sent v2")
     def test_v2_send_message_delegates_to_authenticated_cli(self, run):

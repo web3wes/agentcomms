@@ -3,6 +3,10 @@
 import copy
 import hashlib
 import hmac
+import json
+import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -69,6 +73,24 @@ class ProtocolV2Tests(unittest.TestCase):
         v2.HOME = self.b_home
         b_state = v2.establish_session(self.repo, self.b, self.a["id"])
         return a_state, b_state
+
+    def test_interoperability_selftest_is_state_free(self):
+        untouched_home = Path(self.temp.name) / "selftest-home"
+        env = os.environ.copy()
+        env["AGENTCOMMS_HOME"] = str(untouched_home)
+        completed = subprocess.run(
+            [sys.executable, str(Path(v2.__file__)), "selftest", "--json"],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=10,
+            check=True,
+        )
+        result = json.loads(completed.stdout)
+        self.assertTrue(result["ok"])
+        self.assertEqual(14, result["checks"])
+        self.assertEqual("61821bb89d208bc5e557a5f4fa6de55b", result["session"])
+        self.assertFalse(untouched_home.exists())
 
     def test_identity_is_self_certifying_and_uses_128_bit_id(self):
         self.assertEqual(38, len(self.a["id"]))

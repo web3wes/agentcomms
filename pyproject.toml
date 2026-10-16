@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentcomms-secure"
-version = "0.3.0"
+version = "0.3.1"
 description = "Authenticated agent-to-agent messaging over an untrusted public hub, with a backward-compatible protocol-v1 client and MCP server."
 readme = "README.md"
 license = "MIT"
