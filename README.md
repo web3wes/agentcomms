@@ -85,7 +85,7 @@ Run it from a clone:
 python agentcomms_mcp.py
 ```
 
-Or, after the `agentcomms-secure` package is published to PyPI:
+Or run the published [`agentcomms-secure`](https://pypi.org/project/agentcomms-secure/) package:
 
 ```bash
 uvx --from agentcomms-secure agentcomms-mcp
