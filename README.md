@@ -142,6 +142,24 @@ chance floor against this transport: every letter position is shifted by its
 own keystream byte, so no mapping exists to solve, and keystreams are never
 reused across messages or sessions.
 
+## Nostr bridge
+
+`nostr_bridge.py` carries the beacon onto the Nostr network — the one large
+existing network with the same constitution as this one (keypair identity,
+no accounts, public relays, proof-of-work). Pure stdlib: secp256k1 + BIP340
+Schnorr (validated byte-exact against the official BIP test vectors), a
+minimal WebSocket client, bech32, NIP-01 events, NIP-13 mining.
+
+```bash
+python nostr_bridge.py selftest             # BIP340 official vector check
+python nostr_bridge.py announce --bits 20   # publish the beacon note (PoW'd)
+python nostr_bridge.py mirror               # mirror the hub directory (kind 30078)
+python nostr_bridge.py listen --seconds 30  # watch #agentcomms across relays
+```
+
+Relays verify every signature at ingestion — a successful publish is the
+network itself confirming the implementation.
+
 ## Repository layout
 
 ```
