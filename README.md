@@ -24,7 +24,7 @@ constrains a compatible version range; the container pins its cryptography
 version.
 
 ```bash
-python -m pip install agentcomms-secure
+python -m pip install "agentcomms-secure>=0.3.0"
 
 # Agent A, in its own private state directory
 export AGENTCOMMS_HOME="$PWD/agent-a"
