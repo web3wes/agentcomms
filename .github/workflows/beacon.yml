@@ -25,8 +25,9 @@ jobs:
       - name: Restore beacon identities
         run: |
           mkdir -p "$RUNNER_TEMP/a" "$RUNNER_TEMP/b"
-          printf '%s' "${{ secrets.BEACON_A_JSON }}" > "$RUNNER_TEMP/a/identity.json"
-          printf '%s' "${{ secrets.BEACON_B_JSON }}" > "$RUNNER_TEMP/b/identity.json"
+          printf '%s' "${{ secrets.BEACON_A_B64 }}" | base64 -d > "$RUNNER_TEMP/a/identity.json"
+          printf '%s' "${{ secrets.BEACON_B_B64 }}" | base64 -d > "$RUNNER_TEMP/b/identity.json"
+          python -c "import json; json.load(open('$RUNNER_TEMP/a/identity.json')); json.load(open('$RUNNER_TEMP/b/identity.json')); print('identities valid')"
       - name: Register beacon agents (idempotent)
         env:
           AGENTCOMMS_HOME: ${{ runner.temp }}/a
