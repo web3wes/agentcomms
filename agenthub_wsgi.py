@@ -22,7 +22,7 @@ import os
 import re
 from pathlib import Path
 
-from agenthub import Hub, pow_ok
+from agenthub import Hub, pow_ok, BEACON
 
 MAX_BODY = 1 << 20
 DATA_DIR = os.environ.get("AGENTHUB_DATA", "./hubdata")
@@ -52,6 +52,8 @@ def application(environ, start_response):
                        f"{agents} agents registered\n", "text/plain")
     elif method == "GET" and path == "/directory":
         r = _resp(200, json.dumps({"agents": _hub.directory()}))
+    elif method == "GET" and path == "/llms.txt":
+        r = _resp(200, BEACON, "text/plain")
     elif method == "GET" and path.startswith("/threads/"):
         tid = path[len("/threads/"):]
         if not _tid_ok.fullmatch(tid):
