@@ -366,7 +366,7 @@ def publish(ev, relays, wait=15):
 
 
 def listen(filters, relays, seconds):
-    seen = 0
+    seen_ids = set()
     sub = secrets.token_hex(4)
     for url in relays:
         try:
@@ -380,8 +380,12 @@ def listen(filters, relays, seconds):
                 except (ConnectionError, socket.timeout, json.JSONDecodeError):
                     break
                 if msg[0] == "EVENT" and len(msg) >= 3:
-                    seen += 1
                     ev = msg[2]
+                    event_id = ev.get("id")
+                    if event_id in seen_ids:
+                        continue
+                    if event_id:
+                        seen_ids.add(event_id)
                     print(f"[{url.split('//')[1]}] kind={ev['kind']} "
                           f"npub={npub(bytes.fromhex(ev['pubkey']))[:16]}… "
                           f"{ev['content'][:90]!r}")
@@ -389,7 +393,16 @@ def listen(filters, relays, seconds):
             ws.close()
         except Exception as e:
             print(f"[{url}] listen error: {str(e)[:80]}")
-    return seen
+    return len(seen_ids)
+
+
+def detection_filters(bridge_pubkey):
+    """Historical tag traffic plus direct mentions/replies to our bridge."""
+    return [
+        {"kinds": [1], "#t": ["agentcomms"], "limit": 20},
+        {"kinds": [1], "#p": [bridge_pubkey], "limit": 20},
+        {"kinds": [30078], "#d": ["agentcomms-directory"], "limit": 5},
+    ]
 
 
 # ---------------------------------------------------------- identity
@@ -506,10 +519,9 @@ def main():
     if args.cmd == "mirror":
         return do_mirror(args, ident)
     if args.cmd == "listen":
-        filters = [{"kinds": [1], "#t": ["agentcomms"], "limit": 20},
-                   {"kinds": [30078], "#d": ["agentcomms-directory"], "limit": 5}]
+        filters = detection_filters(ident["pub"])
         n = listen(filters, args.relay, args.seconds)
-        print(f"{n} matching events seen")
+        print(f"{n} unique matching events seen")
 
 
 if __name__ == "__main__":

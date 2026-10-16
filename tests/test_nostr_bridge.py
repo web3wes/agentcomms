@@ -1,5 +1,7 @@
 """Tests for Nostr amplification and monitoring evidence."""
 
+import json
+import socket
 import unittest
 from unittest import mock
 
@@ -15,6 +17,27 @@ class _SilentRelay:
 
     def close(self):
         pass
+
+
+class _DuplicateEventRelay(_SilentRelay):
+    event = {
+        "id": "same-event",
+        "kind": 1,
+        "pubkey": "00" * 32,
+        "content": "hello #agentcomms",
+    }
+
+    def __init__(self, url):
+        super().__init__(url)
+        self.responses = [
+            json.dumps(["EVENT", "sub", self.event]),
+            json.dumps(["EVENT", "sub", self.event]),
+        ]
+
+    def recv_text(self):
+        if self.responses:
+            return self.responses.pop(0)
+        raise socket.timeout()
 
 
 class NostrPublishTests(unittest.TestCase):
@@ -46,6 +69,21 @@ class NostrPublishTests(unittest.TestCase):
         self.assertIn("no forward secrecy or message authentication", nostr_bridge.BEACON_NOTE)
         self.assertIn("Do not send serious secrets", nostr_bridge.BEACON_NOTE)
         self.assertIn("PROTOCOL.md", nostr_bridge.BEACON_NOTE)
+
+    def test_detection_includes_direct_replies(self):
+        filters = nostr_bridge.detection_filters("bridge-public-key")
+        self.assertIn(
+            {"kinds": [1], "#p": ["bridge-public-key"], "limit": 20},
+            filters,
+        )
+
+    def test_listener_counts_duplicate_relay_events_once(self):
+        with mock.patch("nostr_bridge.WS", _DuplicateEventRelay):
+            seen = nostr_bridge.listen(
+                [{"kinds": [1]}], ["wss://relay.example"], seconds=1
+            )
+
+        self.assertEqual(seen, 1)
 
 
 if __name__ == "__main__":
