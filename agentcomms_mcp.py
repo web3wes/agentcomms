@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Zero-dependency MCP stdio server for agentcomms.
+"""MCP stdio server for agentcomms protocol v1 and authenticated v2.
 
-The server deliberately delegates all protocol and cryptographic work to
-``agentcomms.py``.  This module only translates MCP tool calls into the
-existing command-line interface and speaks newline-delimited JSON-RPC on
-stdin/stdout.
+The server delegates protocol and cryptographic work to ``agentcomms.py`` and
+``agentcomms_v2.py``. This module translates MCP tool calls into their command
+interfaces and speaks newline-delimited JSON-RPC on stdin/stdout.
 """
 
 import contextlib
@@ -14,10 +13,10 @@ import os
 import sys
 
 import agentcomms
-
+import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.2.1"
+SERVER_VERSION = "0.3.0"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"
@@ -44,8 +43,8 @@ TOOLS = [
     {
         "name": "agentcomms_register",
         "description": (
-            "Create or load the local identity and register its public key "
-            "with the configured Agentcomms hub."
+            "LEGACY V1: create or load an experimental unauthenticated v1 "
+            "identity and register it with the configured Agentcomms hub."
         ),
         "inputSchema": _object_schema(
             {
@@ -65,13 +64,13 @@ TOOLS = [
     },
     {
         "name": "agentcomms_list_agents",
-        "description": "List agents registered with the configured hub.",
+        "description": "LEGACY V1: list agents registered with the configured hub.",
         "inputSchema": _object_schema(),
     },
     {
         "name": "agentcomms_send_hello",
         "description": (
-            "Post this identity's public Diffie-Hellman hello to a peer. "
+            "LEGACY V1: post this identity's public Diffie-Hellman hello. "
             "Both peers must send a hello before encrypted messages work."
         ),
         "inputSchema": _object_schema(
@@ -88,7 +87,7 @@ TOOLS = [
     {
         "name": "agentcomms_send_message",
         "description": (
-            "Encrypt and send a lowercase-letter-and-space protocol-v1 "
+            "LEGACY V1: encrypt and send a lowercase-letter-and-space "
             "message to a verified peer."
         ),
         "inputSchema": _object_schema(
@@ -109,7 +108,7 @@ TOOLS = [
     },
     {
         "name": "agentcomms_read_messages",
-        "description": "Verify a peer and decrypt messages received from it.",
+        "description": "LEGACY V1: decrypt unauthenticated messages from a peer.",
         "inputSchema": _object_schema(
             {
                 "peer": {
@@ -123,7 +122,74 @@ TOOLS = [
     },
     {
         "name": "agentcomms_get_fingerprint",
-        "description": "Return the local agent id and public-key fingerprint.",
+        "description": "LEGACY V1: return the local v1 id and fingerprint.",
+        "inputSchema": _object_schema(),
+    },
+    {
+        "name": "agentcomms_v2_register",
+        "description": (
+            "RECOMMENDED V2: create a self-certifying Ed25519 identity and "
+            "register it with the configured Agentcomms hub."
+        ),
+        "inputSchema": _object_schema(
+            {
+                "name": {"type": "string", "minLength": 1},
+                "contact": {"type": "string", "default": ""},
+            },
+            ["name"],
+        ),
+    },
+    {
+        "name": "agentcomms_v2_list_agents",
+        "description": "List v1 and v2 agents registered with the hub.",
+        "inputSchema": _object_schema(),
+    },
+    {
+        "name": "agentcomms_v2_send_hello",
+        "description": (
+            "RECOMMENDED V2: publish a signed ephemeral X25519 key offer to "
+            "a registered v2 peer. Both peers run this once."
+        ),
+        "inputSchema": _object_schema(
+            {
+                "peer": {
+                    "type": "string",
+                    "pattern": "^agent-[0-9a-f]{32}$",
+                }
+            },
+            ["peer"],
+        ),
+    },
+    {
+        "name": "agentcomms_v2_send_message",
+        "description": (
+            "RECOMMENDED V2: send a signed, padded, ChaCha20-Poly1305 "
+            "authenticated message over an established v2 session."
+        ),
+        "inputSchema": _object_schema(
+            {
+                "peer": {"type": "string", "pattern": "^agent-[0-9a-f]{32}$"},
+                "text": {"type": "string", "minLength": 1},
+            },
+            ["peer", "text"],
+        ),
+    },
+    {
+        "name": "agentcomms_v2_read_messages",
+        "description": (
+            "RECOMMENDED V2: verify signatures and AEAD tags, reject replays, "
+            "and decrypt new messages from a v2 peer."
+        ),
+        "inputSchema": _object_schema(
+            {
+                "peer": {"type": "string", "pattern": "^agent-[0-9a-f]{32}$"}
+            },
+            ["peer"],
+        ),
+    },
+    {
+        "name": "agentcomms_v2_get_fingerprint",
+        "description": "Return the local v2 self-certifying id and full fingerprint.",
         "inputSchema": _object_schema(),
     },
 ]
@@ -145,6 +211,14 @@ def run_agentcomms(argv):
     return output.getvalue().strip()
 
 
+def run_agentcomms_v2(argv):
+    """Run the authenticated v2 CLI without writing to the MCP wire."""
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        agentcomms_v2.main(_transport_args() + argv)
+    return output.getvalue().strip()
+
+
 def _require(arguments, name):
     value = arguments.get(name)
     if not isinstance(value, str) or not value.strip():
@@ -154,7 +228,8 @@ def _require(arguments, name):
 
 def call_tool(name, arguments):
     if not isinstance(arguments, dict):
-        raise ValueError("arguments must be an object")
+        raise TypeError("arguments must be an object")
+    runner = run_agentcomms
     if name == "agentcomms_register":
         argv = ["register", "--name", _require(arguments, "name")]
         contact = arguments.get("contact", "")
@@ -178,9 +253,33 @@ def call_tool(name, arguments):
         argv = ["read", "--to", _require(arguments, "peer")]
     elif name == "agentcomms_get_fingerprint":
         argv = ["fingerprint"]
+    elif name == "agentcomms_v2_register":
+        runner = run_agentcomms_v2
+        argv = ["register", "--name", _require(arguments, "name")]
+        contact = arguments.get("contact", "")
+        if not isinstance(contact, str):
+            raise ValueError("contact must be a string")
+        if contact:
+            argv += ["--contact", contact]
+    elif name == "agentcomms_v2_list_agents":
+        runner = run_agentcomms_v2
+        argv = ["list"]
+    elif name == "agentcomms_v2_send_hello":
+        runner = run_agentcomms_v2
+        argv = ["hello", "--to", _require(arguments, "peer")]
+    elif name == "agentcomms_v2_send_message":
+        runner = run_agentcomms_v2
+        argv = ["say", "--to", _require(arguments, "peer"),
+                "--text", _require(arguments, "text")]
+    elif name == "agentcomms_v2_read_messages":
+        runner = run_agentcomms_v2
+        argv = ["read", "--to", _require(arguments, "peer")]
+    elif name == "agentcomms_v2_get_fingerprint":
+        runner = run_agentcomms_v2
+        argv = ["fingerprint"]
     else:
         raise ValueError(f"unknown tool: {name}")
-    return run_agentcomms(argv)
+    return runner(argv)
 
 
 def _result(request_id, result, modern=False, cacheable=False):
@@ -232,9 +331,9 @@ def dispatch(message):
             "supportedVersions": sorted(SUPPORTED_PROTOCOL_VERSIONS, reverse=True),
             "capabilities": {"tools": {"listChanged": False}},
             "instructions": (
-                "Register a local identity, exchange hellos with a peer, "
-                "then send and read encrypted messages. Protocol v1 is "
-                "experimental and not audited."
+                "Prefer agentcomms_v2_* tools: register a self-certifying "
+                "identity, exchange signed key offers, then send and read "
+                "authenticated messages. Legacy v1 remains experimental."
             ),
         }, modern=True, cacheable=True)
 
@@ -247,9 +346,9 @@ def dispatch(message):
             "capabilities": {"tools": {"listChanged": False}},
             "serverInfo": {"name": SERVER_NAME, "version": SERVER_VERSION},
             "instructions": (
-                "Register a local identity, exchange hellos with a peer, "
-                "then send and read encrypted messages. Protocol v1 is "
-                "experimental and not audited."
+                "Prefer agentcomms_v2_* tools: register a self-certifying "
+                "identity, exchange signed key offers, then send and read "
+                "authenticated messages. Legacy v1 remains experimental."
             ),
         })
     if method == "ping":
@@ -266,7 +365,9 @@ def dispatch(message):
                 "content": [{"type": "text", "text": text}],
                 "isError": False,
             }, modern=modern)
-        except (Exception, SystemExit) as exc:
+        # Application failures become tool errors without terminating the
+        # long-running stdio server, regardless of their concrete type.
+        except (Exception, SystemExit) as exc:  # noqa: BLE001
             return _result(request_id, {
                 "content": [{"type": "text", "text": str(exc)}],
                 "isError": True,

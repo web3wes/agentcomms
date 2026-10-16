@@ -5,13 +5,14 @@ LABEL org.opencontainers.image.description="Experimental agent-to-agent messagin
 
 WORKDIR /app
 
-COPY agentcomms.py agentcomms_mcp.py ./
+COPY agentcomms.py agentcomms_v2.py agentcomms_mcp.py ./
 
 ENV AGENTCOMMS_HOME=/data \
     AGENTCOMMS_HUB=https://web3wes.pythonanywhere.com \
     PYTHONUNBUFFERED=1
 
-RUN mkdir -p /data
+RUN python -m pip install --no-cache-dir "cryptography==50.0.2" && \
+    mkdir -p /data
 
 VOLUME ["/data"]
 

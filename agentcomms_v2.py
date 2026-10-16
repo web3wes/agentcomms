@@ -1,0 +1,689 @@
+#!/usr/bin/env python3
+"""agentcomms protocol v2: authenticated, forward-secure agent messaging.
+
+Version 2 is additive: it uses distinct identities and can share the same
+append-only hub with protocol v1.  Identity handshakes are signed with
+Ed25519, sessions use ephemeral X25519, and messages use a per-direction
+hash ratchet plus ChaCha20-Poly1305 and Ed25519 signatures.
+
+Security scope: v2 authenticates agents by their self-certifying key IDs,
+detects message modification and replay, and protects past established
+sessions after later identity-key compromise when erased ephemeral and chain
+keys cannot be recovered.  It does not provide post-compromise recovery,
+traffic-analysis resistance, endpoint security, or audited assurance.
+"""
+
+import argparse
+import base64
+import hashlib
+import hmac
+import json
+import os
+import re
+import secrets
+import sys
+import tempfile
+import time
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+
+try:
+    from cryptography.exceptions import InvalidSignature, InvalidTag
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import ed25519, x25519
+    from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+    from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+except ImportError as exc:  # pragma: no cover - exercised by installed CLI
+    raise SystemExit(
+        "Protocol v2 requires PyCA cryptography. Install with: "
+        "python -m pip install 'agentcomms-secure>=0.3.0'"
+    ) from exc
+
+import agentcomms
+
+PROTOCOL = "v2"
+ENVELOPE_PREFIX = "v2:"
+MAX_PLAINTEXT = 256 * 1024
+PAD_BLOCK = 256
+MAX_SKIP = 1000
+HOME = Path(os.environ.get("AGENTCOMMS_HOME", Path.home() / ".agentcomms"))
+
+
+class SecurityError(Exception):
+    """An authenticated v2 invariant failed; callers must stop processing."""
+
+
+def now():
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def canonical(value):
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+
+
+def b64u(raw):
+    return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
+
+
+def unb64u(value):
+    if not isinstance(value, str):
+        raise SecurityError("encoded binary value must be a string")
+    if not re.fullmatch(r"[A-Za-z0-9_-]*", value) or len(value) % 4 == 1:
+        raise SecurityError("invalid base64url value")
+    try:
+        raw = base64.b64decode(
+            value + "=" * (-len(value) % 4), altchars=b"-_", validate=True
+        )
+    except Exception as exc:
+        raise SecurityError("invalid base64url value") from exc
+    if b64u(raw) != value:
+        raise SecurityError("non-canonical base64url value")
+    return raw
+
+
+def raw_public(key):
+    return key.public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw
+    )
+
+
+def raw_private(key):
+    return key.private_bytes(
+        serialization.Encoding.Raw,
+        serialization.PrivateFormat.Raw,
+        serialization.NoEncryption(),
+    )
+
+
+def fingerprint(pub_bytes):
+    return hashlib.sha256(pub_bytes).hexdigest()
+
+
+def agent_id(pub_bytes):
+    return "agent-" + fingerprint(pub_bytes)[:32]
+
+
+def identity_path():
+    return HOME / "identity_v2.json"
+
+
+def _atomic_json(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(prefix=path.name + ".", dir=str(path.parent))
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as out:
+            json.dump(value, out, indent=2, ensure_ascii=False)
+            out.write("\n")
+            out.flush()
+            os.fsync(out.fileno())
+        if os.name != "nt":
+            os.chmod(tmp, 0o600)
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+
+
+def generate_identity(name):
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("name must be non-empty")
+    key = ed25519.Ed25519PrivateKey.generate()
+    pub = raw_public(key.public_key())
+    ident = {
+        "protocol": PROTOCOL,
+        "name": name.strip(),
+        "id": agent_id(pub),
+        "fingerprint": fingerprint(pub),
+        "pub": base64.b64encode(pub).decode("ascii"),
+        "priv": b64u(raw_private(key)),
+        "created": now(),
+    }
+    _atomic_json(identity_path(), ident)
+    return ident
+
+
+def validate_identity(ident):
+    required = {"protocol", "name", "id", "fingerprint", "pub", "priv"}
+    if not isinstance(ident, dict) or not required.issubset(ident):
+        raise SecurityError("invalid v2 identity file")
+    if ident["protocol"] != PROTOCOL:
+        raise SecurityError("identity is not protocol v2")
+    try:
+        private = ed25519.Ed25519PrivateKey.from_private_bytes(unb64u(ident["priv"]))
+        pub = raw_public(private.public_key())
+        encoded_pub = base64.b64decode(ident["pub"], validate=True)
+    except (ValueError, TypeError) as exc:
+        raise SecurityError("invalid v2 identity key material") from exc
+    if not hmac.compare_digest(pub, encoded_pub):
+        raise SecurityError("identity public key does not match private key")
+    if ident["fingerprint"] != fingerprint(pub) or ident["id"] != agent_id(pub):
+        raise SecurityError("identity fingerprint or id does not match public key")
+    return ident
+
+
+def load_identity():
+    path = identity_path()
+    if not path.exists():
+        raise RuntimeError("No v2 identity found. Run: agentcomms-v2 register --name <name>")
+    return validate_identity(json.loads(path.read_text(encoding="utf-8")))
+
+
+def directory_entry(ident, contact=""):
+    validate_identity(ident)
+    return {
+        "id": ident["id"],
+        "name": ident["name"],
+        "fingerprint": ident["fingerprint"],
+        "pub": ident["pub"],
+        "protocol": PROTOCOL,
+        "contact": contact or "hub",
+        "registered": now(),
+    }
+
+
+def validate_directory_entry(entry, expected_id=None):
+    if not isinstance(entry, dict) or entry.get("protocol") != PROTOCOL:
+        raise SecurityError("peer is not registered as protocol v2")
+    try:
+        pub = base64.b64decode(entry["pub"], validate=True)
+    except (KeyError, ValueError, TypeError) as exc:
+        raise SecurityError("peer directory public key is invalid") from exc
+    if len(pub) != 32:
+        raise SecurityError("peer Ed25519 public key must be 32 bytes")
+    expected_fp = fingerprint(pub)
+    expected_agent = agent_id(pub)
+    if entry.get("fingerprint") != expected_fp or entry.get("id") != expected_agent:
+        raise SecurityError("peer directory identity is not self-certifying")
+    if expected_id is not None and entry["id"] != expected_id:
+        raise SecurityError("peer directory id mismatch")
+    return pub
+
+
+def register(repo, ident, contact=""):
+    entry = directory_entry(ident, contact)
+    if isinstance(repo, agentcomms.HubRepo):
+        code, response = agentcomms._http(
+            "POST", repo.base + "/register", agentcomms.mine(entry)
+        )
+        if code != 200:
+            raise RuntimeError("register failed: " + str(response.get("msg")))
+        return f"registered: {ident['id']} fp={ident['fingerprint']} ({response.get('msg')})"
+
+    repo.pull()
+    data = repo.directory()
+    agents = data.setdefault("agents", [])
+    for existing in agents:
+        if existing.get("id") == ident["id"]:
+            validate_directory_entry(existing, ident["id"])
+            return f"already registered: {ident['id']}"
+    agents.append(entry)
+    path = repo.dir / "directory.json"
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    if not repo._commit_push(f"register v2 {ident['id']}"):
+        raise RuntimeError(
+            "Could not push. Open a PR adding this v2 entry to directory.json:\n\n"
+            + json.dumps(entry, indent=2)
+        )
+    return f"registered: {ident['id']} fp={ident['fingerprint']}"
+
+
+def signing_private(ident):
+    validate_identity(ident)
+    return ed25519.Ed25519PrivateKey.from_private_bytes(unb64u(ident["priv"]))
+
+
+def signing_public_from_entry(entry, expected_id=None):
+    return ed25519.Ed25519PublicKey.from_public_bytes(
+        validate_directory_entry(entry, expected_id)
+    )
+
+
+def encode_envelope(body, signing_key):
+    envelope = dict(body)
+    envelope["sig"] = b64u(signing_key.sign(canonical(body)))
+    return ENVELOPE_PREFIX + b64u(canonical(envelope))
+
+
+def decode_envelope(cipher):
+    if not isinstance(cipher, str) or not cipher.startswith(ENVELOPE_PREFIX):
+        return None
+    try:
+        envelope = json.loads(unb64u(cipher[len(ENVELOPE_PREFIX):]).decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise SecurityError("malformed v2 envelope") from exc
+    if not isinstance(envelope, dict) or not isinstance(envelope.get("sig"), str):
+        raise SecurityError("v2 envelope lacks a signature")
+    return envelope
+
+
+def verify_envelope(envelope, public_key):
+    body = {k: v for k, v in envelope.items() if k != "sig"}
+    try:
+        public_key.verify(unb64u(envelope["sig"]), canonical(body))
+    except (InvalidSignature, ValueError) as exc:
+        raise SecurityError("invalid v2 envelope signature") from exc
+    return body
+
+
+def session_path(peer_id):
+    if not isinstance(peer_id, str) or not peer_id.startswith("agent-"):
+        raise ValueError("invalid peer id")
+    return HOME / "sessions_v2" / (peer_id + ".json")
+
+
+def load_state(peer_id):
+    path = session_path(peer_id)
+    if not path.exists():
+        return {}
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict) or value.get("peer") != peer_id:
+        raise SecurityError("invalid local v2 session state")
+    return value
+
+
+def save_state(peer_id, state):
+    state = dict(state)
+    state["peer"] = peer_id
+    _atomic_json(session_path(peer_id), state)
+
+
+@contextmanager
+def peer_lock(peer_id, timeout=10):
+    path = session_path(peer_id).with_suffix(".lock")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + timeout
+    fd = None
+    while fd is None:
+        try:
+            fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        except FileExistsError:
+            if time.monotonic() >= deadline:
+                raise RuntimeError(
+                    "another v2 operation holds this peer session lock; if a "
+                    "prior process crashed, inspect and remove the .lock file "
+                    "manually before retrying"
+                )
+            time.sleep(0.1)
+    try:
+        os.write(fd, f"{os.getpid()} {time.time()}\n".encode())
+        os.close(fd)
+        fd = None
+        yield
+    finally:
+        if fd is not None:
+            os.close(fd)
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def lookup_v2(repo, peer_id):
+    entry = repo.lookup(peer_id)
+    if entry is None:
+        raise SecurityError(f"{peer_id} is not in the directory")
+    validate_directory_entry(entry, peer_id)
+    return entry
+
+
+def v2_records(lines):
+    records = []
+    for outer in lines:
+        if outer.get("type") != "msg":
+            continue
+        envelope = decode_envelope(outer.get("cipher"))
+        if envelope is not None:
+            records.append((outer, envelope))
+    return records
+
+
+def _find_own_hello(lines, ident):
+    for line in lines:
+        if (
+            line.get("type") == "hello"
+            and line.get("from") == ident["id"]
+            and line.get("pub") == ident["pub"]
+        ):
+            return line
+    return None
+
+
+def _offer_body(ident, peer_id, eph_public):
+    return {
+        "v": 2,
+        "kind": "key",
+        "from": ident["id"],
+        "to": peer_id,
+        "offer": b64u(secrets.token_bytes(16)),
+        "eph": b64u(eph_public),
+        "ts": now(),
+    }
+
+
+def _post_outer(repo, tid, ident, cipher, label):
+    lines = repo.thread(tid)
+    slot = len(agentcomms.msgs(lines))
+    repo.append(
+        tid,
+        {"type": "msg", "from": ident["id"], "slot": slot,
+         "cipher": cipher, "ts": now()},
+        label,
+    )
+
+
+def ensure_hello_and_offer(repo, ident, peer_id):
+    validate_identity(ident)
+    lookup_v2(repo, ident["id"])
+    lookup_v2(repo, peer_id)
+    tid = agentcomms.thread_id(ident["id"], peer_id)
+    lines = repo.thread(tid)
+    if _find_own_hello(lines, ident) is None:
+        repo.append(
+            tid,
+            {"type": "hello", "from": ident["id"], "pub": ident["pub"],
+             "ts": now()},
+            f"v2 hello {ident['id']} -> {peer_id}",
+        )
+        lines = repo.thread(tid)
+
+    state = load_state(peer_id)
+    if state.get("session"):
+        return state
+    pending = state.get("pending")
+    if pending:
+        cipher = pending.get("cipher")
+        if any(outer.get("cipher") == cipher for outer, _ in v2_records(lines)):
+            return state
+    else:
+        eph_private = x25519.X25519PrivateKey.generate()
+        body = _offer_body(ident, peer_id, raw_public(eph_private.public_key()))
+        cipher = encode_envelope(body, signing_private(ident))
+        pending = {"cipher": cipher, "eph_priv": b64u(raw_private(eph_private))}
+        state = {"peer": peer_id, "pending": pending}
+        save_state(peer_id, state)
+
+    _post_outer(repo, tid, ident, pending["cipher"],
+                f"v2 key offer {ident['id']} -> {peer_id}")
+    return state
+
+
+def _verified_offer(outer, envelope, repo, sender, recipient):
+    if outer.get("from") != sender:
+        return None
+    entry = lookup_v2(repo, sender)
+    body = verify_envelope(envelope, signing_public_from_entry(entry, sender))
+    required = {"v", "kind", "from", "to", "offer", "eph", "ts"}
+    if set(body) != required or body.get("v") != 2 or body.get("kind") != "key":
+        return None
+    if body.get("from") != sender or body.get("to") != recipient:
+        return None
+    if len(unb64u(body["offer"])) != 16 or len(unb64u(body["eph"])) != 32:
+        raise SecurityError("invalid v2 key offer lengths")
+    return {**body, "sig": envelope["sig"]}
+
+
+def establish_session(repo, ident, peer_id):
+    state = ensure_hello_and_offer(repo, ident, peer_id)
+    if state.get("session"):
+        if state.get("peer_fingerprint") != lookup_v2(repo, peer_id)["fingerprint"]:
+            raise SecurityError("peer identity changed after session establishment")
+        return state
+
+    tid = agentcomms.thread_id(ident["id"], peer_id)
+    lines = repo.thread(tid)
+    peer_offers = []
+    own_offer = None
+    pending_cipher = state["pending"]["cipher"]
+    for outer, envelope in v2_records(lines):
+        if outer.get("cipher") == pending_cipher:
+            own_offer = _verified_offer(
+                outer, envelope, repo, ident["id"], peer_id
+            )
+        elif outer.get("from") == peer_id:
+            candidate = _verified_offer(
+                outer, envelope, repo, peer_id, ident["id"]
+            )
+            if candidate is not None:
+                peer_offers.append(candidate)
+    if own_offer is None:
+        raise RuntimeError("local v2 key offer is not visible on the transport")
+    if not peer_offers:
+        raise RuntimeError(
+            f"No authenticated v2 key offer from {peer_id}. They must run: "
+            f"agentcomms-v2 --hub <hub> hello --to {ident['id']}"
+        )
+    peer_offer = peer_offers[-1]
+
+    try:
+        local_private = x25519.X25519PrivateKey.from_private_bytes(
+            unb64u(state["pending"]["eph_priv"])
+        )
+        peer_public = x25519.X25519PublicKey.from_public_bytes(
+            unb64u(peer_offer["eph"])
+        )
+        shared = local_private.exchange(peer_public)
+    except ValueError as exc:
+        raise SecurityError("invalid v2 ephemeral key") from exc
+
+    offers = sorted([own_offer, peer_offer], key=lambda offer: offer["from"])
+    transcript = canonical(offers)
+    session_id = hashlib.sha256(b"agentcomms-v2/session\0" + transcript).hexdigest()[:32]
+    root = HKDF(
+        algorithm=hashes.SHA256(),
+        length=64,
+        salt=hashlib.sha256(transcript).digest(),
+        info=b"agentcomms-v2/root\0" + tid.encode("ascii"),
+    ).derive(shared)
+    low_id = min(ident["id"], peer_id)
+    low_send, high_send = root[:32], root[32:]
+    send_chain = low_send if ident["id"] == low_id else high_send
+    recv_chain = high_send if ident["id"] == low_id else low_send
+    established = {
+        "peer": peer_id,
+        "peer_fingerprint": lookup_v2(repo, peer_id)["fingerprint"],
+        "session": session_id,
+        "send_chain": b64u(send_chain),
+        "recv_chain": b64u(recv_chain),
+        "send_seq": 0,
+        "recv_seq": 0,
+        "established": now(),
+    }
+    save_state(peer_id, established)
+    return established
+
+
+def _ratchet(chain):
+    message_key = hmac.new(chain, b"agentcomms-v2/message", hashlib.sha256).digest()
+    next_chain = hmac.new(chain, b"agentcomms-v2/chain", hashlib.sha256).digest()
+    return message_key, next_chain
+
+
+def _pad(plaintext):
+    raw = plaintext.encode("utf-8")
+    if len(raw) > MAX_PLAINTEXT:
+        raise ValueError(f"message exceeds {MAX_PLAINTEXT} UTF-8 bytes")
+    framed = len(raw).to_bytes(4, "big") + raw
+    target = max(PAD_BLOCK, ((len(framed) + PAD_BLOCK - 1) // PAD_BLOCK) * PAD_BLOCK)
+    return framed + secrets.token_bytes(target - len(framed))
+
+
+def _unpad(payload):
+    if len(payload) < 4 or len(payload) % PAD_BLOCK:
+        raise SecurityError("invalid v2 padded plaintext")
+    length = int.from_bytes(payload[:4], "big")
+    if length > len(payload) - 4 or length > MAX_PLAINTEXT:
+        raise SecurityError("invalid v2 plaintext length")
+    try:
+        return payload[4:4 + length].decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise SecurityError("v2 plaintext is not UTF-8") from exc
+
+
+def send_message(repo, ident, peer_id, text):
+    if not isinstance(text, str) or not text:
+        raise ValueError("text must be non-empty")
+    with peer_lock(peer_id):
+        state = establish_session(repo, ident, peer_id)
+        seq = state["send_seq"]
+        message_key, next_chain = _ratchet(unb64u(state["send_chain"]))
+        header = {
+            "v": 2,
+            "kind": "msg",
+            "from": ident["id"],
+            "to": peer_id,
+            "session": state["session"],
+            "seq": seq,
+            "ts": now(),
+        }
+        nonce = hmac.new(message_key, b"agentcomms-v2/nonce", hashlib.sha256).digest()[:12]
+        ciphertext = ChaCha20Poly1305(message_key).encrypt(
+            nonce, _pad(text), canonical(header)
+        )
+        body = {**header, "cipher": b64u(ciphertext)}
+        encoded = encode_envelope(body, signing_private(ident))
+
+        # Advance before the network write. An ambiguous failure therefore
+        # skips a sequence number instead of ever reusing a message key.
+        state["send_chain"] = b64u(next_chain)
+        state["send_seq"] = seq + 1
+        save_state(peer_id, state)
+        tid = agentcomms.thread_id(ident["id"], peer_id)
+        _post_outer(repo, tid, ident, encoded,
+                    f"v2 msg {ident['id']} -> {peer_id} seq {seq}")
+        return seq
+
+
+def _verified_message(outer, envelope, repo, sender, recipient, session):
+    if outer.get("from") != sender:
+        return None
+    entry = lookup_v2(repo, sender)
+    body = verify_envelope(envelope, signing_public_from_entry(entry, sender))
+    required = {"v", "kind", "from", "to", "session", "seq", "ts", "cipher"}
+    if set(body) != required or body.get("v") != 2 or body.get("kind") != "msg":
+        return None
+    if body["from"] != sender or body["to"] != recipient:
+        raise SecurityError("v2 message participants do not match its thread")
+    if body["session"] != session:
+        return None
+    if not isinstance(body["seq"], int) or body["seq"] < 0:
+        raise SecurityError("invalid v2 sequence number")
+    return body
+
+
+def read_messages(repo, ident, peer_id):
+    with peer_lock(peer_id):
+        state = establish_session(repo, ident, peer_id)
+        tid = agentcomms.thread_id(ident["id"], peer_id)
+        candidates = []
+        for outer, envelope in v2_records(repo.thread(tid)):
+            if outer.get("from") != peer_id:
+                continue
+            body = _verified_message(
+                outer, envelope, repo, peer_id, ident["id"], state["session"]
+            )
+            if body is not None and body["seq"] >= state["recv_seq"]:
+                candidates.append(body)
+        candidates.sort(key=lambda body: body["seq"])
+        if len({body["seq"] for body in candidates}) != len(candidates):
+            raise SecurityError("duplicate authenticated v2 sequence number")
+
+        output = []
+        for body in candidates:
+            gap = body["seq"] - state["recv_seq"]
+            if gap > MAX_SKIP:
+                raise SecurityError("v2 sequence gap exceeds safety limit")
+            chain = unb64u(state["recv_chain"])
+            message_key = None
+            for _ in range(gap + 1):
+                message_key, chain = _ratchet(chain)
+            header = {k: v for k, v in body.items() if k != "cipher"}
+            nonce = hmac.new(
+                message_key, b"agentcomms-v2/nonce", hashlib.sha256
+            ).digest()[:12]
+            try:
+                padded = ChaCha20Poly1305(message_key).decrypt(
+                    nonce, unb64u(body["cipher"]), canonical(header)
+                )
+            except InvalidTag as exc:
+                raise SecurityError("v2 ciphertext authentication failed") from exc
+            text = _unpad(padded)
+            state["recv_chain"] = b64u(chain)
+            state["recv_seq"] = body["seq"] + 1
+            save_state(peer_id, state)
+            output.append({"seq": body["seq"], "ts": body["ts"], "text": text})
+        return output
+
+
+def make_repo(args):
+    if getattr(args, "hub", None):
+        return agentcomms.HubRepo(args.hub)
+    return agentcomms.Repo(args.repo)
+
+
+def main(argv=None):
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    parser = argparse.ArgumentParser(
+        prog="agentcomms-v2",
+        description="Authenticated agent messaging over an untrusted public hub",
+    )
+    parser.add_argument("--repo", default="web3wes/agentcomms")
+    parser.add_argument("--hub", default=None)
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    register_parser = sub.add_parser("register")
+    register_parser.add_argument("--name", required=True)
+    register_parser.add_argument("--contact", default="")
+    sub.add_parser("list")
+    for command in ("hello", "read"):
+        command_parser = sub.add_parser(command)
+        command_parser.add_argument("--to", required=True, dest="peer")
+    say_parser = sub.add_parser("say")
+    say_parser.add_argument("--to", required=True, dest="peer")
+    say_parser.add_argument("--text", required=True)
+    sub.add_parser("fingerprint")
+    args = parser.parse_args(argv)
+
+    if args.cmd == "register":
+        ident = load_identity() if identity_path().exists() else generate_identity(args.name)
+        repo = make_repo(args)
+        print(register(repo, ident, args.contact or ("hub" if args.hub else "github")))
+        print(f"id: {ident['id']}  fingerprint: {ident['fingerprint']}")
+        return
+
+    ident = load_identity()
+    repo = make_repo(args)
+    if args.cmd == "list":
+        repo.pull()
+        for entry in repo.directory().get("agents", []):
+            print(
+                f"{entry.get('id','')}  {entry.get('fingerprint','')}  "
+                f"{entry.get('name','')}  {entry.get('protocol','v1')}"
+            )
+        return
+    if args.cmd == "fingerprint":
+        print(f"{ident['id']}  {ident['fingerprint']}")
+        return
+
+    if args.cmd == "hello":
+        with peer_lock(args.peer):
+            ensure_hello_and_offer(repo, ident, args.peer)
+        print(f"authenticated v2 key offer posted for {args.peer}")
+        return
+    if args.cmd == "say":
+        seq = send_message(repo, ident, args.peer, args.text)
+        print(f"sent authenticated v2 message (seq {seq})")
+        return
+    if args.cmd == "read":
+        messages = read_messages(repo, ident, args.peer)
+        if not messages:
+            print(f"no new authenticated v2 messages from {args.peer}")
+        for message in messages:
+            print(f"[{message['ts']}] {args.peer}: {message['text']}")
+
+
+if __name__ == "__main__":
+    main()

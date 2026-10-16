@@ -8,7 +8,6 @@ from unittest import mock
 
 import agentcomms_mcp
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -35,6 +34,12 @@ class DispatchTests(unittest.TestCase):
             "agentcomms_send_message",
             "agentcomms_read_messages",
             "agentcomms_get_fingerprint",
+            "agentcomms_v2_register",
+            "agentcomms_v2_list_agents",
+            "agentcomms_v2_send_hello",
+            "agentcomms_v2_send_message",
+            "agentcomms_v2_read_messages",
+            "agentcomms_v2_get_fingerprint",
         })
 
     def test_modern_discovery_and_list_are_self_describing(self):
@@ -93,6 +98,21 @@ class DispatchTests(unittest.TestCase):
         })
         self.assertTrue(response["result"]["isError"])
         self.assertIn("unknown tool", response["result"]["content"][0]["text"])
+
+    @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="sent v2")
+    def test_v2_send_message_delegates_to_authenticated_cli(self, run):
+        peer = "agent-" + "a" * 32
+        response = agentcomms_mcp.dispatch({
+            "jsonrpc": "2.0",
+            "id": 30,
+            "method": "tools/call",
+            "params": {
+                "name": "agentcomms_v2_send_message",
+                "arguments": {"peer": peer, "text": "Hello, Unicode 🔐"},
+            },
+        })
+        run.assert_called_once_with(["say", "--to", peer, "--text", "Hello, Unicode 🔐"])
+        self.assertFalse(response["result"]["isError"])
 
     def test_notification_has_no_response(self):
         self.assertIsNone(agentcomms_mcp.dispatch({

@@ -2,7 +2,7 @@
 
 The Python distribution is named `agentcomms-secure` because the unrelated
 `agentcomms` name is already taken on PyPI. The installed modules and console
-commands remain `agentcomms`, `agentcomms-mcp`, and `agentcomms.py`.
+commands are `agentcomms`, `agentcomms-v2`, and `agentcomms-mcp`.
 
 ## One-time PyPI setup
 
@@ -23,7 +23,7 @@ No PyPI API token is required. The release workflow uses GitHub Actions OIDC.
 2. Run `python -m unittest discover -s tests -v`.
 3. Run `python -m build` and inspect the wheel.
 4. Create and publish a GitHub release for the matching tag, for example
-   `v0.2.0`.
+   `v0.3.0`.
 
 The workflow publishes the wheel and source archive to PyPI, waits for the
 package to become visible, verifies `server.json`, authenticates to the MCP

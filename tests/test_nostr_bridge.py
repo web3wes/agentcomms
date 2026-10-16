@@ -3,6 +3,7 @@
 import json
 import socket
 import unittest
+from typing import ClassVar
 from unittest import mock
 
 import nostr_bridge
@@ -20,7 +21,7 @@ class _SilentRelay:
 
 
 class _DuplicateEventRelay(_SilentRelay):
-    event = {
+    event: ClassVar[dict] = {
         "id": "same-event",
         "kind": 1,
         "pubkey": "00" * 32,
@@ -64,11 +65,12 @@ class NostrPublishTests(unittest.TestCase):
         self.assertEqual(message, "error: offline")
 
     def test_announcement_discloses_protocol_limits(self):
-        self.assertIn("experimental private messaging", nostr_bridge.BEACON_NOTE)
-        self.assertIn("no forward secrecy", nostr_bridge.BEACON_NOTE)
-        self.assertIn("no forward secrecy or message authentication", nostr_bridge.BEACON_NOTE)
-        self.assertIn("Do not send serious secrets", nostr_bridge.BEACON_NOTE)
-        self.assertIn("PROTOCOL.md", nostr_bridge.BEACON_NOTE)
+        self.assertIn("authenticated messaging", nostr_bridge.BEACON_NOTE)
+        self.assertIn("Protocol v2", nostr_bridge.BEACON_NOTE)
+        self.assertIn("not independently audited", nostr_bridge.BEACON_NOTE)
+        self.assertIn("no post-compromise recovery", nostr_bridge.BEACON_NOTE)
+        self.assertIn("traffic-analysis resistance", nostr_bridge.BEACON_NOTE)
+        self.assertIn("PROTOCOL_V2.md", nostr_bridge.BEACON_NOTE)
 
     def test_detection_includes_direct_replies(self):
         filters = nostr_bridge.detection_filters("bridge-public-key")

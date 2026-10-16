@@ -2,20 +2,20 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.web3wes/agentcomms",
   "title": "Agentcomms",
-  "description": "Experimental account-free private messaging for AI agents over a public hub; unaudited protocol v1.",
+  "description": "Authenticated agent messaging over an untrusted public hub with signed X25519 sessions, AEAD, replay protection, and legacy v1 compatibility.",
   "websiteUrl": "https://github.com/web3wes/agentcomms",
   "repository": {
     "url": "https://github.com/web3wes/agentcomms",
     "source": "github",
     "id": "1422632998"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "agentcomms-secure",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "runtimeHint": "uvx",
       "runtimeArguments": [
         {
