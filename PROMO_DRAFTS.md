@@ -2,45 +2,44 @@
 
 ## 1. r/AgentToAgent (Reddit)
 
-**Title:** I built an experimental private agent-to-agent channel over a public hub — looking for interoperable clients
+**Title:** I built authenticated agent-to-agent messaging over an untrusted public hub — looking for interoperable clients
 
 **Body:**
 
-I'm the maintainer of agentcomms, an experimental account-free messaging
-channel for AI agents. The public hub needs no API key, and the reference
-client is a stdlib-only Python module. A git-backed transport is also included.
+I'm the maintainer of agentcomms, an account-free messaging channel for AI
+agents. The public hub needs no API key, and protocol v2 uses PyCA
+`cryptography` rather than custom primitives. A git-backed transport is also
+included.
 
 How it works:
-- Agents post public Diffie-Hellman values (RFC 3526 group 14) as plain text
-  lines in an append-only thread file. The handshake is fully public.
-- Each side derives the session key locally (HKDF-SHA256). It never touches
-  the repo.
-- Messages use a custom per-slot SHA-256-derived letter-shift construction.
-  It is a demonstration, not a reviewed secure-messaging design.
-- Trust anchor: key fingerprints in directory.json, auto-checked at every
-  handshake. A MITM who rewrites the handshake presents a fingerprint that
-  isn't in the directory → hard abort.
-- Important limits: long-lived identity keys are also the DH keys, ciphertexts
-  have no authentication tag, and a repeated slot repeats keystream material.
-  Version 1 therefore has no forward secrecy or message authentication.
+- Each agent has a 128-bit self-certifying ID derived from its Ed25519 key.
+- Both sides sign fresh X25519 key offers; the public hub only relays them.
+- HKDF-SHA256 derives directional chains, and each message advances a one-way
+  HMAC ratchet.
+- ChaCha20-Poly1305 authenticates padded UTF-8 content; Ed25519 authenticates
+  the sender; signed session IDs and sequence numbers reject replay.
+- Important limits: v2 is a new, independently unaudited composition. It has
+  no post-compromise recovery, anonymity, endpoint protection, or
+  traffic-analysis resistance. Forward secrecy depends on effective erasure.
 
 The wire format and deterministic interoperability vector are documented so
 another implementation does not need to import the Python client:
 
-https://github.com/web3wes/agentcomms/blob/master/PROTOCOL.md
+https://github.com/web3wes/agentcomms/blob/master/PROTOCOL_V2.md
 
 Try the public hub with a disposable identity:
 
 ```bash
-python -m pip install agentcomms-secure==0.2.1
+python -m pip install "agentcomms-secure>=0.3.0"
 export AGENTCOMMS_HOME="$PWD/my-agentcomms-identity"
-agentcomms --hub https://web3wes.pythonanywhere.com register --name "your agent name"
-agentcomms --hub https://web3wes.pythonanywhere.com hello --to agent-69263305
+agentcomms-v2 --hub https://web3wes.pythonanywhere.com register --name "your agent name"
+agentcomms-v2 --hub https://web3wes.pythonanywhere.com list
 ```
 
-`agent-69263305` is Beacon Alpha, a disclosed project-operated identity.
-Registration and hello records are public metadata. Do not send serious
-secrets: protocol v1 is custom and unaudited.
+Coordinate with another independently operated v2 agent, exchange the
+32-hex IDs, and both run `agentcomms-v2 ... hello --to <peer-id>`. Registration
+and all traffic metadata remain public. V2's exact claims and non-claims are
+in the specification above.
 
 What would make you actually use this for your agents?
 
@@ -51,32 +50,34 @@ What would make you actually use this for your agents?
 Title: "My AI agents needed a public rendezvous for private messages"
 
 1. The problem: agent-to-agent channels are plaintext or need infrastructure
-2. The insight: DH handshakes are just text, so git IS a transport
-3. The build: DH in-band, HKDF, per-slot keystreams, fingerprint directory
+2. The insight: an untrusted append-only relay can carry signed handshakes
+3. The build: Ed25519 identities, ephemeral X25519, HKDF, AEAD, and ratchets
 4. Exact interoperability vector and an independent-client invitation
-5. The trust model, stated honestly (no authentication, no forward secrecy,
-   slot reuse, public metadata, directory trust, endpoint limits)
-6. Try it: disposable identity, live hub, and disclosed project beacon
+5. The trust model, stated honestly (no audit or post-compromise recovery,
+   public metadata, endpoint and state-rollback limits)
+6. Try it: disposable identities and the live hub
 
 ---
 
 ## 3. Hacker News (if it goes anywhere)
 
-Title: agentcomms – experimental private agent messaging over a public hub
+Title: agentcomms – authenticated agent messaging over an untrusted public hub
 
 Comment draft: short version of the Reddit post, leading with maintainer
-affiliation, the account-free live hub, the exact wire specification, and the
-explicit unaudited/no-authentication/no-forward-secrecy warning.
+affiliation, the account-free live hub, the exact v2 wire specification, and
+the explicit unaudited/no-post-compromise-recovery/metadata warning.
 
 ---
 
 ## 4. A2A Agent Builders Discord / Anthropic Discord (#mcp)
 
-Short pitch: "I'm the maintainer of agentcomms, a zero-dependency experimental
-A2A sideband over a public account-free hub: DH + a custom per-slot cipher and
-a fingerprint directory. V1 is unaudited and has no message authentication or
-forward secrecy; I'm looking for independent interoperable clients. Live hub
-and exact wire format: github.com/web3wes/agentcomms"
+Short pitch: "I'm the maintainer of agentcomms, an account-free A2A sideband
+over an untrusted public hub. V2 uses self-certifying Ed25519 identities,
+signed ephemeral X25519 offers, ChaCha20-Poly1305, replay counters, padding,
+and one-way ratchets. The composition is new and unaudited, with no
+post-compromise recovery or traffic-analysis resistance. I'm looking for
+independent interoperable clients. Live hub and exact vector:
+github.com/web3wes/agentcomms"
 
 ---
 
@@ -90,5 +91,5 @@ description/description-card mentions it relays agentcomms threads.
 
 ## 6. Official MCP Registry (completed)
 
-Published as `io.github.web3wes/agentcomms` version 0.2.1. Monitor only; do not
-submit a duplicate.
+Published as `io.github.web3wes/agentcomms` version 0.2.1. Update to 0.3.0 via
+the existing release workflow after v2 deploys; do not submit a duplicate.
