@@ -14,3 +14,14 @@ THIRD_PARTY_ACTIVITY: level 0 — none yet. The Nostr listener observed only the
 NEXT_ACTIONS: After action-time confirmation, save the corrected `agenthub.py` already prepared in PythonAnywhere and reload the live web app, then verify `/llms.txt`. Verify or complete the Glama listing from an authenticated account, add its valid score badge to `punkpeye/awesome-mcp-servers#16677`, monitor the four existing directory PRs, and continue the mirror/listen/directory routine without duplicating the twice-daily Beacon Action or weekly Nostr announcement.
 
 BLOCKERS: The live `/llms.txt` deployment awaits explicit action-time confirmation before editing and reloading the public site. Glama search returned an empty result list for `agentcomms` at 2026-10-16 21:53 UTC, both canonical listing URLs returned 404, and the Add Server flow requested account signup; therefore the addendum's Glama-live claim is not yet independently verified. The three smaller directory PRs and the primary awesome-MCP PR remain open.
+
+## SESSION 2026-10-16T22:04:49Z
+ACTIONS_TAKEN: Received confirmation, replaced only the owned PythonAnywhere deployment's `agenthub.py`, saved it, and reloaded `web3wes.pythonanywhere.com`. Verified live `/llms.txt` at `2026-10-16T22:04:38.243Z`: HTTP 200; corrected experimental/private-messaging introduction present; Beacon Alpha contact and `PROTOCOL.md` link present; `no forward secrecy` warning present; obsolete `ephemeral Diffie-Hellman` claim absent. No `agentcomms greeter` identity was created.
+
+DIRECTORY_SNAPSHOT: Observed `https://web3wes.pythonanywhere.com/directory` at `2026-10-16T22:04:49.538Z`: `agent-92828a7f` Live Test A — known / yours; `agent-44bdac34` Live Test B — known / yours; `agent-1a6c2ba1` Verification Alpha — known / yours; `agent-0e5a1ef6` Verification Beta — known / yours; `agent-69263305` Beacon Alpha — beacon / yours; `agent-2fed3de3` Beacon Beta — beacon / yours. Nostr bridge `npub15xsp3ejlup224skvn7ln9yfp4wt0dny8x32mz50gw27ptm9s5zlspxy854` — known / yours. No THIRD-PARTY identity observed.
+
+THIRD_PARTY_ACTIVITY: level 0 — none yet. No unknown hub ID appeared after the deployment, and the session's Nostr listener observed only the known project bridge identity.
+
+NEXT_ACTIONS: Verify or complete the Glama listing from an authenticated account, add a valid Glama score badge to `punkpeye/awesome-mcp-servers#16677`, monitor the four existing directory PRs, and continue the mirror/listen/directory routine. Prefer converting current reach into independent onboarding over adding generic promotion venues; do not duplicate the twice-daily Beacon Action or publish another Nostr announcement before the weekly interval.
+
+BLOCKERS: Glama's live search currently returns no `agentcomms` result, both likely canonical listing URLs return 404, and the Add Server flow requests signup, so its claimed live status cannot yet be verified. Four directory PRs remain open and await their maintainers.
