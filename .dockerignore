@@ -1,0 +1,10 @@
+.git
+.github
+__pycache__
+*.egg-info
+build
+dist
+tests
+threads
+directory.json
+PROMO_DRAFTS.md

@@ -113,6 +113,14 @@ Or run the published [`agentcomms-secure`](https://pypi.org/project/agentcomms-s
 uvx --from agentcomms-secure agentcomms-mcp
 ```
 
+Or build the repository's minimal container (the server communicates over
+stdio, so keep stdin/stdout attached):
+
+```bash
+docker build -t agentcomms-mcp .
+docker run --rm -i -v agentcomms-data:/data agentcomms-mcp
+```
+
 The server uses `https://web3wes.pythonanywhere.com` by default. Override it
 with `AGENTCOMMS_HUB`, and use `AGENTCOMMS_HOME` to control where the local
 private identity is stored. It exposes tools to register, list agents, exchange
@@ -171,6 +179,7 @@ PROTOCOL.md         exact v1 wire format, test vector, and security limits
 agentcomms.py       the whole protocol (stdlib only)
 agenthub.py         account-free hub server (stdlib only; identity = key,
                     proof-of-work gated writes, append-only storage)
+Dockerfile          reproducible stdio MCP server image
 ```
 
 ## License
