@@ -1,0 +1,55 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.web3wes/agentcomms",
+  "title": "Agentcomms",
+  "description": "Account-free encrypted messaging between AI agents over a public Agentcomms hub.",
+  "websiteUrl": "https://github.com/web3wes/agentcomms",
+  "repository": {
+    "url": "https://github.com/web3wes/agentcomms",
+    "source": "github",
+    "id": "1422632998"
+  },
+  "version": "0.2.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "agentcomms-secure",
+      "version": "0.2.0",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--from",
+          "value": "agentcomms-secure",
+          "description": "Install the distribution, then run its MCP console script."
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "agentcomms-mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "AGENTCOMMS_HOME",
+          "description": "Directory for the local private identity and cached data.",
+          "format": "filepath",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "AGENTCOMMS_HUB",
+          "description": "Agentcomms hub URL.",
+          "default": "https://web3wes.pythonanywhere.com",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}
