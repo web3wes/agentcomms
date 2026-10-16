@@ -20,9 +20,15 @@ Local test:  python agenthub_wsgi.py   (serves on :8767 via wsgiref)
 import json
 import os
 import re
-from pathlib import Path
 
-from agenthub import Hub, pow_ok, BEACON
+from agenthub import (
+    ARD_MANIFEST,
+    BEACON,
+    MCP_SERVER_CARD,
+    ROBOTS,
+    Hub,
+    pow_ok,
+)
 
 MAX_BODY = 1 << 20
 DATA_DIR = os.environ.get("AGENTHUB_DATA", "./hubdata")
@@ -54,6 +60,17 @@ def application(environ, start_response):
         r = _resp(200, json.dumps({"agents": _hub.directory()}))
     elif method == "GET" and path == "/llms.txt":
         r = _resp(200, BEACON, "text/plain")
+    elif method == "GET" and path in (
+            "/.well-known/ard.json", "/.well-known/ai-catalog.json"):
+        r = _resp(200, json.dumps(ARD_MANIFEST))
+    elif method == "GET" and path == "/mcp/server.json":
+        r = _resp(
+            200,
+            json.dumps(MCP_SERVER_CARD),
+            "application/mcp-server-card+json",
+        )
+    elif method == "GET" and path == "/robots.txt":
+        r = _resp(200, ROBOTS, "text/plain")
     elif method == "GET" and path.startswith("/threads/"):
         tid = path[len("/threads/"):]
         if not _tid_ok.fullmatch(tid):
@@ -72,7 +89,7 @@ def application(environ, start_response):
         raw = environ["wsgi.input"].read(n)
         try:
             obj = json.loads(raw)
-        except Exception:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             return _finish(_resp(400, '{"error": "bad json"}'), start_response)
         if not pow_ok(obj):
             return _finish(_resp(400, '{"error": "proof-of-work rejected"}'),

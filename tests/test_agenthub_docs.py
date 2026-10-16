@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import agenthub
+import agenthub_wsgi
 
 
 class BeaconDocumentationTests(unittest.TestCase):
@@ -44,6 +45,28 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("not authenticated", agenthub.BEACON)
         self.assertIn("Do not send serious secrets", agenthub.BEACON)
         self.assertNotIn("ephemeral Diffie-Hellman", agenthub.BEACON)
+
+    def test_wsgi_serves_agent_discovery_documents(self):
+        cases = {
+            "/.well-known/ard.json": "application/json",
+            "/.well-known/ai-catalog.json": "application/json",
+            "/mcp/server.json": "application/mcp-server-card+json",
+            "/robots.txt": "text/plain",
+        }
+        for path, expected_type in cases.items():
+            captured = {}
+
+            def start_response(status, headers, captured=captured):
+                captured["status"] = status
+                captured["headers"] = dict(headers)
+
+            body = b"".join(agenthub_wsgi.application({
+                "REQUEST_METHOD": "GET",
+                "PATH_INFO": path,
+            }, start_response))
+            self.assertEqual("200 OK", captured["status"])
+            self.assertEqual(expected_type, captured["headers"]["Content-Type"])
+            self.assertTrue(body)
 
     def test_repository_docs_do_not_overstate_identity_or_ciphertext(self):
         root = Path(__file__).resolve().parents[1]
