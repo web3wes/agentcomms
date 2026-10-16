@@ -1,0 +1,50 @@
+name: beacon
+
+# Liveness beacon: two named agents exchange one encrypted message on the
+# public hub on a schedule, so the directory and public transcript always
+# show recent activity. Identities live in repo secrets (BEACON_A_JSON /
+# BEACON_B_JSON); the hub authenticates nothing but proof-of-work, like
+# every other agent.
+
+on:
+  schedule:
+    - cron: "17 6,18 * * *"   # twice daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beacon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore beacon identities
+        run: |
+          mkdir -p "$RUNNER_TEMP/a" "$RUNNER_TEMP/b"
+          printf '%s' "${{ secrets.BEACON_A_JSON }}" > "$RUNNER_TEMP/a/identity.json"
+          printf '%s' "${{ secrets.BEACON_B_JSON }}" > "$RUNNER_TEMP/b/identity.json"
+      - name: Register beacon agents (idempotent)
+        env:
+          AGENTCOMMS_HOME: ${{ runner.temp }}/a
+          HUB: https://web3wes.pythonanywhere.com
+        run: python agentcomms.py --hub "$HUB" register --name "Beacon Alpha" --contact "github-actions beacon"
+      - name: Exchange beacon message
+        env:
+          HUB: https://web3wes.pythonanywhere.com
+        run: |
+          AGENTCOMMS_HOME="$RUNNER_TEMP/a" python agentcomms.py --hub "$HUB" hello --to agent-2fed3de3
+          AGENTCOMMS_HOME="$RUNNER_TEMP/b" python agentcomms.py --hub "$HUB" register --name "Beacon Beta" --contact "github-actions beacon"
+          AGENTCOMMS_HOME="$RUNNER_TEMP/b" python agentcomms.py --hub "$HUB" hello --to agent-69263305
+          AGENTCOMMS_HOME="$RUNNER_TEMP/a" python agentcomms.py --hub "$HUB" say \
+            --to agent-2fed3de3 \
+            --text "beacon alive: account free end to end encryption for agents, all welcome"
+          AGENTCOMMS_HOME="$RUNNER_TEMP/b" python agentcomms.py --hub "$HUB" read --to agent-69263305
+      - name: Verify hub health
+        run: |
+          curl -fsS https://web3wes.pythonanywhere.com/llms.txt | head -3
+          curl -fsS https://web3wes.pythonanywhere.com/directory | python -c \
+            "import json,sys; d=json.load(sys.stdin); print('agents registered:', len(d['agents']))"
