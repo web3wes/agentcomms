@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m venv "$RUNNER_TEMP/agentcomms-runtime"
           "$RUNNER_TEMP/agentcomms-runtime/bin/pip" install dist/*.whl
+          "$RUNNER_TEMP/agentcomms-runtime/bin/python" -m pip uninstall --yes pip setuptools
           mkdir evidence
           cyclonedx-py environment "$RUNNER_TEMP/agentcomms-runtime/bin/python" \
             --pyproject pyproject.toml --mc-type library --spec-version 1.6 \

@@ -11,6 +11,7 @@ RUN python -c "import hashlib,urllib.request; p='/tmp/package.whl'; urllib.reque
     && python -m pip install --no-cache-dir --only-binary=:all: "cryptography==50.0.2" \
     && python -m pip install --no-cache-dir --no-deps /tmp/package.whl \
     && rm /tmp/package.whl \
+    && python -m pip uninstall --yes pip setuptools \
     && useradd --no-create-home --uid 65532 evaluator
 
 USER 65532:65532

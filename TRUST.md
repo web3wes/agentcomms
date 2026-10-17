@@ -44,10 +44,10 @@ docker run --rm --network none --read-only --cap-drop ALL \
 ```
 
 The build stage downloads the exact universal wheel, verifies its SHA-256,
-installs only binary dependency wheels, and creates an unprivileged runtime
-user. Network access is needed while building the image; it is disabled when
-the package is executed. The expected JSON result has `"ok": true` and
-`"checks": 14`.
+installs only binary dependency wheels, removes `pip` and `setuptools` from the
+runtime image, and creates an unprivileged runtime user. Network access is
+needed while building the image; it is disabled when the package is executed.
+The expected JSON result has `"ok": true` and `"checks": 14`.
 
 The self-test is state-free and network-free. It reproduces the published
 Ed25519/X25519/HKDF/ChaCha20-Poly1305 interoperability vector. It does not
