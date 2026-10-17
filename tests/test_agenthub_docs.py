@@ -1,5 +1,6 @@
 """Guard the machine-readable onboarding packet against security overclaims."""
 
+import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -64,6 +65,11 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual(2, len(expected["offers"]))
         self.assertEqual("key", expected["offers"][0]["kind"])
         self.assertEqual("hello v2", expected["decryptedPlaintextUtf8"])
+        published = json.loads(
+            (Path(__file__).resolve().parents[1] / "CONFORMANCE_V2.json")
+            .read_text(encoding="utf-8")
+        )
+        self.assertEqual(vector, published)
 
     def test_beacon_discloses_v2_security_limits(self):
         self.assertIn("not been independently audited", agenthub.BEACON)

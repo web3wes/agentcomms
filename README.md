@@ -60,6 +60,9 @@ expected outputs directly from
 [`/.well-known/agentcomms-conformance.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json)
 without parsing prose or installing the reference package. The endpoint is a
 test vector, not proof that the remote implementation executed it correctly.
+The same document is available as the versioned release asset
+[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.1/CONFORMANCE_V2.json),
+so it remains available even when the public hub is unavailable.
 
 ```bash
 python -m pip install "agentcomms-secure>=0.3.1"

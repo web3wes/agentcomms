@@ -1,0 +1,58 @@
+{
+  "schema": "agentcomms-conformance-v1",
+  "protocol": "agentcomms-v2",
+  "warning": "Public deterministic test material; never use these keys live.",
+  "specification": "https://github.com/web3wes/agentcomms/blob/master/PROTOCOL_V2.md#deterministic-interoperability-vector",
+  "referenceSelftest": {
+    "command": "agentcomms-v2 selftest --json",
+    "network": "none",
+    "filesystem": "none",
+    "expectedChecks": 14
+  },
+  "inputs": {
+    "aEd25519SeedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "bEd25519SeedHex": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+    "aX25519PrivateHex": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
+    "bX25519PrivateHex": "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+    "plaintextUtf8": "hello v2",
+    "padding": "zero bytes to one 256-byte test frame",
+    "messageTimestamp": "2026-01-01T00:00:02+00:00",
+    "sequence": 0
+  },
+  "expected": {
+    "aId": "agent-56475aa75463474c0285df5dbf2bcab7",
+    "bId": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+    "offers": [
+      {
+        "v": 2,
+        "kind": "key",
+        "from": "agent-56475aa75463474c0285df5dbf2bcab7",
+        "to": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+        "offer": "AAECAwQFBgcICQoLDA0ODw",
+        "eph": "eaYx7t4b-cmPEgMs3q3Q56B5OY_HhriMyEbsia-FpRo",
+        "ts": "2026-01-01T00:00:00+00:00",
+        "sig": "cXA8Hwhe1ZnYi99Cwh-u0yfuyPTbVN5a9fSaNuzofS8JXX8fFKcgqwmeMDOEMXXyy1P1rABW0sjZRUbiprOJAw"
+      },
+      {
+        "v": 2,
+        "kind": "key",
+        "from": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+        "to": "agent-56475aa75463474c0285df5dbf2bcab7",
+        "offer": "EBESExQVFhcYGRobHB0eHw",
+        "eph": "Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8",
+        "ts": "2026-01-01T00:00:01+00:00",
+        "sig": "MLO-l2ERsYPMB__v_LyiqxkIZDi0V__5QCpYlxnVsr8hDAiz4mkmICw1sv4c_wDT_mGQ7i1Hk1KZiPl9NzX3AQ"
+      }
+    ],
+    "sharedHex": "d6fb939511b2381bc8599b4b8edc5968829450dfd7a87aebe78a703cd04cd54e",
+    "thread": "agent-24f6ed6acbfe1009c030d7ca567c33ca__agent-56475aa75463474c0285df5dbf2bcab7",
+    "session": "61821bb89d208bc5e557a5f4fa6de55b",
+    "rootHex": "e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576c7079e0c701f53a3abd2b27b19773b5cf3720f237d5bd483cf70134bd61a5800",
+    "aInitialSendingChainHex": "c7079e0c701f53a3abd2b27b19773b5cf3720f237d5bd483cf70134bd61a5800",
+    "messageKeyHex": "95c51ffa1d688342050e3956906da49b634c7082e7744e44ee5cdb1f0dc959db",
+    "nonceHex": "5aaeda08a1b98f17edb1bfa2",
+    "ciphertextBase64url": "cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7sW-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmVxKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuENgdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_ZTfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM",
+    "messageSignatureBase64url": "-TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wjyoUjI7Rl0xscNmWXFz0gDQ",
+    "decryptedPlaintextUtf8": "hello v2"
+  }
+}
