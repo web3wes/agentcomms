@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ed25519, x25519
@@ -92,6 +93,41 @@ class ProtocolV2Tests(unittest.TestCase):
         self.assertEqual("61821bb89d208bc5e557a5f4fa6de55b", result["session"])
         self.assertEqual("hello back v2", result["reverse_plaintext"])
         self.assertFalse(untouched_home.exists())
+
+    @mock.patch("agentcomms_v2._preflight_get_json")
+    def test_preflight_is_read_only_and_reports_stale_trust(self, get_json):
+        get_json.side_effect = [
+            {
+                "status": 200,
+                "contentType": "application/json",
+                "bytes": 20,
+                "json": {"agents": [{"id": "agent-example"}]},
+            },
+            {
+                "status": 200,
+                "contentType": "application/json",
+                "bytes": 20,
+                "json": {"version": "0.3.1"},
+            },
+            {
+                "status": 200,
+                "contentType": "application/json",
+                "bytes": 20,
+                "json": {"name": "agentcomms"},
+            },
+        ]
+        untouched_home = Path(self.temp.name) / "preflight-home"
+        v2.HOME = untouched_home
+        result = v2.read_only_preflight("https://hub.example")
+        self.assertTrue(result["ok"])
+        self.assertEqual("read-only", result["mode"])
+        self.assertFalse(result["writesPerformed"])
+        self.assertFalse(result["identityStateCreated"])
+        self.assertEqual(1, result["directoryAgentCount"])
+        self.assertFalse(result["trustMatchesExpectedRelease"])
+        self.assertTrue(result["warnings"])
+        self.assertFalse(untouched_home.exists())
+        self.assertEqual(3, get_json.call_count)
 
     def test_identity_is_self_certifying_and_uses_128_bit_id(self):
         self.assertEqual(38, len(self.a["id"]))

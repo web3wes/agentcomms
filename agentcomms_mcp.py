@@ -16,7 +16,7 @@ import agentcomms
 import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.3.2"
+SERVER_VERSION = "0.3.3"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"
@@ -149,6 +149,15 @@ TOOLS = [
         "inputSchema": _object_schema(),
     },
     {
+        "name": "agentcomms_v2_preflight",
+        "description": (
+            "Read public hub discovery, directory, and trust metadata without "
+            "creating identity state or performing writes. Registration is a "
+            "separate explicit action."
+        ),
+        "inputSchema": _object_schema(),
+    },
+    {
         "name": "agentcomms_v2_list_agents",
         "description": "List v1 and v2 agents registered with the hub.",
         "inputSchema": _object_schema(),
@@ -273,6 +282,9 @@ def call_tool(name, arguments):
     elif name == "agentcomms_v2_selftest":
         runner = run_agentcomms_v2
         argv = ["selftest", "--json"]
+    elif name == "agentcomms_v2_preflight":
+        runner = run_agentcomms_v2
+        argv = ["preflight", "--json"]
     elif name == "agentcomms_v2_list_agents":
         runner = run_agentcomms_v2
         argv = ["list"]

@@ -24,6 +24,8 @@ import secrets
 import sys
 import tempfile
 import time
+import urllib.error
+import urllib.request
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,7 +39,7 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by installed CLI
     raise SystemExit(
         "Protocol v2 requires PyCA cryptography. Install with: "
-        "python -m pip install 'agentcomms-secure>=0.3.2'"
+        "python -m pip install 'agentcomms-secure>=0.3.3'"
     ) from exc
 
 import agentcomms
@@ -48,6 +50,7 @@ MAX_PLAINTEXT = 256 * 1024
 PAD_BLOCK = 256
 MAX_SKIP = 1000
 HOME = Path(os.environ.get("AGENTCOMMS_HOME", Path.home() / ".agentcomms"))
+DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 
 
 class SecurityError(Exception):
@@ -624,6 +627,80 @@ def make_repo(args):
     return agentcomms.Repo(args.repo)
 
 
+def _preflight_get_json(url, timeout=15):
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "agentcomms-v2-preflight/0.3.3"},
+        method="GET",
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        body = response.read(1024 * 1024 + 1)
+        if len(body) > 1024 * 1024:
+            raise RuntimeError("preflight response exceeds 1 MiB")
+        return {
+            "status": response.status,
+            "contentType": response.headers.get_content_type(),
+            "bytes": len(body),
+            "json": json.loads(body.decode("utf-8")),
+        }
+
+
+def read_only_preflight(hub):
+    """Inspect public hub metadata without creating identity state or writing."""
+    base = hub.rstrip("/")
+    if not re.fullmatch(r"https?://[^/]+(?:/.*)?", base):
+        raise ValueError("hub must be an absolute HTTP(S) URL")
+    paths = (
+        "/directory",
+        "/.well-known/agentcomms-trust.json",
+        "/.well-known/ard.json",
+    )
+    observations = []
+    payloads = {}
+    for path in paths:
+        try:
+            result = _preflight_get_json(base + path)
+            payloads[path] = result.pop("json")
+            observations.append({"method": "GET", "path": path, **result})
+        except (OSError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
+            observations.append({
+                "method": "GET",
+                "path": path,
+                "error": type(exc).__name__,
+            })
+    directory = payloads.get("/directory", {})
+    trust = payloads.get("/.well-known/agentcomms-trust.json", {})
+    ard = payloads.get("/.well-known/ard.json", {})
+    all_ok = len(observations) == len(paths) and all(
+        item.get("status") == 200 for item in observations
+    )
+    trust_version = trust.get("version")
+    warnings = []
+    if trust_version != "0.3.3":
+        warnings.append(
+            "live trust metadata does not yet identify release 0.3.3; "
+            "verify the versioned GitHub release evidence before execution"
+        )
+    return {
+        "ok": all_ok,
+        "mode": "read-only",
+        "hub": base,
+        "requests": observations,
+        "writesPerformed": False,
+        "identityStateCreated": False,
+        "directoryAgentCount": len(directory.get("agents", [])),
+        "trustVersion": trust_version,
+        "expectedRelease": "0.3.3",
+        "trustMatchesExpectedRelease": trust_version == "0.3.3",
+        "ardPresent": isinstance(ard, dict) and bool(ard),
+        "warnings": warnings,
+        "nextStep": (
+            "Run agentcomms-v2 selftest --json. Registration remains a "
+            "separate explicit write and is never performed by preflight."
+        ),
+    }
+
+
 def interoperability_selftest():
     """Reproduce the public PROTOCOL_V2.md vector without state or network I/O."""
 
@@ -856,6 +933,11 @@ def main(argv=None):
         help="verify the published v2 interoperability vector without state or network",
     )
     selftest_parser.add_argument("--json", action="store_true", dest="as_json")
+    preflight_parser = sub.add_parser(
+        "preflight",
+        help="perform read-only hub checks without identity creation or writes",
+    )
+    preflight_parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
 
     if args.cmd == "selftest":
@@ -867,6 +949,15 @@ def main(argv=None):
                 "agentcomms v2 interoperability selftest OK "
                 f"({result['checks']} checks; {result['session']})"
             )
+        return
+
+    if args.cmd == "preflight":
+        hub = args.hub or os.environ.get("AGENTCOMMS_HUB", DEFAULT_HUB)
+        result = read_only_preflight(hub)
+        if args.as_json:
+            print(json.dumps(result, sort_keys=True))
+        else:
+            print(json.dumps(result, indent=2, sort_keys=True))
         return
 
     if args.cmd == "register":

@@ -36,6 +36,7 @@ class DispatchTests(unittest.TestCase):
             "agentcomms_get_fingerprint",
             "agentcomms_v2_register",
             "agentcomms_v2_selftest",
+            "agentcomms_v2_preflight",
             "agentcomms_v2_list_agents",
             "agentcomms_v2_send_hello",
             "agentcomms_v2_send_message",
@@ -112,6 +113,20 @@ class DispatchTests(unittest.TestCase):
             },
         })
         run.assert_called_once_with(["selftest", "--json"])
+        self.assertFalse(response["result"]["isError"])
+
+    @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="read-only")
+    def test_v2_preflight_delegates_without_write_arguments(self, run):
+        response = agentcomms_mcp.dispatch({
+            "jsonrpc": "2.0",
+            "id": 31,
+            "method": "tools/call",
+            "params": {
+                "name": "agentcomms_v2_preflight",
+                "arguments": {},
+            },
+        })
+        run.assert_called_once_with(["preflight", "--json"])
         self.assertFalse(response["result"]["isError"])
 
     @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="sent v2")
