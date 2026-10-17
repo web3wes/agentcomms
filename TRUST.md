@@ -20,11 +20,11 @@ This proves where a file came from and whether its bytes match the attested
 artifact. It does not prove that the source is secure or that the protocol
 composition is correct.
 
-For 0.3.3, the SHA-256 digests are:
+For 0.3.4, the SHA-256 digests are:
 
 ```text
-d9e77e2a5ae6a5e3e0836c4bd6a5fff133d67d25bc88fa76c2ce982276cc4ba3  agentcomms_secure-0.3.3-py3-none-any.whl
-b006ac55707955728f063e27f4aa7532a992c9367e3a5f09a56bea95cbcfcd72  agentcomms_secure-0.3.3.tar.gz
+c45bff406f3dc9cf5c9a81d93797ebe1486f6101f7505f84c36ffcee7e8d949d  agentcomms_secure-0.3.4-py3-none-any.whl
+350a57b951d41ad6eb6ecb896446744a6452d0e503be08ddd1dfd4907251c638  agentcomms_secure-0.3.4.tar.gz
 ```
 
 The package has one direct runtime dependency: `cryptography>=49,<51`.
