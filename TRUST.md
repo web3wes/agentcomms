@@ -20,11 +20,11 @@ This proves where a file came from and whether its bytes match the attested
 artifact. It does not prove that the source is secure or that the protocol
 composition is correct.
 
-For 0.3.1, the SHA-256 digests are:
+For 0.3.2, the SHA-256 digests are:
 
 ```text
-a23d30b29a0236d29f1a6c2b17be505d3574fc85cba1f085fd3980970ab1da5d  agentcomms_secure-0.3.1-py3-none-any.whl
-3d244ba736dc3ddbc40df5070b9c79976f5bcabedbbe2a93cb3ec72d5b79a144  agentcomms_secure-0.3.1.tar.gz
+cfdb09d26adc7021cd162482e17d613d5e47ecf777c6d1c632e1d03e86247fd0  agentcomms_secure-0.3.2-py3-none-any.whl
+44c3ac6a7e26ca6502187da24d61e4c39493e3d818ebc4e538e324b270ae356c  agentcomms_secure-0.3.2.tar.gz
 ```
 
 The package has one direct runtime dependency: `cryptography>=49,<51`.
@@ -47,7 +47,8 @@ The build stage downloads the exact universal wheel, verifies its SHA-256,
 installs only binary dependency wheels, removes `pip` and `setuptools` from the
 runtime image, and creates an unprivileged runtime user. Network access is
 needed while building the image; it is disabled when the package is executed.
-The expected JSON result has `"ok": true` and `"checks": 14`.
+The expected JSON result has `"ok": true` and `"checks": 20`, covering
+independent A-to-B and B-to-A messages.
 
 The self-test is state-free and network-free. It reproduces the published
 Ed25519/X25519/HKDF/ChaCha20-Poly1305 interoperability vector. It does not

@@ -144,9 +144,9 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
 PROJECT_VERSION = "0.3.2"
-TRUST_VERSION = "0.3.1"
-PYPI_WHEEL_SHA256 = "a23d30b29a0236d29f1a6c2b17be505d3574fc85cba1f085fd3980970ab1da5d"
-PYPI_SDIST_SHA256 = "3d244ba736dc3ddbc40df5070b9c79976f5bcabedbbe2a93cb3ec72d5b79a144"
+TRUST_VERSION = "0.3.2"
+PYPI_WHEEL_SHA256 = "cfdb09d26adc7021cd162482e17d613d5e47ecf777c6d1c632e1d03e86247fd0"
+PYPI_SDIST_SHA256 = "44c3ac6a7e26ca6502187da24d61e4c39493e3d818ebc4e538e324b270ae356c"
 PYPI_WHEEL_NAME = f"agentcomms_secure-{TRUST_VERSION}-py3-none-any.whl"
 PYPI_SDIST_NAME = f"agentcomms_secure-{TRUST_VERSION}.tar.gz"
 PYPI_INTEGRITY_BASE = (
@@ -162,13 +162,13 @@ TRUST_MANIFEST = {
     "source": {
         "repository": "https://github.com/web3wes/agentcomms",
         "tag": f"v{TRUST_VERSION}",
-        "commit": "afbee785dff76e87474a8bedd14749927c194d0d",
+        "commit": "f407353af6bae07017bb187bc7d34bbe5ba45f92",
     },
     "artifacts": [{
         "filename": PYPI_WHEEL_NAME,
         "url": (
-            "https://files.pythonhosted.org/packages/d2/2b/"
-            "541f43e00d8a50b049373c89677e5483556b3dbf09ee5f90e3ff1c19b6de/"
+            "https://files.pythonhosted.org/packages/9e/73/"
+            "87dea4505c4fdf494d7d6cbebda3043b2cd3ecd6507d377d1370248e8c56/"
             + PYPI_WHEEL_NAME
         ),
         "sha256": PYPI_WHEEL_SHA256,
@@ -176,8 +176,8 @@ TRUST_MANIFEST = {
     }, {
         "filename": PYPI_SDIST_NAME,
         "url": (
-            "https://files.pythonhosted.org/packages/b8/59/"
-            "6f1e8cf6433c0446504c8fa17806efd49b2a2beba425d429811d094e7546/"
+            "https://files.pythonhosted.org/packages/3f/af/"
+            "d883dc8bbaa0df5665db33f7e56970543943d9715418fa971d6a98c83bcf/"
             + PYPI_SDIST_NAME
         ),
         "sha256": PYPI_SDIST_SHA256,
@@ -225,7 +225,7 @@ TRUST_MANIFEST = {
             "docker run --rm --network none --read-only --cap-drop ALL "
             "--security-opt no-new-privileges agentcomms-selftest"
         ),
-        "expected": {"ok": True, "checks": 14},
+        "expected": {"ok": True, "checks": 20},
     },
     "security": {
         "independentlyAudited": False,

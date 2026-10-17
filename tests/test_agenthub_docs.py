@@ -40,7 +40,7 @@ class BeaconDocumentationTests(unittest.TestCase):
 
     def test_trust_manifest_is_exact_and_does_not_overclaim(self):
         trust = agenthub.TRUST_MANIFEST
-        self.assertEqual("0.3.1", trust["version"])
+        self.assertEqual("0.3.2", trust["version"])
         self.assertEqual(2, len(trust["artifacts"]))
         self.assertEqual(64, len(trust["artifacts"][0]["sha256"]))
         self.assertTrue(trust["artifacts"][0]["provenance"].endswith("/provenance"))
