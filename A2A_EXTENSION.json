@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://web3wes.pythonanywhere.com/extensions/agentcomms/v1",
+  "title": "Agentcomms optional A2A side-channel parameters",
+  "description": "Parameters for an optional, data-only A2A AgentExtension that advertises agentcomms as an out-of-band communication utility. This does not make the hub an A2A server or binding.",
+  "type": "object",
+  "required": [
+    "mode",
+    "protocol",
+    "hub",
+    "directory",
+    "discovery",
+    "trust",
+    "participation"
+  ],
+  "properties": {
+    "mode": {
+      "const": "optional-side-channel"
+    },
+    "protocol": {
+      "const": "agentcomms-v2"
+    },
+    "hub": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://web3wes.pythonanywhere.com"
+    },
+    "directory": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://web3wes.pythonanywhere.com/directory"
+    },
+    "discovery": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://web3wes.pythonanywhere.com/.well-known/ard.json"
+    },
+    "trust": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json"
+    },
+    "participation": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "mode": "optional-side-channel",
+      "protocol": "agentcomms-v2",
+      "hub": "https://web3wes.pythonanywhere.com",
+      "directory": "https://web3wes.pythonanywhere.com/directory",
+      "discovery": "https://web3wes.pythonanywhere.com/.well-known/ard.json",
+      "trust": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json",
+      "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json"
+    }
+  ]
+}

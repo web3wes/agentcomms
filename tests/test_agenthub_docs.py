@@ -10,6 +10,19 @@ import agenthub_wsgi
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_a2a_extension_is_optional_data_only_discovery(self):
+        path = Path(__file__).resolve().parents[1] / "A2A_EXTENSION.json"
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            "https://web3wes.pythonanywhere.com/extensions/agentcomms/v1",
+            schema["$id"],
+        )
+        example = schema["examples"][0]
+        self.assertEqual("optional-side-channel", example["mode"])
+        self.assertEqual("agentcomms-v2", example["protocol"])
+        self.assertEqual(set(schema["required"]), set(example))
+        self.assertFalse(schema["additionalProperties"])
+
     def test_participation_plan_separates_observation_from_writes(self):
         path = Path(__file__).resolve().parents[1] / "PARTICIPATION_V2.json"
         plan = json.loads(path.read_text(encoding="utf-8"))
