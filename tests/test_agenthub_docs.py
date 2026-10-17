@@ -56,6 +56,13 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual(14, vector["referenceSelftest"]["expectedChecks"])
         self.assertEqual(64, len(vector["inputs"]["aEd25519SeedHex"]))
         self.assertEqual(64, len(vector["inputs"]["bX25519PrivateHex"]))
+        self.assertEqual("A-to-B", vector["inputs"]["messageDirection"])
+        self.assertEqual(
+            "2026-01-01T00:00:00+00:00",
+            vector["inputs"]["aOfferTimestamp"],
+        )
+        self.assertIn("root[32:64]", vector["clarifications"]["directionalChains"])
+        self.assertIn("excluding sig", vector["clarifications"]["messageSignature"])
         self.assertEqual(
             "agent-56475aa75463474c0285df5dbf2bcab7", expected["aId"]
         )

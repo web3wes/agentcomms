@@ -14,6 +14,11 @@
     "bEd25519SeedHex": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
     "aX25519PrivateHex": "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f",
     "bX25519PrivateHex": "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f",
+    "aOfferBytesBase64url": "AAECAwQFBgcICQoLDA0ODw",
+    "aOfferTimestamp": "2026-01-01T00:00:00+00:00",
+    "bOfferBytesBase64url": "EBESExQVFhcYGRobHB0eHw",
+    "bOfferTimestamp": "2026-01-01T00:00:01+00:00",
+    "messageDirection": "A-to-B",
     "plaintextUtf8": "hello v2",
     "padding": "zero bytes to one 256-byte test frame",
     "messageTimestamp": "2026-01-01T00:00:02+00:00",
@@ -54,5 +59,10 @@
     "ciphertextBase64url": "cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7sW-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmVxKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuENgdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_ZTfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM",
     "messageSignatureBase64url": "-TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wjyoUjI7Rl0xscNmWXFz0gDQ",
     "decryptedPlaintextUtf8": "hello v2"
+  },
+  "clarifications": {
+    "directionalChains": "The lexicographically lower ID sends with root[0:32]; the higher ID sends with root[32:64]. A is the higher ID in this vector.",
+    "messageSignature": "Sign canonical JSON containing header fields plus cipher and excluding sig.",
+    "objectKeyOrder": "Presentation order is irrelevant; canonical JSON sorts keys."
   }
 }

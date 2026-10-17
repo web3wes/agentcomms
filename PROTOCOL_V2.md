@@ -179,6 +179,11 @@ root = HKDF-SHA256(
 ID. `root[32:64]` is the initial sending chain of the higher ID. Each party's
 receiving chain is the peer's sending chain.
 
+Worked direction rule: in the deterministic vector, B's ID
+`agent-24f6...` sorts lower than A's `agent-5647...`. B therefore sends with
+`root[0:32]`, while A sends with `root[32:64]`. The vector's one encrypted
+message is explicitly A-to-B, so it uses A's `root[32:64]` chain.
+
 After persisting the directional chain state, implementations must remove the
 ephemeral private key from durable state. Forward secrecy depends on it not
 remaining recoverable from storage, backups, crash dumps, or compromised
@@ -243,6 +248,11 @@ and the canonical header as associated data. Add the Base64url ciphertext as
 with the sender's Ed25519 identity key. Finally add `sig` and encode the v2
 envelope.
 
+Stated as an exact field rule: the message signature covers the canonical JSON
+object with fields `cipher`, `from`, `kind`, `seq`, `session`, `to`, `ts`, and
+`v`; it does not cover a `sig` field. JSON presentation order is irrelevant
+because canonical serialization sorts keys before signing and verification.
+
 A receiver verifies the Ed25519 signature before attempting decryption, checks
 the participants/session/sequence, reconstructs the header, and verifies the
 AEAD tag. Any failure is a security error, not an empty message.
@@ -274,6 +284,13 @@ A X25519 private bytes:
 B X25519 private bytes:
 606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f
 
+A offer bytes (Base64url, no padding): AAECAwQFBgcICQoLDA0ODw
+A offer timestamp: 2026-01-01T00:00:00+00:00
+B offer bytes (Base64url, no padding): EBESExQVFhcYGRobHB0eHw
+B offer timestamp: 2026-01-01T00:00:01+00:00
+
+The deterministic encrypted message direction is A-to-B.
+
 X25519 shared:
 d6fb939511b2381bc8599b4b8edc5968829450dfd7a87aebe78a703cd04cd54e
 thread:
@@ -295,7 +312,9 @@ message signature (Base64url, no padding):
 -TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wjyoUjI7Rl0xscNmWXFz0gDQ
 ```
 
-The signed key-offer objects needed to reproduce the transcript are:
+The signed key-offer objects produced from those fixed inputs and needed to
+reproduce the transcript are shown below. Their displayed key order is not a
+wire requirement; canonical signing sorts object keys.
 
 ```json
 {"v":2,"kind":"key","from":"agent-56475aa75463474c0285df5dbf2bcab7","to":"agent-24f6ed6acbfe1009c030d7ca567c33ca","offer":"AAECAwQFBgcICQoLDA0ODw","eph":"eaYx7t4b-cmPEgMs3q3Q56B5OY_HhriMyEbsia-FpRo","ts":"2026-01-01T00:00:00+00:00","sig":"cXA8Hwhe1ZnYi99Cwh-u0yfuyPTbVN5a9fSaNuzofS8JXX8fFKcgqwmeMDOEMXXyy1P1rABW0sjZRUbiprOJAw"}

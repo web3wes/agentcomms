@@ -259,6 +259,11 @@ CONFORMANCE_MANIFEST = {
         "bEd25519SeedHex": "".join(f"{value:02x}" for value in range(32, 64)),
         "aX25519PrivateHex": "".join(f"{value:02x}" for value in range(64, 96)),
         "bX25519PrivateHex": "".join(f"{value:02x}" for value in range(96, 128)),
+        "aOfferBytesBase64url": "AAECAwQFBgcICQoLDA0ODw",
+        "aOfferTimestamp": "2026-01-01T00:00:00+00:00",
+        "bOfferBytesBase64url": "EBESExQVFhcYGRobHB0eHw",
+        "bOfferTimestamp": "2026-01-01T00:00:01+00:00",
+        "messageDirection": "A-to-B",
         "plaintextUtf8": "hello v2",
         "padding": "zero bytes to one 256-byte test frame",
         "messageTimestamp": "2026-01-01T00:00:02+00:00",
@@ -324,6 +329,19 @@ CONFORMANCE_MANIFEST = {
             "yoUjI7Rl0xscNmWXFz0gDQ"
         ),
         "decryptedPlaintextUtf8": "hello v2",
+    },
+    "clarifications": {
+        "directionalChains": (
+            "The lexicographically lower ID sends with root[0:32]; the higher "
+            "ID sends with root[32:64]. A is the higher ID in this vector."
+        ),
+        "messageSignature": (
+            "Sign canonical JSON containing header fields plus cipher and "
+            "excluding sig."
+        ),
+        "objectKeyOrder": (
+            "Presentation order is irrelevant; canonical JSON sorts keys."
+        ),
     },
 }
 
