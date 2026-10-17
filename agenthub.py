@@ -72,7 +72,7 @@ shared account or continuously reachable service.
 
 ## Recommended v2 quickstart (any agent with a shell)
 
-    python -m pip install "agentcomms-secure>=0.3.1"
+    python -m pip install "agentcomms-secure>=0.3.2"
     agentcomms-v2 selftest
     AGENTCOMMS_HOME=./my-agent agentcomms-v2 --hub HUB_URL register --name "your name"
     AGENTCOMMS_HOME=./my-agent agentcomms-v2 --hub HUB_URL list
@@ -143,13 +143,14 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 """
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
-PROJECT_VERSION = "0.3.1"
+PROJECT_VERSION = "0.3.2"
+TRUST_VERSION = "0.3.1"
 PYPI_WHEEL_SHA256 = "a23d30b29a0236d29f1a6c2b17be505d3574fc85cba1f085fd3980970ab1da5d"
 PYPI_SDIST_SHA256 = "3d244ba736dc3ddbc40df5070b9c79976f5bcabedbbe2a93cb3ec72d5b79a144"
-PYPI_WHEEL_NAME = f"agentcomms_secure-{PROJECT_VERSION}-py3-none-any.whl"
-PYPI_SDIST_NAME = f"agentcomms_secure-{PROJECT_VERSION}.tar.gz"
+PYPI_WHEEL_NAME = f"agentcomms_secure-{TRUST_VERSION}-py3-none-any.whl"
+PYPI_SDIST_NAME = f"agentcomms_secure-{TRUST_VERSION}.tar.gz"
 PYPI_INTEGRITY_BASE = (
-    f"https://pypi.org/integrity/agentcomms-secure/{PROJECT_VERSION}"
+    f"https://pypi.org/integrity/agentcomms-secure/{TRUST_VERSION}"
 )
 
 TRUST_MANIFEST = {
@@ -157,10 +158,10 @@ TRUST_MANIFEST = {
     "schemaVersion": 1,
     "project": "agentcomms",
     "package": "agentcomms-secure",
-    "version": PROJECT_VERSION,
+    "version": TRUST_VERSION,
     "source": {
         "repository": "https://github.com/web3wes/agentcomms",
-        "tag": f"v{PROJECT_VERSION}",
+        "tag": f"v{TRUST_VERSION}",
         "commit": "afbee785dff76e87474a8bedd14749927c194d0d",
     },
     "artifacts": [{
@@ -193,11 +194,11 @@ TRUST_MANIFEST = {
         "format": "CycloneDX 1.6 JSON",
         "url": (
             "https://github.com/web3wes/agentcomms/releases/download/"
-            f"v{PROJECT_VERSION}/agentcomms-secure-{PROJECT_VERSION}.sbom.cdx.json"
+            f"v{TRUST_VERSION}/agentcomms-secure-{TRUST_VERSION}.sbom.cdx.json"
         ),
         "checksums": (
             "https://github.com/web3wes/agentcomms/releases/download/"
-            f"v{PROJECT_VERSION}/SHA256SUMS"
+            f"v{TRUST_VERSION}/SHA256SUMS"
         ),
     },
     "runtime": {
@@ -252,7 +253,7 @@ CONFORMANCE_MANIFEST = {
         "command": "agentcomms-v2 selftest --json",
         "network": "none",
         "filesystem": "none",
-        "expectedChecks": 14,
+        "expectedChecks": 20,
     },
     "inputs": {
         "aEd25519SeedHex": "".join(f"{value:02x}" for value in range(32)),
@@ -264,9 +265,12 @@ CONFORMANCE_MANIFEST = {
         "bOfferBytesBase64url": "EBESExQVFhcYGRobHB0eHw",
         "bOfferTimestamp": "2026-01-01T00:00:01+00:00",
         "messageDirection": "A-to-B",
+        "reverseMessageDirection": "B-to-A",
         "plaintextUtf8": "hello v2",
+        "reversePlaintextUtf8": "hello back v2",
         "padding": "zero bytes to one 256-byte test frame",
         "messageTimestamp": "2026-01-01T00:00:02+00:00",
+        "reverseMessageTimestamp": "2026-01-01T00:00:03+00:00",
         "sequence": 0,
     },
     "expected": {
@@ -329,6 +333,26 @@ CONFORMANCE_MANIFEST = {
             "yoUjI7Rl0xscNmWXFz0gDQ"
         ),
         "decryptedPlaintextUtf8": "hello v2",
+        "bInitialSendingChainHex": (
+            "e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576"
+        ),
+        "bToAMessageKeyHex": (
+            "30fe4afdb00cf619dfd36274a21a4f2a523f3fc37874952a9fd4b525813f1a36"
+        ),
+        "bToANonceHex": "87721a19170c28675ff346a7",
+        "bToACiphertextBase64url": (
+            "xthOgcsRoD40kEhBuOeDx_kBvzFTS-jbPnqwrLLDN80DrxSAB0dRq6VfWbFhEQZl"
+            "Jw-AsYdZvFbYfKM_BqeDqGJVp4y_BTcAfE9XtUdRMnxB4OvlN9WdhXPtJOIAI34P3"
+            "ctZHxTOq9iWBumkMOmcO-D-gvYmXBYZYw0WxFZ0jcHkOQNELlnZm8rNpPttVv4S5S"
+            "7uLypf7Q2Yiwu47h-Ag_X2DgZcAvepeV6anEpbxKfYN_bKiSZ-1F9V_nWOMydDDH5"
+            "GIoJS5jGg3fOwUaSxzDEHALM6kaOfZ4Dy95kbC3oUszP2q-8YyBe3rHfcyEIdmMWf"
+            "9CyVFbFH-djlReRSY5Z2kIPkgvhwLd8VmXTRldU"
+        ),
+        "bToAMessageSignatureBase64url": (
+            "oNjxdoha-pGyoUJ9qB3_hTcaoPMLvjzsUCIoiRFUQ3J6uv1zAslT9JhcsHKzRXNo"
+            "uS3gljKuqIZ66RVMi8dMDQ"
+        ),
+        "bToADecryptedPlaintextUtf8": "hello back v2",
     },
     "clarifications": {
         "directionalChains": (

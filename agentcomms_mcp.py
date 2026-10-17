@@ -16,7 +16,7 @@ import agentcomms
 import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.3.1"
+SERVER_VERSION = "0.3.2"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"

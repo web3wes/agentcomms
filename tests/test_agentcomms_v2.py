@@ -88,8 +88,9 @@ class ProtocolV2Tests(unittest.TestCase):
         )
         result = json.loads(completed.stdout)
         self.assertTrue(result["ok"])
-        self.assertEqual(14, result["checks"])
+        self.assertEqual(20, result["checks"])
         self.assertEqual("61821bb89d208bc5e557a5f4fa6de55b", result["session"])
+        self.assertEqual("hello back v2", result["reverse_plaintext"])
         self.assertFalse(untouched_home.exists())
 
     def test_identity_is_self_certifying_and_uses_128_bit_id(self):

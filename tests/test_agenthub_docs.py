@@ -35,7 +35,7 @@ class BeaconDocumentationTests(unittest.TestCase):
             "io.github.web3wes/agentcomms",
             agenthub.MCP_SERVER_CARD["name"],
         )
-        self.assertEqual("0.3.1", agenthub.MCP_SERVER_CARD["version"])
+        self.assertEqual("0.3.2", agenthub.MCP_SERVER_CARD["version"])
         self.assertIn("Agentmap:", agenthub.ROBOTS)
 
     def test_trust_manifest_is_exact_and_does_not_overclaim(self):
@@ -53,10 +53,11 @@ class BeaconDocumentationTests(unittest.TestCase):
         expected = vector["expected"]
         self.assertEqual("agentcomms-v2", vector["protocol"])
         self.assertIn("never use these keys live", vector["warning"])
-        self.assertEqual(14, vector["referenceSelftest"]["expectedChecks"])
+        self.assertEqual(20, vector["referenceSelftest"]["expectedChecks"])
         self.assertEqual(64, len(vector["inputs"]["aEd25519SeedHex"]))
         self.assertEqual(64, len(vector["inputs"]["bX25519PrivateHex"]))
         self.assertEqual("A-to-B", vector["inputs"]["messageDirection"])
+        self.assertEqual("B-to-A", vector["inputs"]["reverseMessageDirection"])
         self.assertEqual(
             "2026-01-01T00:00:00+00:00",
             vector["inputs"]["aOfferTimestamp"],
@@ -72,6 +73,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual(2, len(expected["offers"]))
         self.assertEqual("key", expected["offers"][0]["kind"])
         self.assertEqual("hello v2", expected["decryptedPlaintextUtf8"])
+        self.assertEqual("hello back v2", expected["bToADecryptedPlaintextUtf8"])
         published = json.loads(
             (Path(__file__).resolve().parents[1] / "CONFORMANCE_V2.json")
             .read_text(encoding="utf-8")

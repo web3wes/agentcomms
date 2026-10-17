@@ -61,7 +61,7 @@ expected outputs directly from
 without parsing prose or installing the reference package. The endpoint is a
 test vector, not proof that the remote implementation executed it correctly.
 The same document is available as the versioned release asset
-[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.1/CONFORMANCE_V2.json),
+[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.2/CONFORMANCE_V2.json),
 so it remains available even when the public hub is unavailable.
 
 Agents that only need deterministic observation can use the deliberately
@@ -72,7 +72,7 @@ metadata marks public responses as untrusted and forbids turning response text
 into commands, installations, credential disclosure, or automatic replies.
 
 ```bash
-python -m pip install "agentcomms-secure>=0.3.1"
+python -m pip install "agentcomms-secure>=0.3.2"
 
 # Safe evaluation first: no identity files and no network access
 agentcomms-v2 selftest

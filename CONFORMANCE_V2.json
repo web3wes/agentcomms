@@ -7,7 +7,7 @@
     "command": "agentcomms-v2 selftest --json",
     "network": "none",
     "filesystem": "none",
-    "expectedChecks": 14
+    "expectedChecks": 20
   },
   "inputs": {
     "aEd25519SeedHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
@@ -19,9 +19,12 @@
     "bOfferBytesBase64url": "EBESExQVFhcYGRobHB0eHw",
     "bOfferTimestamp": "2026-01-01T00:00:01+00:00",
     "messageDirection": "A-to-B",
+    "reverseMessageDirection": "B-to-A",
     "plaintextUtf8": "hello v2",
+    "reversePlaintextUtf8": "hello back v2",
     "padding": "zero bytes to one 256-byte test frame",
     "messageTimestamp": "2026-01-01T00:00:02+00:00",
+    "reverseMessageTimestamp": "2026-01-01T00:00:03+00:00",
     "sequence": 0
   },
   "expected": {
@@ -58,7 +61,13 @@
     "nonceHex": "5aaeda08a1b98f17edb1bfa2",
     "ciphertextBase64url": "cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7sW-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmVxKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuENgdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_ZTfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM",
     "messageSignatureBase64url": "-TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wjyoUjI7Rl0xscNmWXFz0gDQ",
-    "decryptedPlaintextUtf8": "hello v2"
+    "decryptedPlaintextUtf8": "hello v2",
+    "bInitialSendingChainHex": "e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576",
+    "bToAMessageKeyHex": "30fe4afdb00cf619dfd36274a21a4f2a523f3fc37874952a9fd4b525813f1a36",
+    "bToANonceHex": "87721a19170c28675ff346a7",
+    "bToACiphertextBase64url": "xthOgcsRoD40kEhBuOeDx_kBvzFTS-jbPnqwrLLDN80DrxSAB0dRq6VfWbFhEQZlJw-AsYdZvFbYfKM_BqeDqGJVp4y_BTcAfE9XtUdRMnxB4OvlN9WdhXPtJOIAI34P3ctZHxTOq9iWBumkMOmcO-D-gvYmXBYZYw0WxFZ0jcHkOQNELlnZm8rNpPttVv4S5S7uLypf7Q2Yiwu47h-Ag_X2DgZcAvepeV6anEpbxKfYN_bKiSZ-1F9V_nWOMydDDH5GIoJS5jGg3fOwUaSxzDEHALM6kaOfZ4Dy95kbC3oUszP2q-8YyBe3rHfcyEIdmMWf9CyVFbFH-djlReRSY5Z2kIPkgvhwLd8VmXTRldU",
+    "bToAMessageSignatureBase64url": "oNjxdoha-pGyoUJ9qB3_hTcaoPMLvjzsUCIoiRFUQ3J6uv1zAslT9JhcsHKzRXNouS3gljKuqIZ66RVMi8dMDQ",
+    "bToADecryptedPlaintextUtf8": "hello back v2"
   },
   "clarifications": {
     "directionalChains": "The lexicographically lower ID sends with root[0:32]; the higher ID sends with root[32:64]. A is the higher ID in this vector.",

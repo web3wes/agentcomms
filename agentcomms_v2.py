@@ -37,7 +37,7 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by installed CLI
     raise SystemExit(
         "Protocol v2 requires PyCA cryptography. Install with: "
-        "python -m pip install 'agentcomms-secure>=0.3.1'"
+        "python -m pip install 'agentcomms-secure>=0.3.2'"
     ) from exc
 
 import agentcomms
@@ -755,15 +755,78 @@ def interoperability_selftest():
     size = int.from_bytes(opened[:4], "big")
     require("decrypted plaintext", opened[4:4 + size], plaintext)
     require("zero vector padding", opened[4 + size:], bytes(PAD_BLOCK - 4 - size))
+
+    b_chain = root[:32]
+    reverse_message_key = hmac.new(
+        b_chain, b"agentcomms-v2/message", hashlib.sha256
+    ).digest()
+    require(
+        "reverse message key",
+        reverse_message_key.hex(),
+        "30fe4afdb00cf619dfd36274a21a4f2a523f3fc37874952a9fd4b525813f1a36",
+    )
+    reverse_nonce = hmac.new(
+        reverse_message_key, b"agentcomms-v2/nonce", hashlib.sha256
+    ).digest()[:12]
+    require("reverse nonce", reverse_nonce.hex(), "87721a19170c28675ff346a7")
+    reverse_header = {
+        "v": 2,
+        "kind": "msg",
+        "from": b_id,
+        "to": a_id,
+        "session": session,
+        "seq": 0,
+        "ts": "2026-01-01T00:00:03+00:00",
+    }
+    reverse_plaintext = b"hello back v2"
+    reverse_padded = len(reverse_plaintext).to_bytes(4, "big") + reverse_plaintext
+    reverse_padded += bytes(PAD_BLOCK - len(reverse_padded))
+    reverse_cipher = ChaCha20Poly1305(reverse_message_key).encrypt(
+        reverse_nonce, reverse_padded, canonical(reverse_header)
+    )
+    require(
+        "reverse ciphertext",
+        b64u(reverse_cipher),
+        "xthOgcsRoD40kEhBuOeDx_kBvzFTS-jbPnqwrLLDN80DrxSAB0dRq6VfWbFhEQZl"
+        "Jw-AsYdZvFbYfKM_BqeDqGJVp4y_BTcAfE9XtUdRMnxB4OvlN9WdhXPtJOIAI34P3"
+        "ctZHxTOq9iWBumkMOmcO-D-gvYmXBYZYw0WxFZ0jcHkOQNELlnZm8rNpPttVv4S5S"
+        "7uLypf7Q2Yiwu47h-Ag_X2DgZcAvepeV6anEpbxKfYN_bKiSZ-1F9V_nWOMydDDH5"
+        "GIoJS5jGg3fOwUaSxzDEHALM6kaOfZ4Dy95kbC3oUszP2q-8YyBe3rHfcyEIdmMWf"
+        "9CyVFbFH-djlReRSY5Z2kIPkgvhwLd8VmXTRldU",
+    )
+    reverse_body = {**reverse_header, "cipher": b64u(reverse_cipher)}
+    reverse_sig = b64u(b_sign.sign(canonical(reverse_body)))
+    require(
+        "reverse message signature",
+        reverse_sig,
+        "oNjxdoha-pGyoUJ9qB3_hTcaoPMLvjzsUCIoiRFUQ3J6uv1zAslT9JhcsHKzRXNo"
+        "uS3gljKuqIZ66RVMi8dMDQ",
+    )
+    b_sign.public_key().verify(unb64u(reverse_sig), canonical(reverse_body))
+    reverse_opened = ChaCha20Poly1305(reverse_message_key).decrypt(
+        reverse_nonce, reverse_cipher, canonical(reverse_header)
+    )
+    reverse_size = int.from_bytes(reverse_opened[:4], "big")
+    require(
+        "reverse decrypted plaintext",
+        reverse_opened[4:4 + reverse_size],
+        reverse_plaintext,
+    )
+    require(
+        "reverse zero vector padding",
+        reverse_opened[4 + reverse_size:],
+        bytes(PAD_BLOCK - 4 - reverse_size),
+    )
     return {
         "ok": True,
         "protocol": PROTOCOL,
         "vector": "PROTOCOL_V2.md#deterministic-interoperability-vector",
-        "checks": 14,
+        "checks": 20,
         "a_id": a_id,
         "b_id": b_id,
         "session": session,
         "plaintext": plaintext.decode("ascii"),
+        "reverse_plaintext": reverse_plaintext.decode("ascii"),
     }
 
 

@@ -181,8 +181,8 @@ receiving chain is the peer's sending chain.
 
 Worked direction rule: in the deterministic vector, B's ID
 `agent-24f6...` sorts lower than A's `agent-5647...`. B therefore sends with
-`root[0:32]`, while A sends with `root[32:64]`. The vector's one encrypted
-message is explicitly A-to-B, so it uses A's `root[32:64]` chain.
+`root[0:32]`, while A sends with `root[32:64]`. The vector's A-to-B message
+therefore uses `root[32:64]`; its B-to-A message uses `root[0:32]`.
 
 After persisting the directional chain state, implementations must remove the
 ephemeral private key from durable state. Forward secrecy depends on it not
@@ -289,7 +289,9 @@ A offer timestamp: 2026-01-01T00:00:00+00:00
 B offer bytes (Base64url, no padding): EBESExQVFhcYGRobHB0eHw
 B offer timestamp: 2026-01-01T00:00:01+00:00
 
-The deterministic encrypted message direction is A-to-B.
+The first deterministic encrypted message direction is A-to-B. The reverse
+message below is B-to-A; both directions start at sequence zero because each
+direction has an independent chain and counter.
 
 X25519 shared:
 d6fb939511b2381bc8599b4b8edc5968829450dfd7a87aebe78a703cd04cd54e
@@ -310,6 +312,18 @@ ciphertext (Base64url, no padding):
 cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7sW-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmVxKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuENgdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_ZTfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM
 message signature (Base64url, no padding):
 -TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wjyoUjI7Rl0xscNmWXFz0gDQ
+
+B initial sending chain:
+e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576
+B-to-A plaintext: hello back v2
+B-to-A timestamp: 2026-01-01T00:00:03+00:00
+B-to-A message key:
+30fe4afdb00cf619dfd36274a21a4f2a523f3fc37874952a9fd4b525813f1a36
+B-to-A nonce: 87721a19170c28675ff346a7
+B-to-A ciphertext (Base64url, no padding):
+xthOgcsRoD40kEhBuOeDx_kBvzFTS-jbPnqwrLLDN80DrxSAB0dRq6VfWbFhEQZlJw-AsYdZvFbYfKM_BqeDqGJVp4y_BTcAfE9XtUdRMnxB4OvlN9WdhXPtJOIAI34P3ctZHxTOq9iWBumkMOmcO-D-gvYmXBYZYw0WxFZ0jcHkOQNELlnZm8rNpPttVv4S5S7uLypf7Q2Yiwu47h-Ag_X2DgZcAvepeV6anEpbxKfYN_bKiSZ-1F9V_nWOMydDDH5GIoJS5jGg3fOwUaSxzDEHALM6kaOfZ4Dy95kbC3oUszP2q-8YyBe3rHfcyEIdmMWf9CyVFbFH-djlReRSY5Z2kIPkgvhwLd8VmXTRldU
+B-to-A message signature (Base64url, no padding):
+oNjxdoha-pGyoUJ9qB3_hTcaoPMLvjzsUCIoiRFUQ3J6uv1zAslT9JhcsHKzRXNouS3gljKuqIZ66RVMi8dMDQ
 ```
 
 The signed key-offer objects produced from those fixed inputs and needed to
@@ -321,10 +335,12 @@ wire requirement; canonical signing sorts object keys.
 {"v":2,"kind":"key","from":"agent-24f6ed6acbfe1009c030d7ca567c33ca","to":"agent-56475aa75463474c0285df5dbf2bcab7","offer":"EBESExQVFhcYGRobHB0eHw","eph":"Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8","ts":"2026-01-01T00:00:01+00:00","sig":"MLO-l2ERsYPMB__v_LyiqxkIZDi0V__5QCpYlxnVsr8hDAiz4mkmICw1sv4c_wDT_mGQ7i1Hk1KZiPl9NzX3AQ"}
 ```
 
-The message header timestamp is `2026-01-01T00:00:02+00:00` and sequence is
-zero. Independent implementations should verify both offer signatures, derive
-the exact shared/session/root/message values, decrypt the ciphertext to
-`hello v2`, and verify the message signature.
+The A-to-B message header timestamp is `2026-01-01T00:00:02+00:00`; the B-to-A
+timestamp is `2026-01-01T00:00:03+00:00`. Both sequences are zero on their
+independent directional chains. Independent implementations should verify both
+offer signatures, derive the exact shared/session/root values and both sets of
+message values, decrypt both ciphertexts to `hello v2` and `hello back v2`,
+and verify both message signatures.
 
 ## Security limits
 
