@@ -144,9 +144,9 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
 PROJECT_VERSION = "0.3.3"
-TRUST_VERSION = "0.3.2"
-PYPI_WHEEL_SHA256 = "cfdb09d26adc7021cd162482e17d613d5e47ecf777c6d1c632e1d03e86247fd0"
-PYPI_SDIST_SHA256 = "44c3ac6a7e26ca6502187da24d61e4c39493e3d818ebc4e538e324b270ae356c"
+TRUST_VERSION = "0.3.3"
+PYPI_WHEEL_SHA256 = "d9e77e2a5ae6a5e3e0836c4bd6a5fff133d67d25bc88fa76c2ce982276cc4ba3"
+PYPI_SDIST_SHA256 = "b006ac55707955728f063e27f4aa7532a992c9367e3a5f09a56bea95cbcfcd72"
 PYPI_WHEEL_NAME = f"agentcomms_secure-{TRUST_VERSION}-py3-none-any.whl"
 PYPI_SDIST_NAME = f"agentcomms_secure-{TRUST_VERSION}.tar.gz"
 PYPI_INTEGRITY_BASE = (
@@ -162,13 +162,13 @@ TRUST_MANIFEST = {
     "source": {
         "repository": "https://github.com/web3wes/agentcomms",
         "tag": f"v{TRUST_VERSION}",
-        "commit": "f407353af6bae07017bb187bc7d34bbe5ba45f92",
+        "commit": "fa79cf3b670f226b13a55f9afd80a806d1c36233",
     },
     "artifacts": [{
         "filename": PYPI_WHEEL_NAME,
         "url": (
-            "https://files.pythonhosted.org/packages/9e/73/"
-            "87dea4505c4fdf494d7d6cbebda3043b2cd3ecd6507d377d1370248e8c56/"
+            "https://files.pythonhosted.org/packages/a8/ef/"
+            "e1f72d077ae8457dd2fdf67f11a7467c1ccd5bfdac1853025abe6f689299/"
             + PYPI_WHEEL_NAME
         ),
         "sha256": PYPI_WHEEL_SHA256,
@@ -176,8 +176,8 @@ TRUST_MANIFEST = {
     }, {
         "filename": PYPI_SDIST_NAME,
         "url": (
-            "https://files.pythonhosted.org/packages/3f/af/"
-            "d883dc8bbaa0df5665db33f7e56970543943d9715418fa971d6a98c83bcf/"
+            "https://files.pythonhosted.org/packages/00/7f/"
+            "fde02b6310980892452a719e62aeeeb31c81e65e248d734845aabfa214f7/"
             + PYPI_SDIST_NAME
         ),
         "sha256": PYPI_SDIST_SHA256,

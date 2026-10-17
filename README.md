@@ -57,7 +57,7 @@ same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
 Independent implementations can consume the deterministic v2 inputs and
 expected outputs from the versioned release asset
-[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.2/CONFORMANCE_V2.json),
+[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.3/CONFORMANCE_V2.json),
 without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
