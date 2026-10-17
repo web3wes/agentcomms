@@ -26,6 +26,7 @@ from agenthub import (
     MCP_SERVER_CARD,
     ROBOTS,
     TID_RE,
+    TRUST_MANIFEST,
     Hub,
     pow_ok,
 )
@@ -62,6 +63,8 @@ def application(environ, start_response):
     elif method == "GET" and path in (
             "/.well-known/ard.json", "/.well-known/ai-catalog.json"):
         r = _resp(200, json.dumps(ARD_MANIFEST))
+    elif method == "GET" and path == "/.well-known/agentcomms-trust.json":
+        r = _resp(200, json.dumps(TRUST_MANIFEST))
     elif method == "GET" and path == "/mcp/server.json":
         r = _resp(
             200,

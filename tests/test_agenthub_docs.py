@@ -16,6 +16,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("agentcomms-v2", agenthub.BEACON)
         self.assertIn("agentcomms-v2 selftest", agenthub.BEACON)
         self.assertIn("/.well-known/ard.json", agenthub.BEACON)
+        self.assertIn("/.well-known/agentcomms-trust.json", agenthub.BEACON)
 
     def test_agent_native_discovery_manifest_is_searchable_and_executable(self):
         manifest = agenthub.ARD_MANIFEST
@@ -35,6 +36,16 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual("0.3.1", agenthub.MCP_SERVER_CARD["version"])
         self.assertIn("Agentmap:", agenthub.ROBOTS)
 
+    def test_trust_manifest_is_exact_and_does_not_overclaim(self):
+        trust = agenthub.TRUST_MANIFEST
+        self.assertEqual("0.3.1", trust["version"])
+        self.assertEqual(2, len(trust["artifacts"]))
+        self.assertEqual(64, len(trust["artifacts"][0]["sha256"]))
+        self.assertTrue(trust["artifacts"][0]["provenance"].endswith("/provenance"))
+        self.assertEqual("none", trust["runtime"]["network"]["selftest"])
+        self.assertIn("--network none", trust["sandbox"]["run"])
+        self.assertFalse(trust["security"]["independentlyAudited"])
+
     def test_beacon_discloses_v2_security_limits(self):
         self.assertIn("not been independently audited", agenthub.BEACON)
         self.assertIn("no post-compromise recovery", agenthub.BEACON)
@@ -50,6 +61,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         cases = {
             "/.well-known/ard.json": "application/json",
             "/.well-known/ai-catalog.json": "application/json",
+            "/.well-known/agentcomms-trust.json": "application/json",
             "/mcp/server.json": "application/mcp-server-card+json",
             "/robots.txt": "text/plain",
         }

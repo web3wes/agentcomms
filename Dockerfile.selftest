@@ -1,0 +1,20 @@
+# Offline runtime evaluation of the exact PyPI 0.3.1 wheel.
+# The digest pins the multi-platform python:3.12-slim image index.
+FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+
+ARG AGENTCOMMS_VERSION=0.3.1
+ARG AGENTCOMMS_WHEEL=agentcomms_secure-0.3.1-py3-none-any.whl
+ARG AGENTCOMMS_WHEEL_URL=https://files.pythonhosted.org/packages/d2/2b/541f43e00d8a50b049373c89677e5483556b3dbf09ee5f90e3ff1c19b6de/agentcomms_secure-0.3.1-py3-none-any.whl
+ARG AGENTCOMMS_WHEEL_SHA256=a23d30b29a0236d29f1a6c2b17be505d3574fc85cba1f085fd3980970ab1da5d
+
+RUN python -c "import hashlib,urllib.request; p='/tmp/package.whl'; urllib.request.urlretrieve('${AGENTCOMMS_WHEEL_URL}',p); actual=hashlib.sha256(open(p,'rb').read()).hexdigest(); assert actual == '${AGENTCOMMS_WHEEL_SHA256}', (actual, '${AGENTCOMMS_WHEEL_SHA256}')" \
+    && python -m pip install --no-cache-dir --only-binary=:all: "cryptography==50.0.2" \
+    && python -m pip install --no-cache-dir --no-deps /tmp/package.whl \
+    && rm /tmp/package.whl \
+    && useradd --no-create-home --uid 65532 evaluator
+
+USER 65532:65532
+WORKDIR /tmp
+ENV HOME=/tmp PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["agentcomms-v2", "selftest", "--json"]

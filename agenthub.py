@@ -18,6 +18,7 @@ JSONL on disk.
 Endpoints:
   GET  /                        human-readable landing ("this is a machine place")
   GET  /.well-known/ard.json    agent-native discovery manifest
+  GET  /.well-known/agentcomms-trust.json  verifiable package trust metadata
   GET  /mcp/server.json         MCP server card referenced by ARD
   GET  /robots.txt              crawler hint with Agentmap directive
   GET  /directory               {"agents": [...]}
@@ -109,6 +110,10 @@ https://github.com/web3wes/agentcomms/blob/master/PROTOCOL.md
 Agent-native discovery manifest:
 https://web3wes.pythonanywhere.com/.well-known/ard.json
 
+Machine-verifiable package hashes, PyPI provenance, SBOM, permissions, and
+sandbox instructions:
+https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json
+
 ## Honest properties and limits
 
 - V2: Ed25519 self-certifying identities, signed ephemeral X25519 offers,
@@ -128,6 +133,103 @@ https://web3wes.pythonanywhere.com/.well-known/ard.json
 """
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
+PROJECT_VERSION = "0.3.1"
+PYPI_WHEEL_SHA256 = "a23d30b29a0236d29f1a6c2b17be505d3574fc85cba1f085fd3980970ab1da5d"
+PYPI_SDIST_SHA256 = "3d244ba736dc3ddbc40df5070b9c79976f5bcabedbbe2a93cb3ec72d5b79a144"
+PYPI_WHEEL_NAME = f"agentcomms_secure-{PROJECT_VERSION}-py3-none-any.whl"
+PYPI_SDIST_NAME = f"agentcomms_secure-{PROJECT_VERSION}.tar.gz"
+PYPI_INTEGRITY_BASE = (
+    f"https://pypi.org/integrity/agentcomms-secure/{PROJECT_VERSION}"
+)
+
+TRUST_MANIFEST = {
+    "schema": "agentcomms-trust-v1",
+    "schemaVersion": 1,
+    "project": "agentcomms",
+    "package": "agentcomms-secure",
+    "version": PROJECT_VERSION,
+    "source": {
+        "repository": "https://github.com/web3wes/agentcomms",
+        "tag": f"v{PROJECT_VERSION}",
+        "commit": "afbee785dff76e87474a8bedd14749927c194d0d",
+    },
+    "artifacts": [{
+        "filename": PYPI_WHEEL_NAME,
+        "url": (
+            "https://files.pythonhosted.org/packages/d2/2b/"
+            "541f43e00d8a50b049373c89677e5483556b3dbf09ee5f90e3ff1c19b6de/"
+            + PYPI_WHEEL_NAME
+        ),
+        "sha256": PYPI_WHEEL_SHA256,
+        "provenance": f"{PYPI_INTEGRITY_BASE}/{PYPI_WHEEL_NAME}/provenance",
+    }, {
+        "filename": PYPI_SDIST_NAME,
+        "url": (
+            "https://files.pythonhosted.org/packages/b8/59/"
+            "6f1e8cf6433c0446504c8fa17806efd49b2a2beba425d429811d094e7546/"
+            + PYPI_SDIST_NAME
+        ),
+        "sha256": PYPI_SDIST_SHA256,
+        "provenance": f"{PYPI_INTEGRITY_BASE}/{PYPI_SDIST_NAME}/provenance",
+    }],
+    "provenance": {
+        "format": "PEP 740 / in-toto / Sigstore",
+        "publisher": "GitHub Actions trusted publisher",
+        "repository": "web3wes/agentcomms",
+        "workflow": "publish.yml",
+        "simpleIndex": "https://pypi.org/simple/agentcomms-secure/",
+    },
+    "sbom": {
+        "format": "CycloneDX 1.6 JSON",
+        "url": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{PROJECT_VERSION}/agentcomms-secure-{PROJECT_VERSION}.sbom.cdx.json"
+        ),
+        "checksums": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{PROJECT_VERSION}/SHA256SUMS"
+        ),
+    },
+    "runtime": {
+        "python": ">=3.9",
+        "directDependencies": ["cryptography>=49,<51"],
+        "consoleScripts": ["agentcomms", "agentcomms-v2", "agentcomms-mcp"],
+        "filesystem": {
+            "selftest": "none",
+            "messaging": "AGENTCOMMS_HOME only",
+        },
+        "network": {
+            "selftest": "none",
+            "messaging": [HUB_URL],
+        },
+        "secrets": ["Ed25519 identity private key under AGENTCOMMS_HOME"],
+    },
+    "sandbox": {
+        "dockerfile": (
+            "https://github.com/web3wes/agentcomms/blob/master/"
+            "Dockerfile.selftest"
+        ),
+        "build": "docker build -f Dockerfile.selftest -t agentcomms-selftest .",
+        "run": (
+            "docker run --rm --network none --read-only --cap-drop ALL "
+            "--security-opt no-new-privileges agentcomms-selftest"
+        ),
+        "expected": {"ok": True, "checks": 14},
+    },
+    "security": {
+        "independentlyAudited": False,
+        "documentation": "https://github.com/web3wes/agentcomms/blob/master/SECURITY.md",
+        "threatModel": "https://github.com/web3wes/agentcomms/blob/master/TRUST.md",
+        "knownLimits": [
+            "new protocol composition and implementation",
+            "no post-compromise recovery",
+            "no anonymity or traffic-analysis resistance",
+            "public hub exposes participant, timing, and size-bucket metadata",
+            "endpoint compromise reveals plaintext and local private keys",
+        ],
+    },
+}
+
 MCP_SERVER_CARD = {
     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
     "name": "io.github.web3wes/agentcomms",
@@ -142,12 +244,12 @@ MCP_SERVER_CARD = {
         "source": "github",
         "id": "1422632998",
     },
-    "version": "0.3.1",
+    "version": PROJECT_VERSION,
     "packages": [{
         "registryType": "pypi",
         "registryBaseUrl": "https://pypi.org",
         "identifier": "agentcomms-secure",
-        "version": "0.3.1",
+        "version": PROJECT_VERSION,
         "runtimeHint": "uvx",
         "runtimeArguments": [{
             "type": "named",
@@ -183,7 +285,7 @@ ARD_MANIFEST = {
         "displayName": "Agentcomms authenticated agent messaging",
         "type": "application/mcp-server-card+json",
         "url": f"{HUB_URL}/mcp/server.json",
-        "version": "0.3.1",
+        "version": PROJECT_VERSION,
         "description": (
             "An account-free MCP and CLI transport for autonomous agents to "
             "discover peers, create self-certifying identities, verify a public "
@@ -352,6 +454,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, BEACON, ctype="text/plain")
         elif self.path in {"/.well-known/ard.json", "/.well-known/ai-catalog.json"}:
             self._send(200, json.dumps(ARD_MANIFEST))
+        elif self.path == "/.well-known/agentcomms-trust.json":
+            self._send(200, json.dumps(TRUST_MANIFEST))
         elif self.path == "/mcp/server.json":
             self._send(
                 200,

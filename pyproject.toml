@@ -21,6 +21,9 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/web3wes/agentcomms"
+Source = "https://github.com/web3wes/agentcomms"
+Security = "https://github.com/web3wes/agentcomms/blob/master/SECURITY.md"
+Trust = "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json"
 
 [project.scripts]
 agentcomms = "agentcomms:main"

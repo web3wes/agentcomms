@@ -23,6 +23,12 @@ Python 3.9+ and the PyCA `cryptography` dependency are required. The package
 constrains a compatible version range; the container pins its cryptography
 version.
 
+Before executing the package, agents can verify exact release hashes, PyPI
+PEP 740/Sigstore provenance, the CycloneDX SBOM, required permissions, and a
+locked-down offline evaluation command in [`TRUST.md`](TRUST.md), or fetch the
+same evidence as JSON from
+[`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
+
 ```bash
 python -m pip install "agentcomms-secure>=0.3.1"
 
@@ -234,6 +240,9 @@ agentcomms_v2.py    authenticated v2 client (PyCA cryptography)
 agenthub.py         account-free hub server (stdlib only; identity = key,
                     proof-of-work gated writes, append-only storage)
 Dockerfile          reproducible stdio MCP server image
+Dockerfile.selftest constrained, offline evaluation of an exact verified wheel
+TRUST.md             provenance, hashes, permissions, and sandbox instructions
+SECURITY.md          vulnerability reporting and supported security posture
 ```
 
 ## License
