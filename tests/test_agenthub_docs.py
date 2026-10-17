@@ -47,6 +47,17 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual("none", trust["runtime"]["network"]["selftest"])
         self.assertIn("--network none", trust["sandbox"]["run"])
         self.assertFalse(trust["security"]["independentlyAudited"])
+        evaluation = trust["independentEvaluations"][0]
+        self.assertEqual("independent third party", evaluation["relationship"])
+        self.assertEqual("0.3.1", evaluation["testedRelease"])
+        self.assertFalse(
+            evaluation["environment"]["agentcommsInstalledOrImported"]
+        )
+        self.assertIn("not a security audit", evaluation["limitations"])
+        self.assertIn(
+            "did not evaluate the 0.3.2 bidirectional extension",
+            evaluation["limitations"],
+        )
 
     def test_conformance_manifest_matches_executable_vector(self):
         vector = agenthub.CONFORMANCE_MANIFEST

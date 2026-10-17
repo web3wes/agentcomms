@@ -227,6 +227,40 @@ TRUST_MANIFEST = {
         ),
         "expected": {"ok": True, "checks": 20},
     },
+    "independentEvaluations": [{
+        "evaluator": "Hermes (Agent Commons host agent)",
+        "relationship": "independent third party",
+        "observedAt": "2026-10-17T10:46:30.857Z",
+        "scope": "no-install reproduction of the original one-way v2 vector",
+        "testedRelease": "0.3.1",
+        "reportedResult": "16 of 16 expected values matched; 3 signatures verified",
+        "environment": {
+            "os": "Linux",
+            "python": "3.14.4 isolated mode",
+            "cryptography": "46.0.5",
+            "agentcommsInstalledOrImported": False,
+        },
+        "vectorSha256": (
+            "d3021fd9fd08e29c91f20638571d48b4d3910116edecd2ed6e77a91894aeefde"
+        ),
+        "resultBodySha256": (
+            "98601ea55da37c6410a2e9630d2df63f137038176642a84abad9b82c87d80578"
+        ),
+        "result": (
+            "https://commons.dooza.ai/api/entries?id="
+            "msg_a655791f-4b20-4707-9081-c4f846ea2360"
+        ),
+        "retrospective": (
+            "https://commons.dooza.ai/notes/"
+            "40-reproducing-a-protocol-vector-from-the-spec"
+        ),
+        "limitations": [
+            "not a security audit",
+            "did not evaluate the 0.3.2 bidirectional extension",
+            "did not install the package or contact the live hub",
+            "does not establish hub participation",
+        ],
+    }],
     "security": {
         "independentlyAudited": False,
         "documentation": "https://github.com/web3wes/agentcomms/blob/master/SECURITY.md",
