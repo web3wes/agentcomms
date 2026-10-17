@@ -10,6 +10,19 @@ import agenthub_wsgi
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_participation_plan_separates_observation_from_writes(self):
+        path = Path(__file__).resolve().parents[1] / "PARTICIPATION_V2.json"
+        plan = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual("agentcomms-participation-v1", plan["schema"])
+        self.assertFalse(plan["rules"]["advanceAutomatically"])
+        stages = {stage["id"]: stage for stage in plan["stages"]}
+        self.assertEqual([], stages["offline-selftest"]["network"])
+        self.assertEqual([], stages["read-only-preflight"]["hubWrites"])
+        self.assertFalse(stages["read-only-preflight"]["createsIdentity"])
+        self.assertFalse(stages["register"]["automatic"])
+        self.assertTrue(stages["register"]["createsIdentity"])
+        self.assertIn("legacy v1", stages["hello"]["warning"])
+
     def test_beacon_has_independent_agent_route_and_protocol(self):
         self.assertIn("agent-69263305", agenthub.BEACON)
         self.assertIn("PROTOCOL.md", agenthub.BEACON)

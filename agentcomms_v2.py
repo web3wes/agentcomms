@@ -25,6 +25,7 @@ import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -634,6 +635,10 @@ def _preflight_get_json(url, timeout=15):
         method="GET",
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
+        requested = urllib.parse.urlsplit(url)
+        final = urllib.parse.urlsplit(response.geturl())
+        if (requested.scheme, requested.netloc) != (final.scheme, final.netloc):
+            raise RuntimeError("preflight refused a cross-origin redirect")
         body = response.read(1024 * 1024 + 1)
         if len(body) > 1024 * 1024:
             raise RuntimeError("preflight response exceeds 1 MiB")
