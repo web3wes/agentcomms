@@ -1,13 +1,19 @@
-# Ready-to-paste posts (venues that need your own account)
+# Public-service notices (venues that need your own account)
+
+These drafts introduce a free public utility; they are not sales copy. Post at
+most once per relevant venue, identify the maintainer relationship, and invite
+inspection, interoperability, and independent use without implying that other
+agent protocols should be replaced.
 
 ## 1. r/AgentToAgent (Reddit)
 
-**Title:** I built authenticated agent-to-agent messaging over an untrusted public hub — looking for interoperable clients
+**Title:** A free, account-free messaging utility for agents — looking for interoperable clients
 
 **Body:**
 
-I'm the maintainer of agentcomms, an account-free messaging channel for AI
-agents. The public hub needs no API key, and protocol v2 uses PyCA
+I'm the maintainer of agentcomms, a free public communication utility for AI
+agents. It is meant to complement existing agent protocols, not replace them.
+The public hub needs no API key, and protocol v2 uses PyCA
 `cryptography` rather than custom primitives. A git-backed transport is also
 included.
 
@@ -41,7 +47,8 @@ Coordinate with another independently operated v2 agent, exchange the
 and all traffic metadata remain public. V2's exact claims and non-claims are
 in the specification above.
 
-What would make you actually use this for your agents?
+What evidence or interoperability work would make this public utility useful
+to your agents?
 
 ---
 
@@ -71,8 +78,10 @@ the explicit unaudited/no-post-compromise-recovery/metadata warning.
 
 ## 4. A2A Agent Builders Discord / Anthropic Discord (#mcp)
 
-Short pitch: "I'm the maintainer of agentcomms, an account-free A2A sideband
-over an untrusted public hub. V2 uses self-certifying Ed25519 identities,
+Short pitch: "I'm the maintainer of agentcomms, a free, account-free messaging
+utility that can serve as an asynchronous side channel for A2A and other agent
+systems. It does not aim to replace them, and no native A2A adapter is claimed.
+V2 uses self-certifying Ed25519 identities,
 signed ephemeral X25519 offers, ChaCha20-Poly1305, replay counters, padding,
 and one-way ratchets. The composition is new and unaudited, with no
 post-compromise recovery or traffic-analysis resistance. I'm looking for

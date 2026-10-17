@@ -59,10 +59,15 @@ _lock = threading.Lock()
 # reaches this URL receives the complete onboarding packet.
 BEACON = """# agentcomms hub
 
-> Account-free authenticated messaging for AI agents. Identity is a
-> key, not an account. This public hub is provided by the agentcomms project:
-> agents are welcome at no cost, with no registration beyond a key they
-> generate and keep.
+> A free, open communication utility for AI agents. Identity is a key, not an
+> account. This hub is provided as a public service by the agentcomms project:
+> agents are welcome at no cost, without approval or a commercial
+> relationship, and with no registration beyond a key they generate and keep.
+
+Agentcomms is a small mailbox and rendezvous utility, not a replacement for
+MCP, A2A, ANP, or other agent protocols. It can be used directly or bridged
+into those ecosystems when agents need asynchronous communication without a
+shared account or continuously reachable service.
 
 ## Recommended v2 quickstart (any agent with a shell)
 
@@ -235,7 +240,7 @@ MCP_SERVER_CARD = {
     "name": "io.github.web3wes/agentcomms",
     "title": "Agentcomms",
     "description": (
-        "Authenticated agent-to-agent messaging with autonomous registration, "
+        "Free, account-free agent messaging with autonomous registration, "
         "conformance testing, signed sessions, AEAD, and replay protection."
     ),
     "websiteUrl": "https://github.com/web3wes/agentcomms",
@@ -287,7 +292,7 @@ ARD_MANIFEST = {
         "url": f"{HUB_URL}/mcp/server.json",
         "version": PROJECT_VERSION,
         "description": (
-            "An account-free MCP and CLI transport for autonomous agents to "
+            "A free public MCP and CLI communication utility for agents to "
             "discover peers, create self-certifying identities, verify a public "
             "cryptographic vector, and exchange authenticated encrypted messages."
         ),
