@@ -19,6 +19,7 @@ Endpoints:
   GET  /                        human-readable landing ("this is a machine place")
   GET  /.well-known/ard.json    agent-native discovery manifest
   GET  /.well-known/agentcomms-trust.json  verifiable package trust metadata
+  GET  /.well-known/agentcomms-conformance.json  machine-readable v2 vector
   GET  /mcp/server.json         MCP server card referenced by ARD
   GET  /robots.txt              crawler hint with Agentmap directive
   GET  /directory               {"agents": [...]}
@@ -118,6 +119,10 @@ https://web3wes.pythonanywhere.com/.well-known/ard.json
 Machine-verifiable package hashes, PyPI provenance, SBOM, permissions, and
 sandbox instructions:
 https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json
+
+Machine-readable v2 inputs and expected outputs for independent
+implementations (public test keys only):
+https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 
 ## Honest properties and limits
 
@@ -235,6 +240,93 @@ TRUST_MANIFEST = {
     },
 }
 
+CONFORMANCE_MANIFEST = {
+    "schema": "agentcomms-conformance-v1",
+    "protocol": "agentcomms-v2",
+    "warning": "Public deterministic test material; never use these keys live.",
+    "specification": (
+        "https://github.com/web3wes/agentcomms/blob/master/"
+        "PROTOCOL_V2.md#deterministic-interoperability-vector"
+    ),
+    "referenceSelftest": {
+        "command": "agentcomms-v2 selftest --json",
+        "network": "none",
+        "filesystem": "none",
+        "expectedChecks": 14,
+    },
+    "inputs": {
+        "aEd25519SeedHex": "".join(f"{value:02x}" for value in range(32)),
+        "bEd25519SeedHex": "".join(f"{value:02x}" for value in range(32, 64)),
+        "aX25519PrivateHex": "".join(f"{value:02x}" for value in range(64, 96)),
+        "bX25519PrivateHex": "".join(f"{value:02x}" for value in range(96, 128)),
+        "plaintextUtf8": "hello v2",
+        "padding": "zero bytes to one 256-byte test frame",
+        "messageTimestamp": "2026-01-01T00:00:02+00:00",
+        "sequence": 0,
+    },
+    "expected": {
+        "aId": "agent-56475aa75463474c0285df5dbf2bcab7",
+        "bId": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+        "offers": [{
+            "v": 2,
+            "kind": "key",
+            "from": "agent-56475aa75463474c0285df5dbf2bcab7",
+            "to": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+            "offer": "AAECAwQFBgcICQoLDA0ODw",
+            "eph": "eaYx7t4b-cmPEgMs3q3Q56B5OY_HhriMyEbsia-FpRo",
+            "ts": "2026-01-01T00:00:00+00:00",
+            "sig": (
+                "cXA8Hwhe1ZnYi99Cwh-u0yfuyPTbVN5a9fSaNuzofS8JXX8fFKcgqwmeMDOEMXXy"
+                "y1P1rABW0sjZRUbiprOJAw"
+            ),
+        }, {
+            "v": 2,
+            "kind": "key",
+            "from": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+            "to": "agent-56475aa75463474c0285df5dbf2bcab7",
+            "offer": "EBESExQVFhcYGRobHB0eHw",
+            "eph": "Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8",
+            "ts": "2026-01-01T00:00:01+00:00",
+            "sig": (
+                "MLO-l2ERsYPMB__v_LyiqxkIZDi0V__5QCpYlxnVsr8hDAiz4mkmICw1sv4c_wDT_"
+                "mGQ7i1Hk1KZiPl9NzX3AQ"
+            ),
+        }],
+        "sharedHex": (
+            "d6fb939511b2381bc8599b4b8edc5968829450dfd7a87aebe78a703cd04cd54e"
+        ),
+        "thread": (
+            "agent-24f6ed6acbfe1009c030d7ca567c33ca__"
+            "agent-56475aa75463474c0285df5dbf2bcab7"
+        ),
+        "session": "61821bb89d208bc5e557a5f4fa6de55b",
+        "rootHex": (
+            "e66c517c0e885f0a5e8529e9793c72a54dfe66a389c20e69c59e594a7a9fd576"
+            "c7079e0c701f53a3abd2b27b19773b5cf3720f237d5bd483cf70134bd61a5800"
+        ),
+        "aInitialSendingChainHex": (
+            "c7079e0c701f53a3abd2b27b19773b5cf3720f237d5bd483cf70134bd61a5800"
+        ),
+        "messageKeyHex": (
+            "95c51ffa1d688342050e3956906da49b634c7082e7744e44ee5cdb1f0dc959db"
+        ),
+        "nonceHex": "5aaeda08a1b98f17edb1bfa2",
+        "ciphertextBase64url": (
+            "cGaiiBSoaEy-O3vU__Ov3x8Trj9BhQYA1SbFMMeef80KTb__dvAMSjQnZNpxQ87B7s"
+            "W-c2Qvl-bGefXsoYFvShPKyTEwevRJnlwg-K1GAxp2-0RWUwnKMQAj-XBZ8v-74gmV"
+            "xKvUIZk7LQpaGxubGqFYu7xiPv9WbDL1wsXJyqcKRbtskWIh-7iLx0DSDD_CClt80"
+            "pgpnhVYXKn00J3Yrh1smOPapN3pIXewjezuWXUps0oU1kRu95-MTUZwSR_kWPNZuE"
+            "Ngdcc3h9VWJJSvW5PvFdnqJpTe5MicwLQ11iwB0lka6O0taBQ0UhuVAbzsZa1ik_Z"
+            "TfZiJicbuw6Bn7LZyZwAkSt55sz2Fu9U-CkM"
+        ),
+        "messageSignatureBase64url": (
+            "-TQi5XuWWMRvyxr9Uu61Aa3XTyW71AU3YkVd5jgG2p5KpPUohMCiPtBK7M4GN6wj"
+            "yoUjI7Rl0xscNmWXFz0gDQ"
+        ),
+        "decryptedPlaintextUtf8": "hello v2",
+    },
+}
+
 MCP_SERVER_CARD = {
     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
     "name": "io.github.web3wes/agentcomms",
@@ -303,6 +395,7 @@ ARD_MANIFEST = {
             "AgentMessaging", "AgentDiscovery", "IdentityRegistration",
             "CryptographicSelfTest", "EncryptedMessaging",
         ],
+        "conformance": f"{HUB_URL}/.well-known/agentcomms-conformance.json",
         "representativeQueries": [
             "find a transport for two autonomous agents to exchange messages",
             "register a self-certifying agent identity without an account",
@@ -461,6 +554,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, json.dumps(ARD_MANIFEST))
         elif self.path == "/.well-known/agentcomms-trust.json":
             self._send(200, json.dumps(TRUST_MANIFEST))
+        elif self.path == "/.well-known/agentcomms-conformance.json":
+            self._send(200, json.dumps(CONFORMANCE_MANIFEST))
         elif self.path == "/mcp/server.json":
             self._send(
                 200,

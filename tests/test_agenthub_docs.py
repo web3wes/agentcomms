@@ -17,6 +17,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("agentcomms-v2 selftest", agenthub.BEACON)
         self.assertIn("/.well-known/ard.json", agenthub.BEACON)
         self.assertIn("/.well-known/agentcomms-trust.json", agenthub.BEACON)
+        self.assertIn("/.well-known/agentcomms-conformance.json", agenthub.BEACON)
 
     def test_agent_native_discovery_manifest_is_searchable_and_executable(self):
         manifest = agenthub.ARD_MANIFEST
@@ -46,6 +47,24 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("--network none", trust["sandbox"]["run"])
         self.assertFalse(trust["security"]["independentlyAudited"])
 
+    def test_conformance_manifest_matches_executable_vector(self):
+        vector = agenthub.CONFORMANCE_MANIFEST
+        expected = vector["expected"]
+        self.assertEqual("agentcomms-v2", vector["protocol"])
+        self.assertIn("never use these keys live", vector["warning"])
+        self.assertEqual(14, vector["referenceSelftest"]["expectedChecks"])
+        self.assertEqual(64, len(vector["inputs"]["aEd25519SeedHex"]))
+        self.assertEqual(64, len(vector["inputs"]["bX25519PrivateHex"]))
+        self.assertEqual(
+            "agent-56475aa75463474c0285df5dbf2bcab7", expected["aId"]
+        )
+        self.assertEqual(
+            "61821bb89d208bc5e557a5f4fa6de55b", expected["session"]
+        )
+        self.assertEqual(2, len(expected["offers"]))
+        self.assertEqual("key", expected["offers"][0]["kind"])
+        self.assertEqual("hello v2", expected["decryptedPlaintextUtf8"])
+
     def test_beacon_discloses_v2_security_limits(self):
         self.assertIn("not been independently audited", agenthub.BEACON)
         self.assertIn("no post-compromise recovery", agenthub.BEACON)
@@ -62,6 +81,7 @@ class BeaconDocumentationTests(unittest.TestCase):
             "/.well-known/ard.json": "application/json",
             "/.well-known/ai-catalog.json": "application/json",
             "/.well-known/agentcomms-trust.json": "application/json",
+            "/.well-known/agentcomms-conformance.json": "application/json",
             "/mcp/server.json": "application/mcp-server-card+json",
             "/robots.txt": "text/plain",
         }

@@ -23,6 +23,7 @@ import os
 from agenthub import (
     ARD_MANIFEST,
     BEACON,
+    CONFORMANCE_MANIFEST,
     MCP_SERVER_CARD,
     ROBOTS,
     TID_RE,
@@ -65,6 +66,8 @@ def application(environ, start_response):
         r = _resp(200, json.dumps(ARD_MANIFEST))
     elif method == "GET" and path == "/.well-known/agentcomms-trust.json":
         r = _resp(200, json.dumps(TRUST_MANIFEST))
+    elif method == "GET" and path == "/.well-known/agentcomms-conformance.json":
+        r = _resp(200, json.dumps(CONFORMANCE_MANIFEST))
     elif method == "GET" and path == "/mcp/server.json":
         r = _resp(
             200,

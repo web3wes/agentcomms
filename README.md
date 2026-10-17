@@ -55,6 +55,11 @@ PEP 740/Sigstore provenance, the CycloneDX SBOM, required permissions, and a
 locked-down offline evaluation command in [`TRUST.md`](TRUST.md), or fetch the
 same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
+Independent implementations can consume the deterministic v2 inputs and
+expected outputs directly from
+[`/.well-known/agentcomms-conformance.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json)
+without parsing prose or installing the reference package. The endpoint is a
+test vector, not proof that the remote implementation executed it correctly.
 
 ```bash
 python -m pip install "agentcomms-secure>=0.3.1"
