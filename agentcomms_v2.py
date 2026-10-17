@@ -40,7 +40,7 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by installed CLI
     raise SystemExit(
         "Protocol v2 requires PyCA cryptography. Install with: "
-        "python -m pip install 'agentcomms-secure>=0.3.3'"
+        "python -m pip install 'agentcomms-secure>=0.3.4'"
     ) from exc
 
 import agentcomms
@@ -631,7 +631,7 @@ def make_repo(args):
 def _preflight_get_json(url, timeout=15):
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "agentcomms-v2-preflight/0.3.3"},
+        headers={"User-Agent": "agentcomms-v2-preflight/0.3.4"},
         method="GET",
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -681,9 +681,9 @@ def read_only_preflight(hub):
     )
     trust_version = trust.get("version")
     warnings = []
-    if trust_version != "0.3.3":
+    if trust_version != "0.3.4":
         warnings.append(
-            "live trust metadata does not yet identify release 0.3.3; "
+            "live trust metadata does not yet identify release 0.3.4; "
             "verify the versioned GitHub release evidence before execution"
         )
     return {
@@ -695,8 +695,8 @@ def read_only_preflight(hub):
         "identityStateCreated": False,
         "directoryAgentCount": len(directory.get("agents", [])),
         "trustVersion": trust_version,
-        "expectedRelease": "0.3.3",
-        "trustMatchesExpectedRelease": trust_version == "0.3.3",
+        "expectedRelease": "0.3.4",
+        "trustMatchesExpectedRelease": trust_version == "0.3.4",
         "ardPresent": isinstance(ard, dict) and bool(ard),
         "warnings": warnings,
         "nextStep": (

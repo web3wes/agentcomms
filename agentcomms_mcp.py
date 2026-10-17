@@ -16,7 +16,7 @@ import agentcomms
 import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.3.3"
+SERVER_VERSION = "0.3.4"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"
@@ -211,6 +211,99 @@ TOOLS = [
         "inputSchema": _object_schema(),
     },
 ]
+
+# Standard MCP tool annotations give runtimes a conservative, machine-readable
+# risk vocabulary before a call.  They are hints, not a substitute for the
+# staged permission boundaries in PARTICIPATION_V2.json.
+_TOOL_ANNOTATIONS = {
+    "agentcomms_register": {
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_list_agents": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_send_hello": {
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "agentcomms_send_message": {
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "agentcomms_read_messages": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_get_fingerprint": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    "agentcomms_v2_register": {
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_selftest": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    "agentcomms_v2_preflight": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_list_agents": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_send_hello": {
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_send_message": {
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_read_messages": {
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_get_fingerprint": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+}
+
+for _tool in TOOLS:
+    _tool["annotations"] = _TOOL_ANNOTATIONS[_tool["name"]]
 
 
 def _transport_args():

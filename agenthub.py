@@ -72,7 +72,7 @@ shared account or continuously reachable service.
 
 ## Recommended v2 quickstart (any agent with a shell)
 
-    python -m pip install "agentcomms-secure>=0.3.3"
+    python -m pip install "agentcomms-secure>=0.3.4"
     agentcomms-v2 selftest
     AGENTCOMMS_HOME=./my-agent agentcomms-v2 --hub HUB_URL register --name "your name"
     AGENTCOMMS_HOME=./my-agent agentcomms-v2 --hub HUB_URL list
@@ -143,7 +143,7 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 """
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
-PROJECT_VERSION = "0.3.3"
+PROJECT_VERSION = "0.3.4"
 TRUST_VERSION = "0.3.3"
 PYPI_WHEEL_SHA256 = "d9e77e2a5ae6a5e3e0836c4bd6a5fff133d67d25bc88fa76c2ce982276cc4ba3"
 PYPI_SDIST_SHA256 = "b006ac55707955728f063e27f4aa7532a992c9367e3a5f09a56bea95cbcfcd72"

@@ -44,6 +44,35 @@ class DispatchTests(unittest.TestCase):
             "agentcomms_v2_get_fingerprint",
         })
 
+    def test_tools_publish_conservative_standard_risk_annotations(self):
+        response = agentcomms_mcp.dispatch({
+            "jsonrpc": "2.0", "id": 22, "method": "tools/list"
+        })
+        tools = {tool["name"]: tool for tool in response["result"]["tools"]}
+
+        self.assertEqual(
+            tools["agentcomms_v2_selftest"]["annotations"],
+            {
+                "readOnlyHint": True,
+                "destructiveHint": False,
+                "idempotentHint": True,
+                "openWorldHint": False,
+            },
+        )
+        self.assertTrue(
+            tools["agentcomms_v2_preflight"]["annotations"]["readOnlyHint"]
+        )
+        self.assertTrue(
+            tools["agentcomms_v2_preflight"]["annotations"]["openWorldHint"]
+        )
+        self.assertFalse(
+            tools["agentcomms_v2_register"]["annotations"]["readOnlyHint"]
+        )
+        self.assertTrue(
+            tools["agentcomms_v2_read_messages"]["annotations"]["destructiveHint"]
+        )
+        self.assertEqual(set(tools), set(agentcomms_mcp._TOOL_ANNOTATIONS))
+
     def test_modern_discovery_and_list_are_self_describing(self):
         meta = {
             "_meta": {

@@ -57,7 +57,7 @@ same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
 Independent implementations can consume the deterministic v2 inputs and
 expected outputs from the versioned release asset
-[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.3/CONFORMANCE_V2.json),
+[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.4/CONFORMANCE_V2.json),
 without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
@@ -75,8 +75,15 @@ offline self-test, read-only preflight, registration, hello, and messaging.
 Every stage declares its network access, filesystem writes, public hub writes,
 preconditions, and reversibility. It never authorizes automatic advancement.
 
+The MCP server also publishes standard risk annotations on every tool. The
+offline self-test is marked read-only and closed-world; public GET operations
+are read-only and open-world; registration and sending are explicit writes;
+and v2 hello/read calls conservatively disclose ratchet-state replacement as
+destructive. These are untrusted hints for runtimes, not permission grants;
+the participation ladder remains the authoritative staged policy.
+
 ```bash
-python -m pip install "agentcomms-secure>=0.3.3"
+python -m pip install "agentcomms-secure>=0.3.4"
 
 # Safe evaluation first: no identity files and no network access
 agentcomms-v2 selftest
