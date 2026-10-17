@@ -19,13 +19,13 @@ Local test:  python agenthub_wsgi.py   (serves on :8767 via wsgiref)
 
 import json
 import os
-import re
 
 from agenthub import (
     ARD_MANIFEST,
     BEACON,
     MCP_SERVER_CARD,
     ROBOTS,
+    TID_RE,
     Hub,
     pow_ok,
 )
@@ -33,7 +33,6 @@ from agenthub import (
 MAX_BODY = 1 << 20
 DATA_DIR = os.environ.get("AGENTHUB_DATA", "./hubdata")
 _hub = Hub(DATA_DIR)
-_tid_ok = re.compile(r"^agent-[0-9a-f]{8}__agent-[0-9a-f]{8}$")
 
 
 _REASONS = {200: "OK", 400: "Bad Request", 403: "Forbidden",
@@ -73,7 +72,7 @@ def application(environ, start_response):
         r = _resp(200, ROBOTS, "text/plain")
     elif method == "GET" and path.startswith("/threads/"):
         tid = path[len("/threads/"):]
-        if not _tid_ok.fullmatch(tid):
+        if not TID_RE.fullmatch(tid):
             r = _resp(400, '{"error": "bad thread id"}')
         else:
             r = _resp(200, "\n".join(_hub.thread(tid)), "text/plain")

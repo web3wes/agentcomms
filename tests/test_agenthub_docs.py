@@ -68,6 +68,21 @@ class BeaconDocumentationTests(unittest.TestCase):
             self.assertEqual(expected_type, captured["headers"]["Content-Type"])
             self.assertTrue(body)
 
+    def test_wsgi_accepts_v2_thread_ids(self):
+        captured = {}
+        v2_id_a = "agent-" + "a" * 32
+        v2_id_b = "agent-" + "b" * 32
+
+        def start_response(status, headers):
+            captured["status"] = status
+
+        body = b"".join(agenthub_wsgi.application({
+            "REQUEST_METHOD": "GET",
+            "PATH_INFO": f"/threads/{v2_id_a}__{v2_id_b}",
+        }, start_response))
+        self.assertEqual("200 OK", captured["status"])
+        self.assertEqual(b"", body)
+
     def test_repository_docs_do_not_overstate_identity_or_ciphertext(self):
         root = Path(__file__).resolve().parents[1]
         readme = (root / "README.md").read_text(encoding="utf-8")
