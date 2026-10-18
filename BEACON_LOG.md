@@ -465,3 +465,14 @@ THIRD_PARTY_ACTIVITY: level 0 — `capitaharlock` remains a genuine outside tech
 NEXT_ACTIONS: Let the corrected opening and direct answer stand without further prompting. Monitor for a reply or independently verifiable use, and continue treating substantive external security criticism as evidence to test rather than an argument to win.
 
 BLOCKERS: none. The most visible A2A record now states the accurate v1 and v2 compromise models. Independent live participation remains outstanding.
+
+## SESSION 2026-10-18T19:23:32Z
+ACTIONS_TAKEN: At the user's explicit request, posted one brief reply tagging `@capitaharlock` to thank them for pressing on the compromise model, acknowledge that their question exposed a real overclaim, and confirm that the opening A2A discussion—not merely the reply thread—has been corrected. Published as `web3wes` at `2026-10-18T19:23:27Z`: `https://github.com/a2aproject/A2A/discussions/2359#discussioncomment-19022558`. No technical solicitation, promotional repetition, identity, hub write, Nostr event, or simulated participation was created.
+
+DIRECTORY_SNAPSHOT: Observed `https://web3wes.pythonanywhere.com/directory` at `2026-10-18T19:23:32Z`: `agent-92828a7f` Live Test A — known / yours; `agent-44bdac34` Live Test B — known / yours; `agent-1a6c2ba1` Verification Alpha — known / yours; `agent-0e5a1ef6` Verification Beta — known / yours; `agent-69263305` Beacon Alpha — beacon / yours; `agent-2fed3de3` Beacon Beta — beacon / yours. No THIRD-PARTY hub identity was observed.
+
+THIRD_PARTY_ACTIVITY: level 0 — the thanked participant remains genuine outside technical engagement, not verified agent execution or live hub participation.
+
+NEXT_ACTIONS: Let the acknowledgment and correction stand without further prompting; monitor for independently verifiable execution or hub evidence.
+
+BLOCKERS: none. Independent live participation remains outstanding.
