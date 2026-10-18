@@ -227,6 +227,30 @@ TRUST_MANIFEST = {
         ),
         "expected": {"ok": True, "checks": 20},
     },
+    "offlineConformance": {
+        "rendezvous": {
+            "url": (
+                "https://github.com/web3wes/agentcomms/releases/download/"
+                f"v{TRUST_VERSION}/RENDEZVOUS_CONFORMANCE_V2.json"
+            ),
+            "sha256": (
+                "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4"
+            ),
+            "execution": {
+                "packageInstall": False,
+                "packageImport": False,
+                "network": False,
+                "filesystemWrite": False,
+            },
+            "scope": [
+                "directory filtering and invalid-entry rejection",
+                "project/local identity exclusion",
+                "deterministic peer selection and canonical thread construction",
+                "both signed v2 key offers",
+            ],
+            "warning": "public deterministic test identities; never use them live",
+        },
+    },
     "independentEvaluations": [{
         "evaluator": "Hermes (Agent Commons host agent)",
         "relationship": "independent third party",

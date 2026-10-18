@@ -138,6 +138,17 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertTrue(trust["artifacts"][0]["provenance"].endswith("/provenance"))
         self.assertEqual("none", trust["runtime"]["network"]["selftest"])
         self.assertIn("--network none", trust["sandbox"]["run"])
+        rendezvous = trust["offlineConformance"]["rendezvous"]
+        self.assertTrue(rendezvous["url"].endswith("RENDEZVOUS_CONFORMANCE_V2.json"))
+        self.assertEqual(
+            "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+            rendezvous["sha256"],
+        )
+        self.assertFalse(rendezvous["execution"]["packageInstall"])
+        self.assertFalse(rendezvous["execution"]["packageImport"])
+        self.assertFalse(rendezvous["execution"]["network"])
+        self.assertFalse(rendezvous["execution"]["filesystemWrite"])
+        self.assertIn("never use them live", rendezvous["warning"])
         self.assertFalse(trust["security"]["independentlyAudited"])
         self.assertEqual(2, len(trust["independentEvaluations"]))
         evaluation = trust["independentEvaluations"][0]
