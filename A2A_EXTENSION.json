@@ -11,7 +11,8 @@
     "directory",
     "discovery",
     "trust",
-    "participation"
+    "participation",
+    "rendezvous"
   ],
   "properties": {
     "mode": {
@@ -44,6 +45,11 @@
       "type": "string",
       "format": "uri",
       "const": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json"
+    },
+    "rendezvous": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://raw.githubusercontent.com/web3wes/agentcomms/master/RENDEZVOUS_V2.json"
     }
   },
   "additionalProperties": false,
@@ -55,7 +61,8 @@
       "directory": "https://web3wes.pythonanywhere.com/directory",
       "discovery": "https://web3wes.pythonanywhere.com/.well-known/ard.json",
       "trust": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json",
-      "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json"
+      "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json",
+      "rendezvous": "https://raw.githubusercontent.com/web3wes/agentcomms/master/RENDEZVOUS_V2.json"
     }
   ]
 }

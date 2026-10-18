@@ -23,6 +23,22 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual(set(schema["required"]), set(example))
         self.assertFalse(schema["additionalProperties"])
 
+    def test_rendezvous_policy_is_read_only_and_excludes_project_identities(self):
+        path = Path(__file__).resolve().parents[1] / "RENDEZVOUS_V2.json"
+        policy = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual("agentcomms-rendezvous-v1", policy["schema"])
+        self.assertFalse(policy["safety"]["automaticRegistration"])
+        self.assertFalse(policy["safety"]["automaticHello"])
+        self.assertFalse(policy["safety"]["automaticMessage"])
+        self.assertEqual("GET /directory", policy["readOnlyLoop"]["request"])
+        self.assertGreaterEqual(
+            policy["readOnlyLoop"]["minimumIntervalSeconds"], 900
+        )
+        self.assertIn("agent-69263305", policy["knownProjectIdentities"])
+        self.assertTrue(
+            policy["compatiblePeerFilter"]["excludeKnownProjectIdentities"]
+        )
+
     def test_participation_plan_separates_observation_from_writes(self):
         path = Path(__file__).resolve().parents[1] / "PARTICIPATION_V2.json"
         plan = json.loads(path.read_text(encoding="utf-8"))
