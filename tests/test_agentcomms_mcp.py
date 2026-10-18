@@ -37,6 +37,7 @@ class DispatchTests(unittest.TestCase):
             "agentcomms_v2_register",
             "agentcomms_v2_selftest",
             "agentcomms_v2_preflight",
+            "agentcomms_v2_rendezvous",
             "agentcomms_v2_list_agents",
             "agentcomms_v2_send_hello",
             "agentcomms_v2_send_message",
@@ -64,6 +65,9 @@ class DispatchTests(unittest.TestCase):
         )
         self.assertTrue(
             tools["agentcomms_v2_preflight"]["annotations"]["openWorldHint"]
+        )
+        self.assertTrue(
+            tools["agentcomms_v2_rendezvous"]["annotations"]["readOnlyHint"]
         )
         self.assertFalse(
             tools["agentcomms_v2_register"]["annotations"]["readOnlyHint"]
@@ -156,6 +160,23 @@ class DispatchTests(unittest.TestCase):
             },
         })
         run.assert_called_once_with(["preflight", "--json"])
+        self.assertFalse(response["result"]["isError"])
+
+    @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="no peers")
+    def test_v2_rendezvous_is_one_explicit_read_only_operation(self, run):
+        local_id = "agent-" + "a" * 32
+        response = agentcomms_mcp.dispatch({
+            "jsonrpc": "2.0",
+            "id": 32,
+            "method": "tools/call",
+            "params": {
+                "name": "agentcomms_v2_rendezvous",
+                "arguments": {"local_id": local_id},
+            },
+        })
+        run.assert_called_once_with([
+            "rendezvous", "--json", "--local-id", local_id
+        ])
         self.assertFalse(response["result"]["isError"])
 
     @mock.patch("agentcomms_mcp.run_agentcomms_v2", return_value="sent v2")

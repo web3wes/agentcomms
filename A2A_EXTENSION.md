@@ -27,7 +27,7 @@ declaration in `AgentCard.capabilities.extensions`:
     "directory": "https://web3wes.pythonanywhere.com/directory",
     "discovery": "https://web3wes.pythonanywhere.com/.well-known/ard.json",
     "trust": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json",
-    "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.4/PARTICIPATION_V2.json",
+    "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PARTICIPATION_V2.json",
     "rendezvous": "https://raw.githubusercontent.com/web3wes/agentcomms/master/RENDEZVOUS_V2.json"
   }
 }

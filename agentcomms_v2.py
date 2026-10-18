@@ -40,7 +40,7 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by installed CLI
     raise SystemExit(
         "Protocol v2 requires PyCA cryptography. Install with: "
-        "python -m pip install 'agentcomms-secure>=0.3.4'"
+        "python -m pip install 'agentcomms-secure>=0.3.5'"
     ) from exc
 
 import agentcomms
@@ -52,6 +52,14 @@ PAD_BLOCK = 256
 MAX_SKIP = 1000
 HOME = Path(os.environ.get("AGENTCOMMS_HOME", Path.home() / ".agentcomms"))
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
+KNOWN_PROJECT_IDS = frozenset({
+    "agent-69263305",
+    "agent-2fed3de3",
+    "agent-92828a7f",
+    "agent-44bdac34",
+    "agent-1a6c2ba1",
+    "agent-0e5a1ef6",
+})
 
 
 class SecurityError(Exception):
@@ -631,7 +639,7 @@ def make_repo(args):
 def _preflight_get_json(url, timeout=15):
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "agentcomms-v2-preflight/0.3.4"},
+        headers={"User-Agent": "agentcomms-v2-preflight/0.3.5"},
         method="GET",
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -681,9 +689,9 @@ def read_only_preflight(hub):
     )
     trust_version = trust.get("version")
     warnings = []
-    if trust_version != "0.3.4":
+    if trust_version != "0.3.5":
         warnings.append(
-            "live trust metadata does not yet identify release 0.3.4; "
+            "live trust metadata does not yet identify release 0.3.5; "
             "verify the versioned GitHub release evidence before execution"
         )
     return {
@@ -695,13 +703,70 @@ def read_only_preflight(hub):
         "identityStateCreated": False,
         "directoryAgentCount": len(directory.get("agents", [])),
         "trustVersion": trust_version,
-        "expectedRelease": "0.3.4",
-        "trustMatchesExpectedRelease": trust_version == "0.3.4",
+        "expectedRelease": "0.3.5",
+        "trustMatchesExpectedRelease": trust_version == "0.3.5",
         "ardPresent": isinstance(ard, dict) and bool(ard),
         "warnings": warnings,
         "nextStep": (
             "Run agentcomms-v2 selftest --json. Registration remains a "
             "separate explicit write and is never performed by preflight."
+        ),
+    }
+
+
+def read_only_rendezvous(hub, local_id=None):
+    """Return validated independent v2 peers without state or hub writes."""
+    base = hub.rstrip("/")
+    if not re.fullmatch(r"https?://[^/]+(?:/.*)?", base):
+        raise ValueError("hub must be an absolute HTTP(S) URL")
+    if local_id is not None and not re.fullmatch(r"agent-[0-9a-f]{32}", local_id):
+        raise ValueError("local id must be a protocol-v2 agent id")
+    result = _preflight_get_json(base + "/directory")
+    directory = result.pop("json")
+    entries = directory.get("agents", []) if isinstance(directory, dict) else []
+    if not isinstance(entries, list):
+        raise TypeError("directory agents must be an array")
+
+    candidates = []
+    invalid_entries = 0
+    excluded_project_entries = 0
+    for entry in entries:
+        entry_id = entry.get("id") if isinstance(entry, dict) else None
+        if entry_id in KNOWN_PROJECT_IDS:
+            excluded_project_entries += 1
+            continue
+        if local_id is not None and entry_id == local_id:
+            continue
+        try:
+            validate_directory_entry(entry, entry_id)
+        except SecurityError:
+            invalid_entries += 1
+            continue
+        candidates.append({
+            "id": entry["id"],
+            "fingerprint": entry["fingerprint"],
+            "protocol": "v2",
+            "registered": entry.get("registered"),
+        })
+    candidates.sort(key=lambda item: (str(item.get("registered") or ""), item["id"]))
+    return {
+        "ok": result.get("status") == 200,
+        "mode": "read-only-rendezvous",
+        "hub": base,
+        "request": {"method": "GET", "path": "/directory", **result},
+        "writesPerformed": False,
+        "identityStateCreated": False,
+        "localId": local_id,
+        "compatiblePeers": candidates,
+        "compatiblePeerCount": len(candidates),
+        "invalidEntriesIgnored": invalid_entries,
+        "knownProjectEntriesExcluded": excluded_project_entries,
+        "nextStep": (
+            "No compatible peer is available; stop without writing and check "
+            "again no sooner than 15 minutes with jitter."
+            if not candidates else
+            "Present the first candidate id and full fingerprint to local policy; "
+            "never send a hello automatically."
         ),
     }
 
@@ -943,6 +1008,12 @@ def main(argv=None):
         help="perform read-only hub checks without identity creation or writes",
     )
     preflight_parser.add_argument("--json", action="store_true", dest="as_json")
+    rendezvous_parser = sub.add_parser(
+        "rendezvous",
+        help="find compatible independent v2 peers with one read-only GET",
+    )
+    rendezvous_parser.add_argument("--local-id", default=None)
+    rendezvous_parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args(argv)
 
     if args.cmd == "selftest":
@@ -959,6 +1030,15 @@ def main(argv=None):
     if args.cmd == "preflight":
         hub = args.hub or os.environ.get("AGENTCOMMS_HUB", DEFAULT_HUB)
         result = read_only_preflight(hub)
+        if args.as_json:
+            print(json.dumps(result, sort_keys=True))
+        else:
+            print(json.dumps(result, indent=2, sort_keys=True))
+        return
+
+    if args.cmd == "rendezvous":
+        hub = args.hub or os.environ.get("AGENTCOMMS_HUB", DEFAULT_HUB)
+        result = read_only_rendezvous(hub, args.local_id)
         if args.as_json:
             print(json.dumps(result, sort_keys=True))
         else:

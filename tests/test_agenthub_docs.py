@@ -77,7 +77,7 @@ class BeaconDocumentationTests(unittest.TestCase):
             "io.github.web3wes/agentcomms",
             agenthub.MCP_SERVER_CARD["name"],
         )
-        self.assertEqual("0.3.4", agenthub.MCP_SERVER_CARD["version"])
+        self.assertEqual("0.3.5", agenthub.MCP_SERVER_CARD["version"])
         self.assertIn("Agentmap:", agenthub.ROBOTS)
 
     def test_trust_manifest_is_exact_and_does_not_overclaim(self):

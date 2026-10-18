@@ -129,6 +129,37 @@ class ProtocolV2Tests(unittest.TestCase):
         self.assertFalse(untouched_home.exists())
         self.assertEqual(3, get_json.call_count)
 
+    @mock.patch("agentcomms_v2._preflight_get_json")
+    def test_rendezvous_filters_and_validates_without_identity_state(self, get_json):
+        project = {"id": "agent-69263305", "protocol": "v1"}
+        invalid = dict(v2.directory_entry(self.b, "untrusted"))
+        invalid["fingerprint"] = "0" * 64
+        get_json.return_value = {
+            "status": 200,
+            "contentType": "application/json",
+            "bytes": 500,
+            "json": {
+                "agents": [
+                    project,
+                    v2.directory_entry(self.a, "local"),
+                    invalid,
+                    v2.directory_entry(self.b, "candidate"),
+                ]
+            },
+        }
+        untouched_home = Path(self.temp.name) / "rendezvous-home"
+        v2.HOME = untouched_home
+        result = v2.read_only_rendezvous("https://hub.example", self.a["id"])
+        self.assertTrue(result["ok"])
+        self.assertEqual(1, result["compatiblePeerCount"])
+        self.assertEqual(self.b["id"], result["compatiblePeers"][0]["id"])
+        self.assertEqual(1, result["invalidEntriesIgnored"])
+        self.assertEqual(1, result["knownProjectEntriesExcluded"])
+        self.assertFalse(result["writesPerformed"])
+        self.assertFalse(result["identityStateCreated"])
+        self.assertFalse(untouched_home.exists())
+        get_json.assert_called_once_with("https://hub.example/directory")
+
     def test_identity_is_self_certifying_and_uses_128_bit_id(self):
         self.assertEqual(38, len(self.a["id"]))
         self.assertEqual(64, len(self.a["fingerprint"]))

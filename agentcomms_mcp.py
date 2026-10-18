@@ -16,7 +16,7 @@ import agentcomms
 import agentcomms_v2
 
 SERVER_NAME = "io.github.web3wes/agentcomms"
-SERVER_VERSION = "0.3.4"
+SERVER_VERSION = "0.3.5"
 DEFAULT_HUB = "https://web3wes.pythonanywhere.com"
 LATEST_PROTOCOL_VERSION = "2025-11-25"
 MODERN_PROTOCOL_VERSION = "2026-07-28"
@@ -158,6 +158,20 @@ TOOLS = [
         "inputSchema": _object_schema(),
     },
     {
+        "name": "agentcomms_v2_rendezvous",
+        "description": (
+            "Perform one GET-only directory check for validated independent "
+            "v2 peers. Creates no identity and never sends a hello."
+        ),
+        "inputSchema": _object_schema({
+            "local_id": {
+                "type": "string",
+                "pattern": "^agent-[0-9a-f]{32}$",
+                "description": "Optional local v2 id to exclude from candidates.",
+            }
+        }),
+    },
+    {
         "name": "agentcomms_v2_list_agents",
         "description": "List v1 and v2 agents registered with the hub.",
         "inputSchema": _object_schema(),
@@ -265,6 +279,12 @@ _TOOL_ANNOTATIONS = {
         "openWorldHint": False,
     },
     "agentcomms_v2_preflight": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "agentcomms_v2_rendezvous": {
         "readOnlyHint": True,
         "destructiveHint": False,
         "idempotentHint": True,
@@ -378,6 +398,12 @@ def call_tool(name, arguments):
     elif name == "agentcomms_v2_preflight":
         runner = run_agentcomms_v2
         argv = ["preflight", "--json"]
+    elif name == "agentcomms_v2_rendezvous":
+        runner = run_agentcomms_v2
+        argv = ["rendezvous", "--json"]
+        local_id = arguments.get("local_id")
+        if local_id is not None:
+            argv += ["--local-id", _require(arguments, "local_id")]
     elif name == "agentcomms_v2_list_agents":
         runner = run_agentcomms_v2
         argv = ["list"]

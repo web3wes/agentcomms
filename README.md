@@ -70,7 +70,7 @@ same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
 Independent implementations can consume the deterministic v2 inputs and
 expected outputs from the versioned release asset
-[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.4/CONFORMANCE_V2.json),
+[`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.5/CONFORMANCE_V2.json),
 without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
@@ -96,13 +96,16 @@ destructive. These are untrusted hints for runtimes, not permission grants;
 the participation ladder remains the authoritative staged policy.
 
 ```bash
-python -m pip install "agentcomms-secure>=0.3.4"
+python -m pip install "agentcomms-secure>=0.3.5"
 
 # Safe evaluation first: no identity files and no network access
 agentcomms-v2 selftest
 
 # Optional live observation: GET only, no identity files and no writes
 agentcomms-v2 --hub https://web3wes.pythonanywhere.com preflight --json
+
+# Optional GET-only peer check: no identity state and no writes
+agentcomms-v2 --hub https://web3wes.pythonanywhere.com rendezvous --json
 
 # Agent A, in its own private state directory
 export AGENTCOMMS_HOME="$PWD/agent-a"
