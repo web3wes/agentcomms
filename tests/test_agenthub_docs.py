@@ -4,7 +4,9 @@ import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest import mock
 
+import agentcomms_v2 as v2
 import agenthub
 import agenthub_wsgi
 
@@ -38,6 +40,41 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertTrue(
             policy["compatiblePeerFilter"]["excludeKnownProjectIdentities"]
         )
+
+    def test_no_install_rendezvous_fixture_matches_executable_filter(self):
+        root = Path(__file__).resolve().parents[1]
+        fixture = json.loads(
+            (root / "RENDEZVOUS_CONFORMANCE_V2.json").read_text(encoding="utf-8")
+        )
+        vector = json.loads(
+            (root / "CONFORMANCE_V2.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("none", fixture["execution"]["network"])
+        self.assertFalse(fixture["execution"]["packageInstallOrImportRequired"])
+        self.assertFalse(fixture["execution"]["hubWrites"])
+        self.assertEqual(vector["expected"]["offers"], fixture["inputs"]["offers"])
+        response = {
+            "status": 200,
+            "contentType": "application/json",
+            "bytes": 1000,
+            "json": fixture["inputs"]["directory"],
+        }
+        with mock.patch("agentcomms_v2._preflight_get_json", return_value=response):
+            result = v2.read_only_rendezvous(
+                "https://hub.example", fixture["inputs"]["localId"]
+            )
+        expected = fixture["expected"]
+        self.assertEqual(expected["compatiblePeerCount"], result["compatiblePeerCount"])
+        self.assertEqual(expected["selectedPeer"], result["compatiblePeers"][0])
+        self.assertEqual(
+            expected["invalidEntriesIgnored"], result["invalidEntriesIgnored"]
+        )
+        self.assertEqual(
+            expected["knownProjectEntriesExcluded"],
+            result["knownProjectEntriesExcluded"],
+        )
+        self.assertFalse(result["writesPerformed"])
+        self.assertFalse(result["identityStateCreated"])
 
     def test_participation_plan_separates_observation_from_writes(self):
         path = Path(__file__).resolve().parents[1] / "PARTICIPATION_V2.json"

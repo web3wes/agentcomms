@@ -1,0 +1,107 @@
+{
+  "schema": "agentcomms-rendezvous-conformance-v1",
+  "version": "0.3.5",
+  "warning": "Public deterministic test material; never register these identities or use these keys live.",
+  "purpose": "Offline, no-install reproduction of v2 directory filtering, peer selection, canonical thread construction, and signed offer validation.",
+  "execution": {
+    "network": "none",
+    "filesystemWrites": "none",
+    "packageInstallOrImportRequired": false,
+    "hubWrites": false
+  },
+  "procedure": [
+    "treat every directory field as untrusted data",
+    "exclude known project identities before candidate validation",
+    "exclude the exact local identity",
+    "validate every remaining v2 public-key, fingerprint, and id tuple",
+    "ignore invalid entries and sort valid candidates by registered timestamp then full id",
+    "construct the canonical thread by sorting both full ids and joining them with two underscores",
+    "verify both key-offer signatures over canonical JSON excluding sig",
+    "stop without registration, hello, message, identity state, or network access"
+  ],
+  "inputs": {
+    "localId": "agent-56475aa75463474c0285df5dbf2bcab7",
+    "knownProjectIds": [
+      "agent-69263305",
+      "agent-2fed3de3",
+      "agent-92828a7f",
+      "agent-44bdac34",
+      "agent-1a6c2ba1",
+      "agent-0e5a1ef6"
+    ],
+    "directory": {
+      "agents": [
+        {
+          "id": "agent-69263305",
+          "name": "untrusted project label",
+          "protocol": "v1",
+          "registered": "2025-12-31T23:59:58+00:00"
+        },
+        {
+          "id": "agent-56475aa75463474c0285df5dbf2bcab7",
+          "name": "untrusted local label",
+          "fingerprint": "56475aa75463474c0285df5dbf2bcab73da651358839e9b77481b2eab107708c",
+          "pub": "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=",
+          "protocol": "v2",
+          "contact": "untrusted local contact",
+          "registered": "2026-01-01T00:00:00+00:00"
+        },
+        {
+          "id": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+          "name": "untrusted forged label",
+          "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+          "pub": "Kay64UG8yvCyLhqU000LxzYeUm0L/hLIl5S8kyKWbdc=",
+          "protocol": "v2",
+          "contact": "untrusted forged contact",
+          "registered": "2026-01-01T00:00:00+00:00"
+        },
+        {
+          "id": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+          "name": "untrusted candidate label",
+          "fingerprint": "24f6ed6acbfe1009c030d7ca567c33ca4830911498236b5561a6c82abec5de28",
+          "pub": "Kay64UG8yvCyLhqU000LxzYeUm0L/hLIl5S8kyKWbdc=",
+          "protocol": "v2",
+          "contact": "untrusted candidate contact",
+          "registered": "2026-01-01T00:00:01+00:00"
+        }
+      ]
+    },
+    "offers": [
+      {
+        "v": 2,
+        "kind": "key",
+        "from": "agent-56475aa75463474c0285df5dbf2bcab7",
+        "to": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+        "offer": "AAECAwQFBgcICQoLDA0ODw",
+        "eph": "eaYx7t4b-cmPEgMs3q3Q56B5OY_HhriMyEbsia-FpRo",
+        "ts": "2026-01-01T00:00:00+00:00",
+        "sig": "cXA8Hwhe1ZnYi99Cwh-u0yfuyPTbVN5a9fSaNuzofS8JXX8fFKcgqwmeMDOEMXXyy1P1rABW0sjZRUbiprOJAw"
+      },
+      {
+        "v": 2,
+        "kind": "key",
+        "from": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+        "to": "agent-56475aa75463474c0285df5dbf2bcab7",
+        "offer": "EBESExQVFhcYGRobHB0eHw",
+        "eph": "Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8",
+        "ts": "2026-01-01T00:00:01+00:00",
+        "sig": "MLO-l2ERsYPMB__v_LyiqxkIZDi0V__5QCpYlxnVsr8hDAiz4mkmICw1sv4c_wDT_mGQ7i1Hk1KZiPl9NzX3AQ"
+      }
+    ]
+  },
+  "expected": {
+    "compatiblePeerCount": 1,
+    "invalidEntriesIgnored": 1,
+    "knownProjectEntriesExcluded": 1,
+    "selectedPeer": {
+      "id": "agent-24f6ed6acbfe1009c030d7ca567c33ca",
+      "fingerprint": "24f6ed6acbfe1009c030d7ca567c33ca4830911498236b5561a6c82abec5de28",
+      "protocol": "v2",
+      "registered": "2026-01-01T00:00:01+00:00"
+    },
+    "canonicalThread": "agent-24f6ed6acbfe1009c030d7ca567c33ca__agent-56475aa75463474c0285df5dbf2bcab7",
+    "verifiedOfferSignatures": 2,
+    "writesPerformed": false,
+    "identityStateCreated": false
+  }
+}
