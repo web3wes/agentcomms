@@ -144,9 +144,9 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
 
 HUB_URL = "https://web3wes.pythonanywhere.com"
 PROJECT_VERSION = "0.3.5"
-TRUST_VERSION = "0.3.4"
-PYPI_WHEEL_SHA256 = "c45bff406f3dc9cf5c9a81d93797ebe1486f6101f7505f84c36ffcee7e8d949d"
-PYPI_SDIST_SHA256 = "350a57b951d41ad6eb6ecb896446744a6452d0e503be08ddd1dfd4907251c638"
+TRUST_VERSION = "0.3.5"
+PYPI_WHEEL_SHA256 = "c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918"
+PYPI_SDIST_SHA256 = "e89cf9646e58d0849ba7b72a26fb2ac12b41f77c7f1bbcd046f0d0be76391ff5"
 PYPI_WHEEL_NAME = f"agentcomms_secure-{TRUST_VERSION}-py3-none-any.whl"
 PYPI_SDIST_NAME = f"agentcomms_secure-{TRUST_VERSION}.tar.gz"
 PYPI_INTEGRITY_BASE = (

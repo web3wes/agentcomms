@@ -1,11 +1,11 @@
-# Offline runtime evaluation of the exact PyPI 0.3.4 wheel.
+# Offline runtime evaluation of the exact PyPI 0.3.5 wheel.
 # The digest pins the multi-platform python:3.12-slim image index.
 FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
 
-ARG AGENTCOMMS_VERSION=0.3.4
-ARG AGENTCOMMS_WHEEL=agentcomms_secure-0.3.4-py3-none-any.whl
-ARG AGENTCOMMS_WHEEL_URL=https://files.pythonhosted.org/packages/95/ae/2990671a702ba59f2367e1997587c3dfd01f480fc79ca3f1d150b381186c/agentcomms_secure-0.3.4-py3-none-any.whl
-ARG AGENTCOMMS_WHEEL_SHA256=c45bff406f3dc9cf5c9a81d93797ebe1486f6101f7505f84c36ffcee7e8d949d
+ARG AGENTCOMMS_VERSION=0.3.5
+ARG AGENTCOMMS_WHEEL=agentcomms_secure-0.3.5-py3-none-any.whl
+ARG AGENTCOMMS_WHEEL_URL=https://files.pythonhosted.org/packages/99/c2/f7403147e7004c6d33fe1ee4fbc7214b35c98c9ed4881b5150b5b72ed40e/agentcomms_secure-0.3.5-py3-none-any.whl
+ARG AGENTCOMMS_WHEEL_SHA256=c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918
 
 RUN python -c "import hashlib,urllib.request; p='/tmp/package.whl'; urllib.request.urlretrieve('${AGENTCOMMS_WHEEL_URL}',p); actual=hashlib.sha256(open(p,'rb').read()).hexdigest(); assert actual == '${AGENTCOMMS_WHEEL_SHA256}', (actual, '${AGENTCOMMS_WHEEL_SHA256}')" \
     && python -m pip install --no-cache-dir --only-binary=:all: "cryptography==50.0.2" \
