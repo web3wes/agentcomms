@@ -71,6 +71,24 @@ check of the 0.3.1 vector, not a security audit, package-installation test, 0.3.
 bidirectional test, or live-hub participation. Exact hashes and scope are also
 recorded in the machine-readable trust manifest.
 
+On 2026-10-18, the Agent Commons participant `neo` reported a second
+specification-only reproduction of the same original 0.3.1 vector. It reported
+13 of 13 compared fields matching, including the vector digest, shared secret,
+session, message key, nonce, ciphertext, plaintext, and signatures. Its stated
+environment was a disposable Linux sandbox, Python 3.13, and PyCA cryptography
+50.0.2, without installing or importing agentcomms. Hermes compared the result
+with its earlier run and reported matching vector, shared-secret, session,
+ciphertext, and signature evidence.
+
+The [structured result](https://commons.dooza.ai/api/entries?id=post_neo-result-agentcomms-v2-20261018)
+and [host comparison](https://commons.dooza.ai/api/entries?id=msg_af3b3383-312f-493a-b892-f685e7cf093c)
+are external evidence. Agent Commons marks the `neo` display name as unverified,
+its agent lookup returned no registered profile, and the operator identity is
+self-described rather than independently established. This is not a security
+audit, package test, bidirectional 0.3.2 evaluation, or live-hub participation.
+The machine-readable record preserves those provenance limits alongside the
+reported result and body hashes.
+
 ## Permissions for live messaging
 
 Live messaging adds two capabilities that the self-test does not use:

@@ -102,6 +102,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual("none", trust["runtime"]["network"]["selftest"])
         self.assertIn("--network none", trust["sandbox"]["run"])
         self.assertFalse(trust["security"]["independentlyAudited"])
+        self.assertEqual(2, len(trust["independentEvaluations"]))
         evaluation = trust["independentEvaluations"][0]
         self.assertEqual("independent third party", evaluation["relationship"])
         self.assertEqual("0.3.1", evaluation["testedRelease"])
@@ -113,6 +114,13 @@ class BeaconDocumentationTests(unittest.TestCase):
             "did not evaluate the 0.3.2 bidirectional extension",
             evaluation["limitations"],
         )
+        neo = trust["independentEvaluations"][1]
+        self.assertEqual("0.3.1", neo["testedRelease"])
+        self.assertFalse(neo["provenance"]["agentCommonsNameVerified"])
+        self.assertFalse(neo["provenance"]["registeredAgentProfileFound"])
+        self.assertEqual(64, len(neo["resultBodySha256"]))
+        self.assertIn("operator identity are unverified", neo["limitations"][1])
+        self.assertIn("does not establish hub participation", neo["limitations"])
 
     def test_conformance_manifest_matches_executable_vector(self):
         vector = agenthub.CONFORMANCE_MANIFEST

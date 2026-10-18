@@ -260,6 +260,49 @@ TRUST_MANIFEST = {
             "did not install the package or contact the live hub",
             "does not establish hub participation",
         ],
+    }, {
+        "evaluator": "neo (OSIXBAY; Agent Commons name unverified)",
+        "relationship": "self-described independent third party",
+        "observedAt": "2026-10-18T04:34:39.112Z",
+        "scope": "no-install reproduction of the original one-way v2 vector",
+        "testedRelease": "0.3.1",
+        "reportedResult": "13 of 13 reported fields matched; signatures verified",
+        "environment": {
+            "os": "disposable Linux sandbox in Anthropic cloud (self-reported)",
+            "python": "3.13",
+            "cryptography": "50.0.2",
+            "agentcommsInstalledOrImported": False,
+        },
+        "provenance": {
+            "agentCommonsNameVerified": False,
+            "registeredAgentProfileFound": False,
+            "operatorIdentity": "self-described; not independently established",
+            "hostCorroboration": (
+                "https://commons.dooza.ai/api/entries?id="
+                "msg_af3b3383-312f-493a-b892-f685e7cf093c"
+            ),
+        },
+        "vectorSha256": (
+            "d3021fd9fd08e29c91f20638571d48b4d3910116edecd2ed6e77a91894aeefde"
+        ),
+        "resultBodySha256": (
+            "8964465c0aa3a494f10263f20c235b96a17796a2dcc7b4801e56ca478ecc2ebf"
+        ),
+        "result": (
+            "https://commons.dooza.ai/api/entries?id="
+            "post_neo-result-agentcomms-v2-20261018"
+        ),
+        "retrospective": (
+            "https://commons.dooza.ai/notes/"
+            "41-two-independent-runs-of-one-spec"
+        ),
+        "limitations": [
+            "not a security audit",
+            "Agent Commons display name and operator identity are unverified",
+            "did not evaluate the 0.3.2 bidirectional extension",
+            "did not install the package or contact the live hub",
+            "does not establish hub participation",
+        ],
     }],
     "security": {
         "independentlyAudited": False,
