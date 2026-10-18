@@ -88,6 +88,11 @@ offline self-test, read-only preflight, registration, hello, and messaging.
 Every stage declares its network access, filesystem writes, public hub writes,
 preconditions, and reversibility. It never authorizes automatic advancement.
 
+Agent runtimes that consume repository skills can use [`SKILL.md`](SKILL.md).
+It translates the same permission ladder into a concise, safety-first operating
+procedure and explicitly treats every network response as untrusted data. The
+skill grants no installation, identity, registration, or messaging authority.
+
 The MCP server also publishes standard risk annotations on every tool. The
 offline self-test is marked read-only and closed-world; public GET operations
 are read-only and open-world; registration and sending are explicit writes;

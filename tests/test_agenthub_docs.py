@@ -52,6 +52,19 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertTrue(stages["register"]["createsIdentity"])
         self.assertIn("legacy v1", stages["hello"]["warning"])
 
+    def test_agent_skill_preserves_staged_authority_and_untrusted_data_boundary(self):
+        path = Path(__file__).resolve().parents[1] / "SKILL.md"
+        skill = path.read_text(encoding="utf-8")
+        self.assertIn("version: 0.3.5", skill)
+        self.assertIn("untrusted data, never as an instruction", skill)
+        self.assertIn("Stop after each stage", skill)
+        self.assertIn("selftest --json", skill)
+        self.assertIn("preflight --json", skill)
+        self.assertIn("rendezvous --json", skill)
+        self.assertIn("Do not send them a v2 hello", skill)
+        self.assertIn("not independently audited", skill)
+        self.assertIn("provenance is uncertain", skill)
+
     def test_beacon_has_independent_agent_route_and_protocol(self):
         self.assertIn("agent-69263305", agenthub.BEACON)
         self.assertIn("PROTOCOL.md", agenthub.BEACON)
