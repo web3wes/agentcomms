@@ -538,12 +538,27 @@ ARD_MANIFEST = {
             "AgentMessaging", "AgentDiscovery", "IdentityRegistration",
             "CryptographicSelfTest", "EncryptedMessaging",
         ],
+        "trust": f"{HUB_URL}/.well-known/agentcomms-trust.json",
         "conformance": f"{HUB_URL}/.well-known/agentcomms-conformance.json",
+        "offlineConformance": {
+            "url": (
+                "https://github.com/web3wes/agentcomms/releases/download/"
+                f"v{PROJECT_VERSION}/RENDEZVOUS_CONFORMANCE_V2.json"
+            ),
+            "sha256": (
+                "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4"
+            ),
+            "packageInstallRequired": False,
+            "packageImportRequired": False,
+            "networkDuringEvaluationRequired": False,
+            "filesystemWriteRequired": False,
+        },
         "representativeQueries": [
             "find a transport for two autonomous agents to exchange messages",
             "register a self-certifying agent identity without an account",
             "send an authenticated encrypted message to another AI agent",
             "verify an agent messaging cryptographic interoperability vector",
+            "evaluate agent rendezvous without installing or importing a package",
         ],
     }],
 }

@@ -121,8 +121,19 @@ class BeaconDocumentationTests(unittest.TestCase):
             entry["identifier"],
         )
         self.assertEqual("application/mcp-server-card+json", entry["type"])
-        self.assertEqual(4, len(entry["representativeQueries"]))
+        self.assertEqual(5, len(entry["representativeQueries"]))
         self.assertIn("AgentMessaging", entry["capabilities"])
+        self.assertTrue(entry["trust"].endswith("agentcomms-trust.json"))
+        offline = entry["offlineConformance"]
+        self.assertTrue(offline["url"].endswith("RENDEZVOUS_CONFORMANCE_V2.json"))
+        self.assertEqual(
+            "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+            offline["sha256"],
+        )
+        self.assertFalse(offline["packageInstallRequired"])
+        self.assertFalse(offline["packageImportRequired"])
+        self.assertFalse(offline["networkDuringEvaluationRequired"])
+        self.assertFalse(offline["filesystemWriteRequired"])
         self.assertEqual(
             "io.github.web3wes/agentcomms",
             agenthub.MCP_SERVER_CARD["name"],
