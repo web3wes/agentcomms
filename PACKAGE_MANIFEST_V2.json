@@ -1,0 +1,105 @@
+{
+  "declaredNetwork": {
+    "defaultPackageCodeOutboundHosts": [
+      "web3wes.pythonanywhere.com"
+    ],
+    "installerNetwork": "Package-manager index and dependency traffic is controlled by the installer, not by package code.",
+    "offlineSelftestOutboundHosts": [],
+    "operatorConfiguredOutboundHosts": "The --hub option or AGENTCOMMS_HUB may select another HTTP(S) origin. No other package-code destinations are declared.",
+    "readOnlyPreflightOutboundHosts": [
+      "web3wes.pythonanywhere.com"
+    ]
+  },
+  "distribution": {
+    "filename": "agentcomms_secure-0.3.5-py3-none-any.whl",
+    "purePython": true,
+    "sha256": "c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918",
+    "size": 31094,
+    "version": "0.3.5",
+    "wheelTags": "py3-none-any"
+  },
+  "files": [
+    {
+      "compressedSize": 6039,
+      "path": "agentcomms.py",
+      "sha256": "2361e29a6b03aebcdc32cb1b777db0099f4dda72b0d9558c14badd2e2a43958f",
+      "size": 17795
+    },
+    {
+      "compressedSize": 4057,
+      "path": "agentcomms_mcp.py",
+      "sha256": "775a845aa2394d299b55779e11e11e09c30654a07607621223da9646a2ea8071",
+      "size": 18504
+    },
+    {
+      "compressedSize": 6785,
+      "path": "agentcomms_secure-0.3.5.dist-info/METADATA",
+      "sha256": "62e94e9101ace485157035b0961683dc6eab7845462fbee1c9afedcf6c9a5b9b",
+      "size": 16807
+    },
+    {
+      "compressedSize": 450,
+      "path": "agentcomms_secure-0.3.5.dist-info/RECORD",
+      "sha256": "7affd97e872f8014c8a585368f282775d0b3376609a6ab3ee5abbdf3326336b9",
+      "size": 772
+    },
+    {
+      "compressedSize": 92,
+      "path": "agentcomms_secure-0.3.5.dist-info/WHEEL",
+      "sha256": "61532836a2b3111b7ec23519c09df7c41180c27165fb872a6d8913b566b88ad1",
+      "size": 91
+    },
+    {
+      "compressedSize": 61,
+      "path": "agentcomms_secure-0.3.5.dist-info/entry_points.txt",
+      "sha256": "53647c8aea71f2c7cb1914f487e93a1ac134363dc6711998894174825c6a4c3f",
+      "size": 119
+    },
+    {
+      "compressedSize": 628,
+      "path": "agentcomms_secure-0.3.5.dist-info/licenses/LICENSE",
+      "sha256": "1ddf17aef659487e6f9f4230c55e261623c2602aa900a0e584e183c7537a590a",
+      "size": 1064
+    },
+    {
+      "compressedSize": 24,
+      "path": "agentcomms_secure-0.3.5.dist-info/top_level.txt",
+      "sha256": "1662af90093fb1f035ba4c888516e686118c55a308c917b475dfcdb4748e7b0a",
+      "size": 40
+    },
+    {
+      "compressedSize": 11624,
+      "path": "agentcomms_v2.py",
+      "sha256": "0555519359b0ac98a984b7fd14cfde109987f4f751b9e6613af0529a445d3893",
+      "size": 39697
+    }
+  ],
+  "installBehavior": {
+    "consoleScripts": [
+      {
+        "name": "agentcomms",
+        "target": "agentcomms:main"
+      },
+      {
+        "name": "agentcomms-mcp",
+        "target": "agentcomms_mcp:main"
+      },
+      {
+        "name": "agentcomms-v2",
+        "target": "agentcomms_v2:main"
+      }
+    ],
+    "dependencies": [
+      "cryptography<51,>=49"
+    ],
+    "installTimeCodeHooks": [],
+    "note": "Installing this wheel unpacks files and creates declared console scripts; it does not run package-defined install hooks."
+  },
+  "nativeBinaries": [],
+  "reproduction": {
+    "command": "python scripts/build_package_manifest.py dist/<wheel>.whl PACKAGE_MANIFEST_V2.json",
+    "deterministic": true
+  },
+  "schema": "agentcomms-package-manifest-v1",
+  "scope": "built wheel; source-distribution build behavior is out of scope"
+}

@@ -169,6 +169,15 @@ class BeaconDocumentationTests(unittest.TestCase):
             agenthub.MCP_SERVER_CARD["name"],
         )
         self.assertEqual("0.3.5", agenthub.MCP_SERVER_CARD["version"])
+        card_security = agenthub.MCP_SERVER_CARD["x-agentcomms-security"]
+        self.assertFalse(card_security["independentlyAudited"])
+        self.assertFalse(card_security["postCompromiseRecovery"])
+        self.assertTrue(card_security["hubMetadataPublic"])
+        self.assertFalse(card_security["protocols"]["v1"]["forwardSecrecy"])
+        self.assertTrue(
+            card_security["protocols"]["v2"]["authenticatedEncryption"]
+        )
+        self.assertEqual(card_security, entry["security"])
         self.assertIn("Agentmap:", agenthub.ROBOTS)
 
     def test_trust_manifest_is_exact_and_does_not_overclaim(self):
@@ -191,6 +200,11 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertFalse(rendezvous["execution"]["filesystemWrite"])
         self.assertIn("never use them live", rendezvous["warning"])
         self.assertFalse(trust["security"]["independentlyAudited"])
+        self.assertTrue(
+            trust["releaseEvidence"]["packageManifest"].endswith(
+                "PACKAGE_MANIFEST_V2.json"
+            )
+        )
         self.assertEqual(2, len(trust["independentEvaluations"]))
         evaluation = trust["independentEvaluations"][0]
         self.assertEqual("independent third party", evaluation["relationship"])

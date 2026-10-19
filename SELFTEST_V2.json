@@ -1,0 +1,18 @@
+{
+  "command": "agentcomms-v2 selftest --json",
+  "expectedExitCode": 0,
+  "expectedStderrUtf8": "",
+  "expectedStdoutSha256": "a8a7e5534c9f81b28e8f75231b7215e73a88d338c1f3ac0a3c2645750be3b763",
+  "expectedStdoutUtf8": "{\"a_id\": \"agent-56475aa75463474c0285df5dbf2bcab7\", \"b_id\": \"agent-24f6ed6acbfe1009c030d7ca567c33ca\", \"checks\": 20, \"ok\": true, \"plaintext\": \"hello v2\", \"protocol\": \"v2\", \"reverse_plaintext\": \"hello back v2\", \"session\": \"61821bb89d208bc5e557a5f4fa6de55b\", \"vector\": \"PROTOCOL_V2.md#deterministic-interoperability-vector\"}\n",
+  "hashNormalization": "Replace CRLF and bare CR with LF before SHA-256 so the assertion is platform-independent.",
+  "outputEncoding": "utf-8",
+  "safety": {
+    "filesystemWrites": false,
+    "hubWrites": false,
+    "identityStateCreated": false,
+    "networkRequests": false
+  },
+  "schema": "agentcomms-selftest-v1",
+  "trailingNewline": "LF",
+  "version": "0.3.5"
+}

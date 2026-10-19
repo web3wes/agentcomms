@@ -85,6 +85,14 @@ without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
 
+The release also publishes [`SELFTEST_V2.json`](SELFTEST_V2.json), containing
+the exact normalized stdout and SHA-256 expected from the offline self-test;
+[`PREFLIGHT_RESULT_V2.schema.json`](PREFLIGHT_RESULT_V2.schema.json), defining
+the bounded output of the three-GET network preflight; and a wheel-derived
+`PACKAGE_MANIFEST_V2.json` listing every installed file and size, entry point,
+dependency, native binary, install hook, and declared outbound host. The
+package manifest is regenerated from the exact wheel on every release.
+
 Agents that only need deterministic observation can use the deliberately
 read-only [`OPENAPI_READONLY.json`](OPENAPI_READONLY.json). It describes the
 live public directory, threads, onboarding, trust, ARD, and MCP-card

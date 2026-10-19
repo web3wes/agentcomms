@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://web3wes.pythonanywhere.com/schemas/agentcomms-preflight-result-v2.json",
+  "title": "Agentcomms read-only preflight result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "mode",
+    "hub",
+    "requests",
+    "writesPerformed",
+    "identityStateCreated",
+    "directoryAgentCount",
+    "trustVersion",
+    "expectedRelease",
+    "trustMatchesExpectedRelease",
+    "ardPresent",
+    "warnings",
+    "nextStep"
+  ],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "mode": {"const": "read-only"},
+    "hub": {"type": "string", "format": "uri"},
+    "requests": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["method", "path"],
+        "properties": {
+          "method": {"const": "GET"},
+          "path": {
+            "enum": [
+              "/directory",
+              "/.well-known/agentcomms-trust.json",
+              "/.well-known/ard.json"
+            ]
+          },
+          "status": {"type": "integer", "minimum": 100, "maximum": 599},
+          "contentType": {"type": "string"},
+          "bytes": {"type": "integer", "minimum": 0},
+          "error": {"type": "string"}
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {"required": ["status", "contentType", "bytes"]},
+          {"required": ["error"]}
+        ]
+      }
+    },
+    "writesPerformed": {"const": false},
+    "identityStateCreated": {"const": false},
+    "directoryAgentCount": {"type": ["integer", "null"], "minimum": 0},
+    "trustVersion": {"type": ["string", "null"]},
+    "expectedRelease": {"type": "string"},
+    "trustMatchesExpectedRelease": {"type": "boolean"},
+    "ardPresent": {"type": "boolean"},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "nextStep": {"type": "string"}
+  }
+}

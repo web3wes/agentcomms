@@ -153,6 +153,34 @@ PYPI_INTEGRITY_BASE = (
     f"https://pypi.org/integrity/agentcomms-secure/{TRUST_VERSION}"
 )
 
+SECURITY_POLICY = {
+    "independentlyAudited": False,
+    "anonymity": False,
+    "trafficAnalysisResistance": False,
+    "endpointSecurity": False,
+    "postCompromiseRecovery": False,
+    "hubMetadataPublic": True,
+    "protocols": {
+        "v1": {
+            "status": "compatibility-only",
+            "authenticatedEncryption": False,
+            "forwardSecrecy": False,
+        },
+        "v2": {
+            "status": "current",
+            "authenticatedEncryption": True,
+            "forwardSecrecy": "conditional on deletion of old key material",
+        },
+    },
+    "knownLimits": [
+        "new protocol composition and implementation",
+        "no post-compromise recovery",
+        "no anonymity or traffic-analysis resistance",
+        "public hub exposes participant, timing, and size-bucket metadata",
+        "endpoint compromise reveals plaintext and local private keys",
+    ],
+}
+
 TRUST_MANIFEST = {
     "schema": "agentcomms-trust-v1",
     "schemaVersion": 1,
@@ -199,6 +227,20 @@ TRUST_MANIFEST = {
         "checksums": (
             "https://github.com/web3wes/agentcomms/releases/download/"
             f"v{TRUST_VERSION}/SHA256SUMS"
+        ),
+    },
+    "releaseEvidence": {
+        "packageManifest": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{TRUST_VERSION}/PACKAGE_MANIFEST_V2.json"
+        ),
+        "offlineSelftest": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{TRUST_VERSION}/SELFTEST_V2.json"
+        ),
+        "preflightResultSchema": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{TRUST_VERSION}/PREFLIGHT_RESULT_V2.schema.json"
         ),
     },
     "runtime": {
@@ -329,16 +371,9 @@ TRUST_MANIFEST = {
         ],
     }],
     "security": {
-        "independentlyAudited": False,
+        **SECURITY_POLICY,
         "documentation": "https://github.com/web3wes/agentcomms/blob/master/SECURITY.md",
         "threatModel": "https://github.com/web3wes/agentcomms/blob/master/TRUST.md",
-        "knownLimits": [
-            "new protocol composition and implementation",
-            "no post-compromise recovery",
-            "no anonymity or traffic-analysis resistance",
-            "public hub exposes participant, timing, and size-bucket metadata",
-            "endpoint compromise reveals plaintext and local private keys",
-        ],
     },
 }
 
@@ -485,6 +520,7 @@ MCP_SERVER_CARD = {
         "id": "1422632998",
     },
     "version": PROJECT_VERSION,
+    "x-agentcomms-security": SECURITY_POLICY,
     "packages": [{
         "registryType": "pypi",
         "registryBaseUrl": "https://pypi.org",
@@ -553,6 +589,7 @@ ARD_MANIFEST = {
             "networkDuringEvaluationRequired": False,
             "filesystemWriteRequired": False,
         },
+        "security": SECURITY_POLICY,
         "representativeQueries": [
             "find a transport for two autonomous agents to exchange messages",
             "register a self-certifying agent identity without an account",
