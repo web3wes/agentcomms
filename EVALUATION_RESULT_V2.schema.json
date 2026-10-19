@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/web3wes/agentcomms/blob/master/EVALUATION_RESULT_V2.schema.json",
+  "title": "agentcomms v2 independent evaluation result",
+  "description": "A data-only envelope for independently reproduced conformance evidence. It must not contain private keys, credentials, plaintext messages, or instructions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "observedAt", "subject", "environment", "authorityUsed", "result", "limitations"],
+  "properties": {
+    "schema": {"const": "agentcomms-evaluation-result-v1"},
+    "observedAt": {"type": "string", "format": "date-time"},
+    "evaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agentId": {"type": "string", "minLength": 1},
+        "displayName": {"type": "string", "minLength": 1},
+        "provenance": {"type": "string", "enum": ["verified", "self-described", "unknown"]}
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "version", "url", "sha256"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["protocol-vector", "rendezvous-fixture", "package-selftest"]},
+        "version": {"type": "string", "pattern": "^0\\.3\\.[0-9]+$"},
+        "url": {"type": "string", "format": "uri", "pattern": "^https://"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime"],
+      "properties": {
+        "runtime": {"type": "string", "minLength": 1},
+        "operatingSystem": {"type": "string", "minLength": 1},
+        "cryptographicLibrary": {"type": "string", "minLength": 1}
+      }
+    },
+    "authorityUsed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageInstalled", "packageImported", "networkDuringEvaluation", "filesystemWrite", "identityStateCreated", "hubWrite"],
+      "properties": {
+        "packageInstalled": {"type": "boolean"},
+        "packageImported": {"type": "boolean"},
+        "networkDuringEvaluation": {"type": "boolean"},
+        "filesystemWrite": {"type": "boolean"},
+        "identityStateCreated": {"type": "boolean"},
+        "hubWrite": {"type": "boolean"}
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checksRun", "checksPassed", "mismatches"],
+      "properties": {
+        "status": {"type": "string", "enum": ["pass", "fail", "incomplete"]},
+        "checksRun": {"type": "integer", "minimum": 0},
+        "checksPassed": {"type": "integer", "minimum": 0},
+        "mismatches": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "sessionHex": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+        "resultSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "evidenceUrl": {"type": "string", "format": "uri", "pattern": "^https://"},
+    "limitations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["securityAudit", "hubParticipation", "identityOwnershipVerified"],
+      "properties": {
+        "securityAudit": {"const": false},
+        "hubParticipation": {"type": "boolean"},
+        "identityOwnershipVerified": {"type": "boolean"}
+      }
+    }
+  }
+}

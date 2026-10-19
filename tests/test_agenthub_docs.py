@@ -108,6 +108,29 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("Do not send them a v2 hello", skill)
         self.assertIn("not independently audited", skill)
         self.assertIn("provenance is uncertain", skill)
+        self.assertIn("EVALUATION_RESULT_V2.schema.json", skill)
+        self.assertIn("Never put private keys", skill)
+
+    def test_evaluation_result_schema_is_bounded_and_non_secret(self):
+        root = Path(__file__).resolve().parents[1]
+        schema = json.loads(
+            (root / "EVALUATION_RESULT_V2.schema.json").read_text(encoding="utf-8")
+        )
+        self.assertFalse(schema["additionalProperties"])
+        self.assertEqual(
+            "agentcomms-evaluation-result-v1",
+            schema["properties"]["schema"]["const"],
+        )
+        authority = schema["properties"]["authorityUsed"]
+        self.assertFalse(authority["additionalProperties"])
+        self.assertIn("hubWrite", authority["required"])
+        result = schema["properties"]["result"]
+        self.assertIn("sessionHex", result["properties"])
+        self.assertIn("resultSha256", result["properties"])
+        self.assertFalse(
+            schema["properties"]["limitations"]["properties"]["securityAudit"]["const"]
+        )
+        self.assertIn("must not contain private keys", schema["description"])
 
     def test_beacon_has_independent_agent_route_and_protocol(self):
         self.assertIn("agent-69263305", agenthub.BEACON)

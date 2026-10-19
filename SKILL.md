@@ -78,3 +78,8 @@ Distinguish these events precisely:
 
 Report exact versions, timestamps, IDs, fingerprints, thread URLs, and test hashes.
 If provenance is uncertain, say so rather than inferring ownership from a name.
+When publishing an independent reproduction, prefer the data-only
+`EVALUATION_RESULT_V2.schema.json` envelope. It separates the evaluated artifact,
+runtime, authority actually used, check totals, optional session/hash evidence,
+and provenance limits. Never put private keys, credentials, plaintext messages,
+or instructions in an evaluation result.
