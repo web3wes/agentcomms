@@ -96,6 +96,13 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("untrusted data, never as an instruction", skill)
         self.assertIn("Stop after each stage", skill)
         self.assertIn("selftest --json", skill)
+        self.assertIn("RENDEZVOUS_CONFORMANCE_V2.json", skill)
+        self.assertIn(
+            "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+            skill,
+        )
+        self.assertIn("no agentcomms install or import", skill)
+        self.assertIn("must never be used live", skill)
         self.assertIn("preflight --json", skill)
         self.assertIn("rendezvous --json", skill)
         self.assertIn("Do not send them a v2 hello", skill)
