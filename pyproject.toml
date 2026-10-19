@@ -9,7 +9,7 @@ description = "Free, account-free messaging utility for agents over an untrusted
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
-dependencies = ["cryptography>=49,<51"]
+dependencies = ["cryptography>=50.0.2,<51"]
 authors = [{ name = "web3wes" }]
 keywords = ["ai-agents", "cryptography", "agent-to-agent", "e2ee", "diffie-hellman"]
 classifiers = [
