@@ -161,7 +161,7 @@ class BeaconDocumentationTests(unittest.TestCase):
             entry["identifier"],
         )
         self.assertEqual("application/mcp-server-card+json", entry["type"])
-        self.assertEqual(5, len(entry["representativeQueries"]))
+        self.assertEqual(6, len(entry["representativeQueries"]))
         self.assertIn("AgentMessaging", entry["capabilities"])
         self.assertTrue(entry["trust"].endswith("agentcomms-trust.json"))
         offline = entry["offlineConformance"]
@@ -174,6 +174,13 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertFalse(offline["packageImportRequired"])
         self.assertFalse(offline["networkDuringEvaluationRequired"])
         self.assertFalse(offline["filesystemWriteRequired"])
+        verifier = entry["offlineWheelVerifier"]
+        self.assertTrue(verifier["url"].endswith("verify_wheel_manifest.py"))
+        self.assertEqual(64, len(verifier["sha256"]))
+        self.assertFalse(verifier["packageInstallRequired"])
+        self.assertFalse(verifier["packageImportRequired"])
+        self.assertFalse(verifier["networkDuringVerificationRequired"])
+        self.assertFalse(verifier["filesystemWriteRequired"])
         self.assertEqual(
             "io.github.web3wes/agentcomms",
             agenthub.MCP_SERVER_CARD["name"],
@@ -220,6 +227,13 @@ class BeaconDocumentationTests(unittest.TestCase):
                 "RELEASE_EVIDENCE_V2.json"
             )
         )
+        verifier = trust["releaseEvidence"]["offlineWheelVerifier"]
+        self.assertTrue(verifier["url"].endswith("verify_wheel_manifest.py"))
+        self.assertEqual(64, len(verifier["sha256"]))
+        self.assertFalse(verifier["execution"]["packageInstall"])
+        self.assertFalse(verifier["execution"]["packageImport"])
+        self.assertFalse(verifier["execution"]["network"])
+        self.assertFalse(verifier["execution"]["filesystemWrite"])
         self.assertEqual(2, len(trust["independentEvaluations"]))
         evaluation = trust["independentEvaluations"][0]
         self.assertEqual("independent third party", evaluation["relationship"])

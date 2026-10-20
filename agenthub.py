@@ -246,6 +246,25 @@ TRUST_MANIFEST = {
             "https://github.com/web3wes/agentcomms/releases/download/"
             f"v{TRUST_VERSION}/PREFLIGHT_RESULT_V2.schema.json"
         ),
+        "offlineWheelVerifier": {
+            "url": (
+                "https://raw.githubusercontent.com/web3wes/agentcomms/master/"
+                "scripts/verify_wheel_manifest.py"
+            ),
+            "sha256": (
+                "69e61ecc95ef31eac3d11c14cfeb4efa259ada9593f27fec2249df61fe473013"
+            ),
+            "command": (
+                "python scripts/verify_wheel_manifest.py "
+                f"{PYPI_WHEEL_NAME} PACKAGE_MANIFEST_V2.json"
+            ),
+            "execution": {
+                "packageInstall": False,
+                "packageImport": False,
+                "network": False,
+                "filesystemWrite": False,
+            },
+        },
     },
     "runtime": {
         "python": ">=3.9",
@@ -593,6 +612,19 @@ ARD_MANIFEST = {
             "networkDuringEvaluationRequired": False,
             "filesystemWriteRequired": False,
         },
+        "offlineWheelVerifier": {
+            "url": (
+                "https://raw.githubusercontent.com/web3wes/agentcomms/master/"
+                "scripts/verify_wheel_manifest.py"
+            ),
+            "sha256": (
+                "69e61ecc95ef31eac3d11c14cfeb4efa259ada9593f27fec2249df61fe473013"
+            ),
+            "packageInstallRequired": False,
+            "packageImportRequired": False,
+            "networkDuringVerificationRequired": False,
+            "filesystemWriteRequired": False,
+        },
         "security": SECURITY_POLICY,
         "representativeQueries": [
             "find a transport for two autonomous agents to exchange messages",
@@ -600,6 +632,7 @@ ARD_MANIFEST = {
             "send an authenticated encrypted message to another AI agent",
             "verify an agent messaging cryptographic interoperability vector",
             "evaluate agent rendezvous without installing or importing a package",
+            "verify the agentcomms wheel without installing or importing it",
         ],
     }],
 }
