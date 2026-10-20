@@ -343,6 +343,20 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("separately authorized", instructions)
         self.assertIn("only verified independently operated hub", instructions)
 
+    def test_scorecard_workflow_is_read_only_and_commit_pinned(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (
+            root / ".github" / "workflows" / "scorecard.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("permissions: read-all", workflow)
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertIn("results_format: sarif", workflow)
+        self.assertIn("publish_results: true", workflow)
+        self.assertIn("security-events: write", workflow)
+        self.assertIn("id-token: write", workflow)
+        self.assertNotIn("uses: ossf/scorecard-action@v", workflow)
+        self.assertNotIn("uses: github/codeql-action/upload-sarif@v", workflow)
+
     def test_hub_accepts_self_certifying_v2_identity_and_long_thread_ids(self):
         import base64
         import hashlib
