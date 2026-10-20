@@ -78,6 +78,10 @@ PEP 740/Sigstore provenance, the CycloneDX SBOM, required permissions, and a
 locked-down offline evaluation command in [`TRUST.md`](TRUST.md), or fetch the
 same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
+Repository-only evaluators can instead read the generated, import-free
+[`TRUST_MANIFEST.json`](TRUST_MANIFEST.json) and
+[`ARD_MANIFEST.json`](ARD_MANIFEST.json) snapshots. Tests require both files
+to remain byte-for-byte synchronized with the server source.
 Independent implementations can consume the deterministic v2 inputs and
 expected outputs from the versioned release asset
 [`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.5/CONFORMANCE_V2.json),

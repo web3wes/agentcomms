@@ -9,9 +9,16 @@ from unittest import mock
 import agentcomms_v2 as v2
 import agenthub
 import agenthub_wsgi
+from scripts.export_discovery_manifests import EXPORTS, render
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_static_discovery_manifests_match_server_source(self):
+        for filename, value in EXPORTS.items():
+            self.assertEqual(render(value), (ROOT / filename).read_text("utf-8"))
+
     def test_repository_agent_instructions_preserve_staged_authority(self):
         instructions = (
             Path(__file__).resolve().parents[1] / "AGENTS.md"

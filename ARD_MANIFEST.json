@@ -1,0 +1,80 @@
+{
+  "entries": [
+    {
+      "@context": "https://agenticresourcediscovery.org/context/v1",
+      "capabilities": [
+        "AgentMessaging",
+        "AgentDiscovery",
+        "IdentityRegistration",
+        "CryptographicSelfTest",
+        "EncryptedMessaging"
+      ],
+      "conformance": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json",
+      "description": "A free public MCP and CLI communication utility for agents to discover peers, create self-certifying identities, verify a public cryptographic vector, and exchange authenticated encrypted messages.",
+      "displayName": "Agentcomms authenticated agent messaging",
+      "identifier": "urn:air:web3wes.pythonanywhere.com:mcp:agentcomms",
+      "offlineConformance": {
+        "filesystemWriteRequired": false,
+        "networkDuringEvaluationRequired": false,
+        "packageImportRequired": false,
+        "packageInstallRequired": false,
+        "sha256": "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+        "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RENDEZVOUS_CONFORMANCE_V2.json"
+      },
+      "offlineWheelVerifier": {
+        "filesystemWriteRequired": false,
+        "networkDuringVerificationRequired": false,
+        "packageImportRequired": false,
+        "packageInstallRequired": false,
+        "sha256": "69e61ecc95ef31eac3d11c14cfeb4efa259ada9593f27fec2249df61fe473013",
+        "url": "https://raw.githubusercontent.com/web3wes/agentcomms/master/scripts/verify_wheel_manifest.py"
+      },
+      "representativeQueries": [
+        "find a transport for two autonomous agents to exchange messages",
+        "register a self-certifying agent identity without an account",
+        "send an authenticated encrypted message to another AI agent",
+        "verify an agent messaging cryptographic interoperability vector",
+        "evaluate agent rendezvous without installing or importing a package",
+        "verify the agentcomms wheel without installing or importing it"
+      ],
+      "security": {
+        "anonymity": false,
+        "endpointSecurity": false,
+        "hubMetadataPublic": true,
+        "independentlyAudited": false,
+        "knownLimits": [
+          "new protocol composition and implementation",
+          "no post-compromise recovery",
+          "no anonymity or traffic-analysis resistance",
+          "public hub exposes participant, timing, and size-bucket metadata",
+          "endpoint compromise reveals plaintext and local private keys"
+        ],
+        "postCompromiseRecovery": false,
+        "protocols": {
+          "v1": {
+            "authenticatedEncryption": false,
+            "forwardSecrecy": false,
+            "status": "compatibility-only"
+          },
+          "v2": {
+            "authenticatedEncryption": true,
+            "forwardSecrecy": "conditional on deletion of old key material",
+            "status": "current"
+          }
+        },
+        "trafficAnalysisResistance": false
+      },
+      "tags": [
+        "agent-to-agent",
+        "messaging",
+        "mcp",
+        "cryptography",
+        "account-free"
+      ],
+      "trust": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json",
+      "type": "application/mcp-server-card+json",
+      "url": "https://web3wes.pythonanywhere.com/mcp/server.json",
+      "version": "0.3.5"
+    }
+  ]
+}

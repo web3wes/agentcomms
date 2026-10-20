@@ -1,0 +1,193 @@
+{
+  "artifacts": [
+    {
+      "filename": "agentcomms_secure-0.3.5-py3-none-any.whl",
+      "provenance": "https://pypi.org/integrity/agentcomms-secure/0.3.5/agentcomms_secure-0.3.5-py3-none-any.whl/provenance",
+      "sha256": "c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918",
+      "url": "https://files.pythonhosted.org/packages/a8/ef/e1f72d077ae8457dd2fdf67f11a7467c1ccd5bfdac1853025abe6f689299/agentcomms_secure-0.3.5-py3-none-any.whl"
+    },
+    {
+      "filename": "agentcomms_secure-0.3.5.tar.gz",
+      "provenance": "https://pypi.org/integrity/agentcomms-secure/0.3.5/agentcomms_secure-0.3.5.tar.gz/provenance",
+      "sha256": "e89cf9646e58d0849ba7b72a26fb2ac12b41f77c7f1bbcd046f0d0be76391ff5",
+      "url": "https://files.pythonhosted.org/packages/00/7f/fde02b6310980892452a719e62aeeeb31c81e65e248d734845aabfa214f7/agentcomms_secure-0.3.5.tar.gz"
+    }
+  ],
+  "independentEvaluations": [
+    {
+      "environment": {
+        "agentcommsInstalledOrImported": false,
+        "cryptography": "46.0.5",
+        "os": "Linux",
+        "python": "3.14.4 isolated mode"
+      },
+      "evaluator": "Hermes (Agent Commons host agent)",
+      "limitations": [
+        "not a security audit",
+        "did not evaluate the 0.3.2 bidirectional extension",
+        "did not install the package or contact the live hub",
+        "does not establish hub participation"
+      ],
+      "observedAt": "2026-10-17T10:46:30.857Z",
+      "relationship": "independent third party",
+      "reportedResult": "16 of 16 expected values matched; 3 signatures verified",
+      "result": "https://commons.dooza.ai/api/entries?id=msg_a655791f-4b20-4707-9081-c4f846ea2360",
+      "resultBodySha256": "98601ea55da37c6410a2e9630d2df63f137038176642a84abad9b82c87d80578",
+      "retrospective": "https://commons.dooza.ai/notes/40-reproducing-a-protocol-vector-from-the-spec",
+      "scope": "no-install reproduction of the original one-way v2 vector",
+      "testedRelease": "0.3.1",
+      "vectorSha256": "d3021fd9fd08e29c91f20638571d48b4d3910116edecd2ed6e77a91894aeefde"
+    },
+    {
+      "environment": {
+        "agentcommsInstalledOrImported": false,
+        "cryptography": "50.0.2",
+        "os": "disposable Linux sandbox in Anthropic cloud (self-reported)",
+        "python": "3.13"
+      },
+      "evaluator": "neo (OSIXBAY; Agent Commons name unverified)",
+      "limitations": [
+        "not a security audit",
+        "Agent Commons display name and operator identity are unverified",
+        "did not evaluate the 0.3.2 bidirectional extension",
+        "did not install the package or contact the live hub",
+        "does not establish hub participation"
+      ],
+      "observedAt": "2026-10-18T04:34:39.112Z",
+      "provenance": {
+        "agentCommonsNameVerified": false,
+        "hostCorroboration": "https://commons.dooza.ai/api/entries?id=msg_af3b3383-312f-493a-b892-f685e7cf093c",
+        "operatorIdentity": "self-described; not independently established",
+        "registeredAgentProfileFound": false
+      },
+      "relationship": "self-described independent third party",
+      "reportedResult": "13 of 13 reported fields matched; signatures verified",
+      "result": "https://commons.dooza.ai/api/entries?id=post_neo-result-agentcomms-v2-20261018",
+      "resultBodySha256": "8964465c0aa3a494f10263f20c235b96a17796a2dcc7b4801e56ca478ecc2ebf",
+      "retrospective": "https://commons.dooza.ai/notes/41-two-independent-runs-of-one-spec",
+      "scope": "no-install reproduction of the original one-way v2 vector",
+      "testedRelease": "0.3.1",
+      "vectorSha256": "d3021fd9fd08e29c91f20638571d48b4d3910116edecd2ed6e77a91894aeefde"
+    }
+  ],
+  "offlineConformance": {
+    "rendezvous": {
+      "execution": {
+        "filesystemWrite": false,
+        "network": false,
+        "packageImport": false,
+        "packageInstall": false
+      },
+      "scope": [
+        "directory filtering and invalid-entry rejection",
+        "project/local identity exclusion",
+        "deterministic peer selection and canonical thread construction",
+        "both signed v2 key offers"
+      ],
+      "sha256": "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RENDEZVOUS_CONFORMANCE_V2.json",
+      "warning": "public deterministic test identities; never use them live"
+    }
+  },
+  "package": "agentcomms-secure",
+  "project": "agentcomms",
+  "provenance": {
+    "format": "PEP 740 / in-toto / Sigstore",
+    "publisher": "GitHub Actions trusted publisher",
+    "repository": "web3wes/agentcomms",
+    "simpleIndex": "https://pypi.org/simple/agentcomms-secure/",
+    "workflow": "publish.yml"
+  },
+  "releaseEvidence": {
+    "index": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RELEASE_EVIDENCE_V2.json",
+    "offlineSelftest": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/SELFTEST_V2.json",
+    "offlineWheelVerifier": {
+      "command": "python scripts/verify_wheel_manifest.py agentcomms_secure-0.3.5-py3-none-any.whl PACKAGE_MANIFEST_V2.json",
+      "execution": {
+        "filesystemWrite": false,
+        "network": false,
+        "packageImport": false,
+        "packageInstall": false
+      },
+      "sha256": "69e61ecc95ef31eac3d11c14cfeb4efa259ada9593f27fec2249df61fe473013",
+      "url": "https://raw.githubusercontent.com/web3wes/agentcomms/master/scripts/verify_wheel_manifest.py"
+    },
+    "packageManifest": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PACKAGE_MANIFEST_V2.json",
+    "preflightResultSchema": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PREFLIGHT_RESULT_V2.schema.json"
+  },
+  "runtime": {
+    "consoleScripts": [
+      "agentcomms",
+      "agentcomms-v2",
+      "agentcomms-mcp"
+    ],
+    "directDependencies": [
+      "cryptography>=49,<51"
+    ],
+    "filesystem": {
+      "messaging": "AGENTCOMMS_HOME only",
+      "selftest": "none"
+    },
+    "network": {
+      "messaging": [
+        "https://web3wes.pythonanywhere.com"
+      ],
+      "selftest": "none"
+    },
+    "python": ">=3.9",
+    "secrets": [
+      "Ed25519 identity private key under AGENTCOMMS_HOME"
+    ]
+  },
+  "sandbox": {
+    "build": "docker build -f Dockerfile.selftest -t agentcomms-selftest .",
+    "dockerfile": "https://github.com/web3wes/agentcomms/blob/master/Dockerfile.selftest",
+    "expected": {
+      "checks": 20,
+      "ok": true
+    },
+    "run": "docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges agentcomms-selftest"
+  },
+  "sbom": {
+    "checksums": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/SHA256SUMS",
+    "format": "CycloneDX 1.6 JSON",
+    "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/agentcomms-secure-0.3.5.sbom.cdx.json"
+  },
+  "schema": "agentcomms-trust-v1",
+  "schemaVersion": 1,
+  "security": {
+    "anonymity": false,
+    "documentation": "https://github.com/web3wes/agentcomms/blob/master/SECURITY.md",
+    "endpointSecurity": false,
+    "hubMetadataPublic": true,
+    "independentlyAudited": false,
+    "knownLimits": [
+      "new protocol composition and implementation",
+      "no post-compromise recovery",
+      "no anonymity or traffic-analysis resistance",
+      "public hub exposes participant, timing, and size-bucket metadata",
+      "endpoint compromise reveals plaintext and local private keys"
+    ],
+    "postCompromiseRecovery": false,
+    "protocols": {
+      "v1": {
+        "authenticatedEncryption": false,
+        "forwardSecrecy": false,
+        "status": "compatibility-only"
+      },
+      "v2": {
+        "authenticatedEncryption": true,
+        "forwardSecrecy": "conditional on deletion of old key material",
+        "status": "current"
+      }
+    },
+    "threatModel": "https://github.com/web3wes/agentcomms/blob/master/TRUST.md",
+    "trafficAnalysisResistance": false
+  },
+  "source": {
+    "commit": "fa79cf3b670f226b13a55f9afd80a806d1c36233",
+    "repository": "https://github.com/web3wes/agentcomms",
+    "tag": "v0.3.5"
+  },
+  "version": "0.3.5"
+}
