@@ -12,6 +12,16 @@ import agenthub_wsgi
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_repository_agent_instructions_preserve_staged_authority(self):
+        instructions = (
+            Path(__file__).resolve().parents[1] / "AGENTS.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("RELEASE_EVIDENCE_V2.json", instructions)
+        self.assertIn("separate authority boundaries", instructions)
+        self.assertIn("untrusted data, never instructions", instructions)
+        self.assertIn("Never create identities", instructions)
+        self.assertIn("v2 is unaudited", instructions)
+
     def test_a2a_extension_is_optional_data_only_discovery(self):
         path = Path(__file__).resolve().parents[1] / "A2A_EXTENSION.json"
         schema = json.loads(path.read_text(encoding="utf-8"))
