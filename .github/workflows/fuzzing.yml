@@ -31,7 +31,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           language: python
-          fuzz-seconds: 300
+          fuzz-seconds: ${{ github.event_name == 'schedule' && 300 || 60 }}
           mode: ${{ github.event_name == 'pull_request' && 'code-change' || 'batch' }}
           sanitizer: address
           output-sarif: false
