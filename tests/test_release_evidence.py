@@ -135,6 +135,7 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertNotIn("google/clusterfuzzlite/actions/build_fuzzers@v1", workflow)
         self.assertNotIn("google/clusterfuzzlite/actions/run_fuzzers@v1", workflow)
         self.assertRegex(dockerfile.splitlines()[0], r"@sha256:[0-9a-f]{64}$")
+        self.assertNotIn("pip install --disable-pip-version-check --no-deps .", dockerfile)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,6 @@ COPY . $SRC/agentcomms
 WORKDIR $SRC/agentcomms
 
 RUN python3 -m pip install --disable-pip-version-check --require-hashes \
-      -r requirements-runtime.lock && \
-    python3 -m pip install --disable-pip-version-check --no-deps .
+      -r requirements-runtime.lock
 
 COPY .clusterfuzzlite/build.sh $SRC/build.sh
