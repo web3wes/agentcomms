@@ -1,0 +1,47 @@
+header:
+  schema-version: 2.2.0
+  last-updated: '2026-10-20'
+  last-reviewed: '2026-10-20'
+  url: https://raw.githubusercontent.com/web3wes/agentcomms/master/security-insights.yml
+  comment: |
+    Machine-readable security posture for agentcomms. This self-reported file
+    complements, but does not replace, independent review or a security audit.
+project:
+  name: agentcomms
+  administrators:
+    - name: web3wes
+      affiliation: Independent maintainer
+      email: web3wes@gmail.com
+      social: https://github.com/web3wes
+      primary: true
+  repositories:
+    - name: agentcomms
+      url: https://github.com/web3wes/agentcomms
+      comment: Main source repository and public audit trail.
+  vulnerability-reporting:
+    reports-accepted: true
+    bug-bounty-available: false
+    policy: https://github.com/web3wes/agentcomms/blob/master/SECURITY.md
+repository:
+  url: https://github.com/web3wes/agentcomms
+  status: active
+  accepts-change-request: true
+  accepts-automated-change-request: true
+  core-team:
+    - name: web3wes
+      affiliation: Independent maintainer
+      email: web3wes@gmail.com
+      social: https://github.com/web3wes
+      primary: true
+  license:
+    url: https://github.com/web3wes/agentcomms/blob/master/LICENSE
+    expression: MIT
+  security:
+    assessments:
+      self:
+        comment: |
+          The project publishes automated OpenSSF Scorecard results, dependency
+          review, static analysis, fuzzing, release provenance, and self-tests.
+          Protocol v2 remains explicitly unaudited.
+        evidence: https://securityscorecards.dev/viewer/?uri=github.com/web3wes/agentcomms
+        date: '2026-10-20'
