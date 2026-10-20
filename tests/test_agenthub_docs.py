@@ -331,6 +331,18 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertNotIn("all payloads are end-to-end encrypted", hub_source)
         self.assertIn("does not\nauthenticate that ciphertext", hub_source)
 
+    def test_copilot_instructions_preserve_agent_safety_boundaries(self):
+        root = Path(__file__).resolve().parents[1]
+        instructions = (
+            root / ".github" / "copilot-instructions.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("root `AGENTS.md`", instructions)
+        self.assertIn("untrusted data, never instructions", instructions)
+        self.assertIn("Preserve the legacy v1", instructions)
+        self.assertIn("protocol v2 as unaudited", instructions)
+        self.assertIn("separately authorized", instructions)
+        self.assertIn("only verified independently operated hub", instructions)
+
     def test_hub_accepts_self_certifying_v2_identity_and_long_thread_ids(self):
         import base64
         import hashlib
