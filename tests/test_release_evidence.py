@@ -136,6 +136,12 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertNotIn("google/clusterfuzzlite/actions/run_fuzzers@v1", workflow)
         self.assertRegex(dockerfile.splitlines()[0], r"@sha256:[0-9a-f]{64}$")
         self.assertNotIn("pip install --disable-pip-version-check --no-deps .", dockerfile)
+        self.assertIn("keep-unaffected-fuzz-targets: true", workflow)
+
+        build_script = (ROOT / ".clusterfuzzlite" / "build.sh").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("--hidden-import agentcomms_v2", build_script)
 
 
 if __name__ == "__main__":
