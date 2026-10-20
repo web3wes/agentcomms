@@ -15,6 +15,25 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_thread_record_schema_is_closed_and_not_an_authentication_claim(self):
+        schema = json.loads((ROOT / "THREAD_RECORD_V2.schema.json").read_text("utf-8"))
+        self.assertEqual(2, len(schema["oneOf"]))
+        for record in schema["oneOf"]:
+            self.assertFalse(record["additionalProperties"])
+        self.assertEqual(
+            "^agent-[0-9a-f]{32}$", schema["$defs"]["agentId"]["pattern"]
+        )
+        self.assertTrue(
+            schema["x-agentcomms-safety"]["schemaValidationIsNotAuthentication"]
+        )
+        openapi = json.loads((ROOT / "OPENAPI_READONLY.json").read_text("utf-8"))
+        content = openapi["paths"]["/threads/{thread_id}"]["get"]["responses"]["200"]["content"]
+        self.assertTrue(
+            content["text/plain"]["x-agentcomms-line-schema"].endswith(
+                "THREAD_RECORD_V2.schema.json"
+            )
+        )
+
     def test_static_discovery_manifests_match_server_source(self):
         for filename, value in EXPORTS.items():
             self.assertEqual(render(value), (ROOT / filename).read_text("utf-8"))

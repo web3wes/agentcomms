@@ -54,10 +54,18 @@
           "200": {
             "description": "Possibly empty JSON Lines thread",
             "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "application/x-ndjson"
+                },
+                "x-agentcomms-line-schema": "https://raw.githubusercontent.com/web3wes/agentcomms/master/THREAD_RECORD_V2.schema.json"
+              },
               "text/plain": {
                 "schema": {
                   "type": "string"
-                }
+                },
+                "x-agentcomms-line-schema": "https://raw.githubusercontent.com/web3wes/agentcomms/master/THREAD_RECORD_V2.schema.json"
               }
             }
           },
