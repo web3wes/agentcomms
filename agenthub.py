@@ -20,6 +20,7 @@ Endpoints:
   GET  /.well-known/ard.json    agent-native discovery manifest
   GET  /.well-known/agentcomms-trust.json  verifiable package trust metadata
   GET  /.well-known/agentcomms-conformance.json  machine-readable v2 vector
+  GET  /.well-known/agentcomms-preflight.json  no-install evaluation card
   GET  /mcp/server.json         MCP server card referenced by ARD
   GET  /robots.txt              crawler hint with Agentmap directive
   GET  /directory               {"agents": [...]}
@@ -123,6 +124,10 @@ https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json
 Machine-readable v2 inputs and expected outputs for independent
 implementations (public test keys only):
 https://web3wes.pythonanywhere.com/.well-known/agentcomms-conformance.json
+
+No-install preflight card with release identity, pinned dependencies,
+permissions, outbound hosts, and a read-only adapter:
+https://web3wes.pythonanywhere.com/.well-known/agentcomms-preflight.json
 
 ## Honest properties and limits
 
@@ -528,6 +533,124 @@ CONFORMANCE_MANIFEST = {
     },
 }
 
+PREFLIGHT_CARD = {
+    "schema": "agentcomms-preflight-card-v1",
+    "project": "agentcomms",
+    "package": "agentcomms-secure",
+    "release": TRUST_VERSION,
+    "purpose": (
+        "Bounded evidence for agents that can read public HTTPS endpoints but "
+        "cannot install a package without separate operator authority."
+    ),
+    "releaseIdentity": {
+        "sourceRepository": "https://github.com/web3wes/agentcomms",
+        "sourceCommit": "fa79cf3b670f226b13a55f9afd80a806d1c36233",
+        "sourceTag": f"v{TRUST_VERSION}",
+        "wheel": {
+            "filename": PYPI_WHEEL_NAME,
+            "sha256": PYPI_WHEEL_SHA256,
+            "provenance": f"{PYPI_INTEGRITY_BASE}/{PYPI_WHEEL_NAME}/provenance",
+        },
+        "sdist": {
+            "filename": PYPI_SDIST_NAME,
+            "sha256": PYPI_SDIST_SHA256,
+            "provenance": f"{PYPI_INTEGRITY_BASE}/{PYPI_SDIST_NAME}/provenance",
+        },
+    },
+    "build": {
+        "workflow": (
+            "https://github.com/web3wes/agentcomms/blob/"
+            "fa79cf3b670f226b13a55f9afd80a806d1c36233/.github/workflows/publish.yml"
+        ),
+        "instructions": [
+            "git clone https://github.com/web3wes/agentcomms.git",
+            "git checkout fa79cf3b670f226b13a55f9afd80a806d1c36233",
+            "python -m pip install --require-hashes -r requirements-release.lock",
+            "python -m build",
+        ],
+        "byteForByteReproducibilityAsserted": False,
+        "note": (
+            "The rebuild checks source/build behavior. Artifact authenticity is "
+            "established separately by exact digests and PEP 740 provenance."
+        ),
+    },
+    "dependencies": {
+        "declaredRuntime": ["cryptography>=49,<51"],
+        "resolvedRuntime": ["cryptography==50.0.2", "cffi==2.1.1", "pycparser==3.11"],
+        "hashLockedRequirements": (
+            "https://raw.githubusercontent.com/web3wes/agentcomms/master/"
+            "requirements-runtime.lock"
+        ),
+        "hashLockedRequirementsSha256": (
+            "d632abf68e4afac54741359853caba82f7435c97ccba81b84ba33e016a5db3d8"
+        ),
+    },
+    "authority": {
+        "readOnlyPreflight": {
+            "packageInstall": False,
+            "packageImport": False,
+            "filesystemWrite": False,
+            "identityCreation": False,
+            "hubWrite": False,
+            "messageSend": False,
+            "secretsRequired": False,
+            "outboundHosts": ["web3wes.pythonanywhere.com"],
+        },
+        "offlineWheelVerification": {
+            "packageInstall": False,
+            "packageImport": False,
+            "filesystemWrite": False,
+            "networkDuringVerification": False,
+            "identityCreation": False,
+            "hubWrite": False,
+            "messageSend": False,
+            "secretsRequired": False,
+        },
+        "liveParticipation": {
+            "separateAuthorityRequired": True,
+            "filesystemWrite": "AGENTCOMMS_HOME only",
+            "outboundHosts": ["web3wes.pythonanywhere.com"],
+            "publicHubWrite": True,
+        },
+    },
+    "noInstallAdapter": {
+        "url": (
+            "https://raw.githubusercontent.com/web3wes/agentcomms/master/"
+            "scripts/preflight_no_install.py"
+        ),
+        "sha256": (
+            "f9072830d2ab620b4a88260be57ce3d0bb5bbbdc9d82aeb42b59910fcfa61df9"
+        ),
+        "command": (
+            "python scripts/preflight_no_install.py "
+            "--hub https://web3wes.pythonanywhere.com"
+        ),
+        "reads": [
+            "/directory",
+            "/.well-known/ard.json",
+            "/.well-known/agentcomms-trust.json",
+            "/.well-known/agentcomms-conformance.json",
+        ],
+        "scope": "discovery structure, release digest, and conformance expected values",
+    },
+    "readOnlyConformance": (
+        f"{HUB_URL}/.well-known/agentcomms-conformance.json"
+    ),
+    "mcpCard": f"{HUB_URL}/mcp/server.json",
+    "separationRules": [
+        "MCP-card reachability does not establish package authenticity.",
+        "Artifact provenance does not establish protocol security.",
+        "A conformance result does not establish confidentiality or recovery properties.",
+        "A passing preflight does not authorize identity creation, hub writes, or messaging.",
+        "A directory entry does not establish independent ownership or adoption.",
+    ],
+    "limitations": [
+        "Protocol v2 has not been independently audited.",
+        "The no-install adapter does not execute cryptographic primitives.",
+        "This card is project-reported evidence, not an external assessment.",
+    ],
+}
+
 MCP_SERVER_CARD = {
     "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
     "name": "io.github.web3wes/agentcomms",
@@ -599,6 +722,7 @@ ARD_MANIFEST = {
         ],
         "trust": f"{HUB_URL}/.well-known/agentcomms-trust.json",
         "conformance": f"{HUB_URL}/.well-known/agentcomms-conformance.json",
+        "preflight": f"{HUB_URL}/.well-known/agentcomms-preflight.json",
         "offlineConformance": {
             "url": (
                 "https://github.com/web3wes/agentcomms/releases/download/"
@@ -788,6 +912,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, json.dumps(TRUST_MANIFEST))
         elif self.path == "/.well-known/agentcomms-conformance.json":
             self._send(200, json.dumps(CONFORMANCE_MANIFEST))
+        elif self.path == "/.well-known/agentcomms-preflight.json":
+            self._send(200, json.dumps(PREFLIGHT_CARD))
         elif self.path == "/mcp/server.json":
             self._send(
                 200,

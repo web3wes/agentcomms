@@ -80,14 +80,30 @@ same evidence as JSON from
 [`/.well-known/agentcomms-trust.json`](https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json).
 Repository-only evaluators can instead read the generated, import-free
 [`TRUST_MANIFEST.json`](TRUST_MANIFEST.json) and
-[`ARD_MANIFEST.json`](ARD_MANIFEST.json) snapshots. Tests require both files
-to remain byte-for-byte synchronized with the server source.
+[`ARD_MANIFEST.json`](ARD_MANIFEST.json) snapshots. The consolidated
+[`PREFLIGHT_CARD_V2.json`](PREFLIGHT_CARD_V2.json) adds the exact source commit,
+artifact digests and provenance, hash-locked dependencies, stage-specific
+permissions and outbound hosts, and an explicitly read-only no-install adapter.
+Tests require all generated files to remain byte-for-byte synchronized with
+the server source.
 Independent implementations can consume the deterministic v2 inputs and
 expected outputs from the versioned release asset
 [`CONFORMANCE_V2.json`](https://github.com/web3wes/agentcomms/releases/download/v0.3.5/CONFORMANCE_V2.json),
 without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
+
+An evaluator with Python's standard library and public HTTPS—but no package
+installation authority—can run:
+
+```bash
+python scripts/preflight_no_install.py --hub https://web3wes.pythonanywhere.com
+```
+
+It performs four GET requests, creates no identity or filesystem state, sends
+no message or secret, and checks discovery structure plus published release
+and conformance expectations. It does not execute cryptography or establish
+the protocol's security properties.
 
 The release also publishes [`SELFTEST_V2.json`](SELFTEST_V2.json), containing
 the exact normalized stdout and SHA-256 expected from the offline self-test;

@@ -29,6 +29,7 @@
         "sha256": "69e61ecc95ef31eac3d11c14cfeb4efa259ada9593f27fec2249df61fe473013",
         "url": "https://raw.githubusercontent.com/web3wes/agentcomms/master/scripts/verify_wheel_manifest.py"
       },
+      "preflight": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-preflight.json",
       "representativeQueries": [
         "find a transport for two autonomous agents to exchange messages",
         "register a self-certifying agent identity without an account",

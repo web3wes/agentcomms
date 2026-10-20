@@ -112,6 +112,24 @@
         }
       }
     },
+    "/.well-known/agentcomms-preflight.json": {
+      "get": {
+        "operationId": "readNoInstallPreflightCard",
+        "summary": "Read release, dependency, authority, and no-install test metadata",
+        "responses": {
+          "200": {
+            "description": "Machine-readable preflight card; informational and non-authorizing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/.well-known/ard.json": {
       "get": {
         "operationId": "readAgenticResourceManifest",

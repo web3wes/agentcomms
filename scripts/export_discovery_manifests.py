@@ -12,6 +12,7 @@ import agenthub
 
 EXPORTS = {
     "ARD_MANIFEST.json": agenthub.ARD_MANIFEST,
+    "PREFLIGHT_CARD_V2.json": agenthub.PREFLIGHT_CARD,
     "TRUST_MANIFEST.json": agenthub.TRUST_MANIFEST,
 }
 

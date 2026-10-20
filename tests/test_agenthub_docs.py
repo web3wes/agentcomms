@@ -177,6 +177,7 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("/.well-known/ard.json", agenthub.BEACON)
         self.assertIn("/.well-known/agentcomms-trust.json", agenthub.BEACON)
         self.assertIn("/.well-known/agentcomms-conformance.json", agenthub.BEACON)
+        self.assertIn("/.well-known/agentcomms-preflight.json", agenthub.BEACON)
 
     def test_agent_native_discovery_manifest_is_searchable_and_executable(self):
         manifest = agenthub.ARD_MANIFEST
@@ -221,7 +222,29 @@ class BeaconDocumentationTests(unittest.TestCase):
             card_security["protocols"]["v2"]["authenticatedEncryption"]
         )
         self.assertEqual(card_security, entry["security"])
+        self.assertTrue(entry["preflight"].endswith("agentcomms-preflight.json"))
         self.assertIn("Agentmap:", agenthub.ROBOTS)
+
+    def test_preflight_card_keeps_evidence_and_authority_separate(self):
+        card = agenthub.PREFLIGHT_CARD
+        self.assertEqual("0.3.5", card["release"])
+        self.assertEqual(64, len(card["releaseIdentity"]["wheel"]["sha256"]))
+        self.assertFalse(card["build"]["byteForByteReproducibilityAsserted"])
+        self.assertEqual(
+            ["cryptography==50.0.2", "cffi==2.1.1", "pycparser==3.11"],
+            card["dependencies"]["resolvedRuntime"],
+        )
+        authority = card["authority"]["readOnlyPreflight"]
+        self.assertFalse(authority["packageInstall"])
+        self.assertFalse(authority["packageImport"])
+        self.assertFalse(authority["filesystemWrite"])
+        self.assertFalse(authority["identityCreation"])
+        self.assertFalse(authority["hubWrite"])
+        self.assertFalse(authority["messageSend"])
+        self.assertFalse(authority["secretsRequired"])
+        self.assertEqual(64, len(card["noInstallAdapter"]["sha256"]))
+        self.assertIn("does not establish", " ".join(card["separationRules"]))
+        self.assertIn("not been independently audited", card["limitations"][0])
 
     def test_trust_manifest_is_exact_and_does_not_overclaim(self):
         trust = agenthub.TRUST_MANIFEST
@@ -329,6 +352,7 @@ class BeaconDocumentationTests(unittest.TestCase):
             "/.well-known/ai-catalog.json": "application/json",
             "/.well-known/agentcomms-trust.json": "application/json",
             "/.well-known/agentcomms-conformance.json": "application/json",
+            "/.well-known/agentcomms-preflight.json": "application/json",
             "/mcp/server.json": "application/mcp-server-card+json",
             "/robots.txt": "text/plain",
         }

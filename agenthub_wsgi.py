@@ -25,6 +25,7 @@ from agenthub import (
     BEACON,
     CONFORMANCE_MANIFEST,
     MCP_SERVER_CARD,
+    PREFLIGHT_CARD,
     ROBOTS,
     TID_RE,
     TRUST_MANIFEST,
@@ -68,6 +69,8 @@ def application(environ, start_response):
         r = _resp(200, json.dumps(TRUST_MANIFEST))
     elif method == "GET" and path == "/.well-known/agentcomms-conformance.json":
         r = _resp(200, json.dumps(CONFORMANCE_MANIFEST))
+    elif method == "GET" and path == "/.well-known/agentcomms-preflight.json":
+        r = _resp(200, json.dumps(PREFLIGHT_CARD))
     elif method == "GET" and path == "/mcp/server.json":
         r = _resp(
             200,
