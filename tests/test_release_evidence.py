@@ -90,6 +90,9 @@ class ReleaseEvidenceTests(unittest.TestCase):
         release_job = workflow.split("  publish-release-evidence:", 1)[1]
         self.assertIn("name: python-dist", release_job)
         self.assertIn("path: dist/", release_job)
+        self.assertIn("attestations: read", release_job)
+        self.assertIn("gh attestation download *.whl", release_job)
+        self.assertIn(".intoto.jsonl", release_job)
         self.assertIn('gh release upload "$GITHUB_REF_NAME" dist/* evidence/*', release_job)
 
     def test_runtime_container_base_image_is_digest_pinned(self):
