@@ -205,6 +205,11 @@ class BeaconDocumentationTests(unittest.TestCase):
                 "PACKAGE_MANIFEST_V2.json"
             )
         )
+        self.assertTrue(
+            trust["releaseEvidence"]["index"].endswith(
+                "RELEASE_EVIDENCE_V2.json"
+            )
+        )
         self.assertEqual(2, len(trust["independentEvaluations"]))
         evaluation = trust["independentEvaluations"][0]
         self.assertEqual("independent third party", evaluation["relationship"])

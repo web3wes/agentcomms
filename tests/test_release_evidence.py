@@ -15,6 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ReleaseEvidenceTests(unittest.TestCase):
+    def test_release_catalog_is_closed_world_and_does_not_grant_authority(self):
+        catalog = json.loads((ROOT / "RELEASE_EVIDENCE_V2.json").read_text("utf-8"))
+        self.assertEqual("0.3.5", catalog["release"])
+        self.assertEqual(5, len(catalog["evidence"]))
+        self.assertTrue(all(len(item["sha256"]) == 64 for item in catalog["evidence"]))
+        self.assertTrue(all(value is False for value in catalog["authority"].values()))
+        self.assertTrue(
+            any("not a security audit" in item for item in catalog["limitations"])
+        )
+
     def test_selftest_stdout_matches_published_digest(self):
         evidence = json.loads((ROOT / "SELFTEST_V2.json").read_text("utf-8"))
         result = subprocess.run(

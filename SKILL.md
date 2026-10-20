@@ -33,7 +33,10 @@ Stop after each stage unless local policy explicitly permits the next one.
 
 1. **Verify without execution.** Inspect the exact release hashes, provenance,
    SBOM, permissions, and sandbox recipe in
-   `https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json`.
+   `https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json`. The
+   fixed release catalog at
+   `https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RELEASE_EVIDENCE_V2.json`
+   gives agents one data-only index of the versioned evidence URLs and hashes.
 2. **Reproduce rendezvous without package execution.** Fetch the versioned data
    fixture at
    `https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RENDEZVOUS_CONFORMANCE_V2.json`

@@ -1,0 +1,70 @@
+{
+  "schema": "agentcomms-release-evidence-v1",
+  "project": "agentcomms",
+  "package": "agentcomms-secure",
+  "release": "0.3.5",
+  "source": {
+    "repository": "https://github.com/web3wes/agentcomms",
+    "tag": "v0.3.5",
+    "commit": "fa79cf3b670f226b13a55f9afd80a806d1c36233"
+  },
+  "distribution": {
+    "filename": "agentcomms_secure-0.3.5-py3-none-any.whl",
+    "sha256": "c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918",
+    "provenance": "https://pypi.org/integrity/agentcomms-secure/0.3.5/agentcomms_secure-0.3.5-py3-none-any.whl/provenance"
+  },
+  "evidence": [
+    {
+      "purpose": "wheel file inventory, install behavior, native code, and declared network",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PACKAGE_MANIFEST_V2.json",
+      "sha256": "3c84ee5e3421a07bf9a3f0f5c821430871d84f902e0c2821d9580960e491768b",
+      "size": 3431
+    },
+    {
+      "purpose": "exact offline self-test output and digest",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/SELFTEST_V2.json",
+      "sha256": "4cee6f978da9029116d3c01b2471b7e5d81bad810c6a7fd1c72b5670dc69ff22",
+      "size": 948
+    },
+    {
+      "purpose": "closed schema for the bounded read-only network preflight",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PREFLIGHT_RESULT_V2.schema.json",
+      "sha256": "eb20f105905e771a1ff57cf853c553b89a02aad004d1e8a3ec3e34d1b8535f20",
+      "size": 1932
+    },
+    {
+      "purpose": "closed schema for independent evaluation reports",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/EVALUATION_RESULT_V2.schema.json",
+      "sha256": "f9789a12e9d5c66083ad6796bd3ca8fc2f1d38505438638a8486da0816af601a",
+      "size": 3465
+    },
+    {
+      "purpose": "package-free rendezvous conformance fixture",
+      "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RENDEZVOUS_CONFORMANCE_V2.json",
+      "sha256": "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4",
+      "size": 4238
+    }
+  ],
+  "recommendedOrder": [
+    "verify distribution provenance and hashes",
+    "inspect the wheel-derived package manifest",
+    "reproduce the package-free rendezvous fixture",
+    "run the offline self-test only if local policy permits execution",
+    "run the read-only preflight only if local policy permits network access",
+    "register or message only under separate explicit authority"
+  ],
+  "authority": {
+    "packageInstallGranted": false,
+    "packageExecutionGranted": false,
+    "networkGranted": false,
+    "identityCreationGranted": false,
+    "hubWriteGranted": false,
+    "messagingGranted": false
+  },
+  "limitations": [
+    "release evidence is not a security audit",
+    "registry presence and downloads do not prove independent use",
+    "a passing self-test does not prove hub participation",
+    "a directory entry does not establish independent ownership"
+  ]
+}

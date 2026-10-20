@@ -230,6 +230,10 @@ TRUST_MANIFEST = {
         ),
     },
     "releaseEvidence": {
+        "index": (
+            "https://github.com/web3wes/agentcomms/releases/download/"
+            f"v{TRUST_VERSION}/RELEASE_EVIDENCE_V2.json"
+        ),
         "packageManifest": (
             "https://github.com/web3wes/agentcomms/releases/download/"
             f"v{TRUST_VERSION}/PACKAGE_MANIFEST_V2.json"

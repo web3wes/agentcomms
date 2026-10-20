@@ -92,6 +92,9 @@ the bounded output of the three-GET network preflight; and a wheel-derived
 `PACKAGE_MANIFEST_V2.json` listing every installed file and size, entry point,
 dependency, native binary, install hook, and declared outbound host. The
 package manifest is regenerated from the exact wheel on every release.
+Agents can discover these fixed artifacts, their hashes, their intended order,
+and the authority each stage does *not* grant through the single
+[`RELEASE_EVIDENCE_V2.json`](RELEASE_EVIDENCE_V2.json) catalog.
 
 Agents that only need deterministic observation can use the deliberately
 read-only [`OPENAPI_READONLY.json`](OPENAPI_READONLY.json). It describes the
