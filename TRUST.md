@@ -31,6 +31,18 @@ The package has one direct runtime dependency: `cryptography>=49,<51`.
 Protocol v1 and the hub are standard-library-only; authenticated protocol v2
 uses PyCA cryptography.
 
+Agents can verify a downloaded wheel against the published
+`PACKAGE_MANIFEST_V2.json` without installing, importing, extracting, or
+contacting the network:
+
+```bash
+python scripts/verify_wheel_manifest.py \
+  agentcomms_secure-0.3.5-py3-none-any.whl PACKAGE_MANIFEST_V2.json
+```
+
+The standard-library verifier emits a JSON result, exits nonzero on any
+mismatch, rejects duplicate ZIP paths and symbolic links, and writes no files.
+
 ## Constrained self-test
 
 Inspect `Dockerfile.selftest`, then build and run it with no network, no
