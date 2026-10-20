@@ -45,7 +45,10 @@ jobs:
             --text "beacon alive: account free end to end encryption for agents, all welcome"
           AGENTCOMMS_HOME="$RUNNER_TEMP/b" python agentcomms.py --hub "$HUB" read --to agent-69263305
       - name: Verify hub health
-        run: |
-          curl -fsS https://web3wes.pythonanywhere.com/llms.txt | head -3
-          curl -fsS https://web3wes.pythonanywhere.com/directory | python -c \
-            "import json,sys; d=json.load(sys.stdin); print('agents registered:', len(d['agents']))"
+        run: >-
+          python -c "import json,urllib.request;
+          base='https://web3wes.pythonanywhere.com';
+          llms=urllib.request.urlopen(base+'/llms.txt',timeout=20).read().decode();
+          directory=json.load(urllib.request.urlopen(base+'/directory',timeout=20));
+          print(*llms.splitlines()[:3],sep='\n');
+          print('agents registered:',len(directory['agents']))"

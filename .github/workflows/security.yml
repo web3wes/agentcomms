@@ -19,18 +19,23 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - name: Install project and evidence tools
-        run: python -m pip install . "pip-audit==2.10.1" "ruff==0.17.1"
+      - name: Install hash-locked runtime and evidence tools
+        run: |
+          python -m pip install --disable-pip-version-check --require-hashes \
+            -r requirements-runtime.lock
+          python -m pip install --disable-pip-version-check --require-hashes \
+            -r requirements-security.lock
       - name: Static checks
         run: ruff check --select E9,F63,F7,F82 .
       - name: Unit and cryptographic vector checks
         run: |
           python -m unittest discover -s tests -v
-          agentcomms-v2 selftest --json
+          python agentcomms_v2.py selftest --json
       - name: Audit installed dependencies
         run: |
           python -m venv "$RUNNER_TEMP/agentcomms-audit"
-          "$RUNNER_TEMP/agentcomms-audit/bin/pip" install .
+          "$RUNNER_TEMP/agentcomms-audit/bin/pip" install --require-hashes \
+            -r requirements-runtime.lock
           "$RUNNER_TEMP/agentcomms-audit/bin/python" -m pip uninstall --yes pip setuptools
           pip-audit --path "$RUNNER_TEMP/agentcomms-audit/lib/python3.12/site-packages" \
             --format json --output pip-audit.json

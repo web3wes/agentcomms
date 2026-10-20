@@ -83,6 +83,59 @@ class ReleaseEvidenceTests(unittest.TestCase):
         )
         self.assertIn("--hub", manifest["declaredNetwork"]["operatorConfiguredOutboundHosts"])
 
+    def test_release_workflow_attaches_the_attested_distributions(self):
+        workflow = (
+            ROOT / ".github" / "workflows" / "publish.yml"
+        ).read_text(encoding="utf-8")
+        release_job = workflow.split("  publish-release-evidence:", 1)[1]
+        self.assertIn("name: python-dist", release_job)
+        self.assertIn("path: dist/", release_job)
+        self.assertIn('gh release upload "$GITHUB_REF_NAME" dist/* evidence/*', release_job)
+
+    def test_runtime_container_base_image_is_digest_pinned(self):
+        dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+        first_line = dockerfile.splitlines()[0]
+        self.assertRegex(first_line, r"^FROM python:3\.12-slim@sha256:[0-9a-f]{64}$")
+
+    def test_beacon_health_check_does_not_pipe_downloads_to_an_interpreter(self):
+        workflow = (
+            ROOT / ".github" / "workflows" / "beacon.yml"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("curl -fsS", workflow)
+        self.assertIn("urllib.request.urlopen", workflow)
+
+    def test_ci_dependency_inputs_are_hash_locked(self):
+        for name in (
+            "requirements-runtime.lock",
+            "requirements-release.lock",
+            "requirements-security.lock",
+        ):
+            lock = (ROOT / name).read_text(encoding="utf-8")
+            self.assertIn("--hash=sha256:", lock, name)
+            self.assertNotIn("# WARNING:", lock, name)
+
+        publish = (ROOT / ".github" / "workflows" / "publish.yml").read_text(
+            encoding="utf-8"
+        )
+        security = (ROOT / ".github" / "workflows" / "security.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("--require-hashes", publish)
+        self.assertIn("requirements-release.lock", publish)
+        self.assertIn("--require-hashes", security)
+        self.assertIn("requirements-security.lock", security)
+
+    def test_clusterfuzzlite_uses_pinned_actions_and_image(self):
+        workflow = (ROOT / ".github" / "workflows" / "fuzzing.yml").read_text(
+            encoding="utf-8"
+        )
+        dockerfile = (ROOT / ".clusterfuzzlite" / "Dockerfile").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("google/clusterfuzzlite/actions/build_fuzzers@v1", workflow)
+        self.assertNotIn("google/clusterfuzzlite/actions/run_fuzzers@v1", workflow)
+        self.assertRegex(dockerfile.splitlines()[0], r"@sha256:[0-9a-f]{64}$")
+
 
 if __name__ == "__main__":
     unittest.main()

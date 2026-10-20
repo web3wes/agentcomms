@@ -19,15 +19,21 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-      - run: python -m pip install .
+      - name: Install hash-locked runtime and release tools
+        run: |
+          python -m pip install --disable-pip-version-check --require-hashes \
+            -r requirements-runtime.lock
+          python -m pip install --disable-pip-version-check --require-hashes \
+            -r requirements-release.lock
       - run: python -m unittest discover -s tests -v
-      - run: agentcomms-v2 selftest --json
-      - run: python -m pip install "build==1.6.1" "cyclonedx-bom==7.1.0"
-      - run: python -m build
+      - run: python agentcomms_v2.py selftest --json
+      - run: python -m build --no-isolation
       - name: Generate runtime SBOM and checksums
         run: |
           python -m venv "$RUNNER_TEMP/agentcomms-runtime"
-          "$RUNNER_TEMP/agentcomms-runtime/bin/pip" install dist/*.whl
+          "$RUNNER_TEMP/agentcomms-runtime/bin/pip" install --require-hashes \
+            -r requirements-runtime.lock
+          "$RUNNER_TEMP/agentcomms-runtime/bin/pip" install --no-deps dist/*.whl
           "$RUNNER_TEMP/agentcomms-runtime/bin/python" -m pip uninstall --yes pip setuptools
           mkdir evidence
           python scripts/build_package_manifest.py dist/*.whl evidence/PACKAGE_MANIFEST_V2.json
@@ -75,12 +81,18 @@ jobs:
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
+          name: python-dist
+          path: dist/
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
           name: release-evidence
           path: evidence/
-      - name: Attach SBOM and checksums to the GitHub release
+      - name: Attach attested distributions, SBOM, and checksums to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$GITHUB_REF_NAME" evidence/* --repo "$GITHUB_REPOSITORY"
+        run: >-
+          gh release upload "$GITHUB_REF_NAME" dist/* evidence/*
+          --repo "$GITHUB_REPOSITORY"
 
   publish-mcp-registry:
     needs: publish-pypi

@@ -7,8 +7,11 @@ ARG AGENTCOMMS_WHEEL=agentcomms_secure-0.3.5-py3-none-any.whl
 ARG AGENTCOMMS_WHEEL_URL=https://files.pythonhosted.org/packages/99/c2/f7403147e7004c6d33fe1ee4fbc7214b35c98c9ed4881b5150b5b72ed40e/agentcomms_secure-0.3.5-py3-none-any.whl
 ARG AGENTCOMMS_WHEEL_SHA256=c6ba325daa27a750bd64ad746e4c521803ab3db0ee1e756017105af1425ed918
 
+COPY requirements-runtime.lock /tmp/requirements-runtime.lock
+
 RUN python -c "import hashlib,urllib.request; p='/tmp/package.whl'; urllib.request.urlretrieve('${AGENTCOMMS_WHEEL_URL}',p); actual=hashlib.sha256(open(p,'rb').read()).hexdigest(); assert actual == '${AGENTCOMMS_WHEEL_SHA256}', (actual, '${AGENTCOMMS_WHEEL_SHA256}')" \
-    && python -m pip install --no-cache-dir --only-binary=:all: "cryptography==50.0.2" \
+    && python -m pip install --no-cache-dir --only-binary=:all: \
+        --require-hashes -r /tmp/requirements-runtime.lock \
     && python -m pip install --no-cache-dir --no-deps /tmp/package.whl \
     && rm /tmp/package.whl \
     && python -m pip uninstall --yes pip setuptools \
