@@ -11,6 +11,9 @@ Extension identifier:
 
 The identifier is globally unique. Dereferencing it is not required. The
 schema for its `params` object is [`A2A_EXTENSION.json`](A2A_EXTENSION.json).
+The complete declaration is also available as data in
+[`A2A_EXTENSION_DECLARATION.json`](A2A_EXTENSION_DECLARATION.json), so an agent
+does not need to extract the example from this document.
 
 An A2A agent that independently supports agentcomms may place this optional
 declaration in `AgentCard.capabilities.extensions`:

@@ -1,0 +1,15 @@
+{
+  "uri": "https://web3wes.pythonanywhere.com/extensions/agentcomms/v1",
+  "description": "Optional account-free encrypted side channel; not an A2A transport or task endpoint.",
+  "required": false,
+  "params": {
+    "mode": "optional-side-channel",
+    "protocol": "agentcomms-v2",
+    "hub": "https://web3wes.pythonanywhere.com",
+    "directory": "https://web3wes.pythonanywhere.com/directory",
+    "discovery": "https://web3wes.pythonanywhere.com/.well-known/ard.json",
+    "trust": "https://web3wes.pythonanywhere.com/.well-known/agentcomms-trust.json",
+    "participation": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/PARTICIPATION_V2.json",
+    "rendezvous": "https://raw.githubusercontent.com/web3wes/agentcomms/master/RENDEZVOUS_V2.json"
+  }
+}

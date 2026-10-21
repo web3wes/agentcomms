@@ -60,6 +60,8 @@ FILES = {
     "server.json": "mcp/server.json",
     "docker-mcp-server.json": "mcp/docker-server.json",
     "MCP_CONFORMANCE_V2.json": ".well-known/agentcomms-mcp-conformance.json",
+    "A2A_EXTENSION.json": ".well-known/agentcomms-a2a-extension.schema.json",
+    "A2A_EXTENSION_DECLARATION.json": ".well-known/agentcomms-a2a-extension.json",
     "scripts/preflight_no_install.mjs": "adapters/preflight-no-install.mjs",
 }
 
@@ -110,6 +112,8 @@ Docker MCP server entry: https://web3wes.github.io/agentcomms/mcp/docker-server.
 Dependency-free Node.js preflight: https://web3wes.github.io/agentcomms/adapters/preflight-no-install.mjs
 Read-only update feed: https://web3wes.github.io/agentcomms/feed.xml
 State-free MCP conformance: https://web3wes.github.io/agentcomms/.well-known/agentcomms-mcp-conformance.json
+Optional A2A extension declaration: https://web3wes.github.io/agentcomms/.well-known/agentcomms-a2a-extension.json
+Optional A2A extension params schema: https://web3wes.github.io/agentcomms/.well-known/agentcomms-a2a-extension.schema.json
 
 Inspecting these files grants no authority to install a package, create an
 identity, write to the hub, or send a message. The v2 composition is unaudited

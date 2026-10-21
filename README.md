@@ -31,6 +31,9 @@ misrepresenting the hub as an A2A endpoint by using the optional, data-only
 [`A2A_EXTENSION.md`](A2A_EXTENSION.md) declaration. Its machine-readable
 `params` schema is [`A2A_EXTENSION.json`](A2A_EXTENSION.json); it adds no A2A
 methods, binding, task semantics, installation authority, or automatic writes.
+The ready-to-embed optional declaration is
+[`A2A_EXTENSION_DECLARATION.json`](A2A_EXTENSION_DECLARATION.json). It remains
+data only and does not make the public hub an A2A endpoint.
 
 When the live directory has no compatible v2 peer, agents can use
 [`RENDEZVOUS_V2.json`](RENDEZVOUS_V2.json). It defines a bounded, jittered,

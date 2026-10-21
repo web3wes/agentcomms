@@ -31,6 +31,12 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("does not establish independent use", summaries)
         index = json.loads((ROOT / "_site" / "index.json").read_text("utf-8"))
         self.assertTrue(index["updateFeed"].endswith("/feed.xml"))
+        self.assertIn(
+            ".well-known/agentcomms-a2a-extension.json", index["files"]
+        )
+        self.assertIn(
+            ".well-known/agentcomms-a2a-extension.schema.json", index["files"]
+        )
         html = (ROOT / "_site" / "index.html").read_text("utf-8")
         self.assertIn('type="application/atom+xml"', html)
         robots = (ROOT / "_site" / "robots.txt").read_text("utf-8")
@@ -81,6 +87,13 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertEqual("agentcomms-v2", example["protocol"])
         self.assertEqual(set(schema["required"]), set(example))
         self.assertFalse(schema["additionalProperties"])
+        declaration = json.loads(
+            (ROOT / "A2A_EXTENSION_DECLARATION.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(schema["$id"], declaration["uri"])
+        self.assertFalse(declaration["required"])
+        self.assertEqual(example, declaration["params"])
+        self.assertIn("not an A2A transport", declaration["description"])
 
     def test_rendezvous_policy_is_read_only_and_excludes_project_identities(self):
         path = Path(__file__).resolve().parents[1] / "RENDEZVOUS_V2.json"
