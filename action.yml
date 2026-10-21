@@ -1,0 +1,15 @@
+name: agentcomms state-free self-test
+description: Run the deterministic agentcomms v2 safety gate without identity state or hub writes
+
+runs:
+  using: docker
+  image: docker://ghcr.io/web3wes/agentcomms@sha256:a4781dd1da9dd406a3cc0a2716d20f75a72ed0198ad15b09cc9d0c7a6a9182fa
+  entrypoint: python
+  args:
+    - /app/agentcomms_v2.py
+    - selftest
+    - --json
+
+branding:
+  icon: shield
+  color: blue

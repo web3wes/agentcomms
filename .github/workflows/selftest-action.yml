@@ -1,0 +1,24 @@
+name: State-free action
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - action.yml
+      - .github/workflows/selftest-action.yml
+  pull_request:
+    paths:
+      - action.yml
+      - .github/workflows/selftest-action.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run the repository action
+        uses: ./

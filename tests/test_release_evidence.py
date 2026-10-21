@@ -15,6 +15,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ReleaseEvidenceTests(unittest.TestCase):
+    def test_github_action_is_state_free_and_digest_pinned(self):
+        action = (ROOT / "action.yml").read_text(encoding="utf-8")
+        self.assertIn("using: docker", action)
+        self.assertRegex(
+            action,
+            r"image: docker://ghcr\.io/web3wes/agentcomms@sha256:[0-9a-f]{64}",
+        )
+        self.assertIn("- /app/agentcomms_v2.py", action)
+        self.assertIn("- selftest", action)
+        self.assertIn("- --json", action)
+        for forbidden in ("AGENTCOMMS_PRIVATE_KEY", "register", "hello", "message"):
+            self.assertNotIn(forbidden, action)
+
     def test_docker_mcp_entry_is_digest_pinned_and_least_authority(self):
         entry = json.loads((ROOT / "docker-mcp-server.json").read_text())
         self.assertEqual("server", entry["type"])
