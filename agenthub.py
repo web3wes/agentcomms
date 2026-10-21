@@ -633,6 +633,37 @@ PREFLIGHT_CARD = {
         ],
         "scope": "discovery structure, release digest, and conformance expected values",
     },
+    "additionalNoInstallAdapters": [{
+        "runtime": "Node.js 20+",
+        "url": (
+            "https://web3wes.github.io/agentcomms/adapters/"
+            "preflight-no-install.mjs"
+        ),
+        "source": (
+            "https://raw.githubusercontent.com/web3wes/agentcomms/master/"
+            "scripts/preflight_no_install.mjs"
+        ),
+        "sha256": (
+            "4c585ff987f6439290704c0111183bdab9839f06051316b01d6c2728373b6ed1"
+        ),
+        "command": (
+            "node scripts/preflight_no_install.mjs "
+            "--hub https://web3wes.pythonanywhere.com"
+        ),
+        "dependencies": [],
+        "responseLimitBytes": 1048576,
+        "redirectsAccepted": False,
+        "execution": {
+            "packageInstall": False,
+            "packageImport": False,
+            "filesystemWrite": False,
+            "identityCreation": False,
+            "hubWrite": False,
+            "messageSend": False,
+            "secretsRequired": False,
+        },
+        "scope": "discovery structure, release digest, and conformance expected values",
+    }],
     "readOnlyConformance": (
         f"{HUB_URL}/.well-known/agentcomms-conformance.json"
     ),

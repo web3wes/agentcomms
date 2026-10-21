@@ -1,4 +1,26 @@
 {
+  "additionalNoInstallAdapters": [
+    {
+      "command": "node scripts/preflight_no_install.mjs --hub https://web3wes.pythonanywhere.com",
+      "dependencies": [],
+      "execution": {
+        "filesystemWrite": false,
+        "hubWrite": false,
+        "identityCreation": false,
+        "messageSend": false,
+        "packageImport": false,
+        "packageInstall": false,
+        "secretsRequired": false
+      },
+      "redirectsAccepted": false,
+      "responseLimitBytes": 1048576,
+      "runtime": "Node.js 20+",
+      "scope": "discovery structure, release digest, and conformance expected values",
+      "sha256": "4c585ff987f6439290704c0111183bdab9839f06051316b01d6c2728373b6ed1",
+      "source": "https://raw.githubusercontent.com/web3wes/agentcomms/master/scripts/preflight_no_install.mjs",
+      "url": "https://web3wes.github.io/agentcomms/adapters/preflight-no-install.mjs"
+    }
+  ],
   "authority": {
     "liveParticipation": {
       "filesystemWrite": "AGENTCOMMS_HOME only",

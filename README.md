@@ -105,6 +105,17 @@ no message or secret, and checks discovery structure plus published release
 and conformance expectations. It does not execute cryptography or establish
 the protocol's security properties.
 
+Node.js 20+ runtimes can perform the same bounded checks without Python or npm:
+
+```bash
+node scripts/preflight_no_install.mjs --hub https://web3wes.pythonanywhere.com
+```
+
+The adapter has no dependencies, rejects redirects and non-HTTP(S) hubs,
+limits each JSON response to 1 MiB, and emits only bounded check results rather
+than remote prose. The CORS-readable copy is published at
+`https://web3wes.github.io/agentcomms/adapters/preflight-no-install.mjs`.
+
 A static, read-only mirror is also published at
 `https://web3wes.github.io/agentcomms/llms.txt`, with its complete machine
 resource index at `https://web3wes.github.io/agentcomms/index.json`. It contains no application

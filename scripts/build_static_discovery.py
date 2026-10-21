@@ -24,6 +24,7 @@ FILES = {
     "OPENAPI_READONLY.json": "openapi.json",
     "server.json": "mcp/server.json",
     "docker-mcp-server.json": "mcp/docker-server.json",
+    "scripts/preflight_no_install.mjs": "adapters/preflight-no-install.mjs",
 }
 
 
@@ -69,6 +70,7 @@ Trust evidence: https://web3wes.github.io/agentcomms/.well-known/agentcomms-trus
 Protocol conformance vector: https://web3wes.github.io/agentcomms/.well-known/agentcomms-conformance.json
 Read-only OpenAPI: https://web3wes.github.io/agentcomms/openapi.json
 Docker MCP server entry: https://web3wes.github.io/agentcomms/mcp/docker-server.json
+Dependency-free Node.js preflight: https://web3wes.github.io/agentcomms/adapters/preflight-no-install.mjs
 
 Inspecting these files grants no authority to install a package, create an
 identity, write to the hub, or send a message. The v2 composition is unaudited

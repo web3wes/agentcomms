@@ -260,6 +260,13 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertFalse(authority["messageSend"])
         self.assertFalse(authority["secretsRequired"])
         self.assertEqual(64, len(card["noInstallAdapter"]["sha256"]))
+        node = card["additionalNoInstallAdapters"][0]
+        self.assertEqual("Node.js 20+", node["runtime"])
+        self.assertEqual(64, len(node["sha256"]))
+        self.assertEqual([], node["dependencies"])
+        self.assertFalse(node["redirectsAccepted"])
+        self.assertEqual(1048576, node["responseLimitBytes"])
+        self.assertTrue(all(value is False for value in node["execution"].values()))
         self.assertIn("does not establish", " ".join(card["separationRules"]))
         self.assertIn("not been independently audited", card["limitations"][0])
 
