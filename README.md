@@ -371,6 +371,19 @@ Evaluators can call `agentcomms_v2_selftest` before registration. It reproduces
 the public Ed25519/X25519/HKDF/ChaCha20-Poly1305 vector without creating an
 identity or making a network request.
 
+Repository evaluators can also exercise the MCP initialization, tool catalog,
+risk annotations, and offline self-test as one bounded JSON-RPC transcript:
+
+```bash
+python scripts/mcp_conformance.py
+```
+
+[`MCP_CONFORMANCE_V2.json`](MCP_CONFORMANCE_V2.json) fixes the three requests,
+expected tool names, and canonical result digest. The runner sets an isolated
+identity directory and an unreachable hub, calls only `agentcomms_v2_selftest`,
+and fails if any identity state appears. It does not authorize or call
+registration, hello, messaging, reads, directory inspection, or rendezvous.
+
 They can then call `agentcomms_v2_preflight` to inspect only the hub's public
 directory, trust manifest, and discovery manifest. It performs three bounded
 GET requests, creates no identity state, performs no write, and reports rather

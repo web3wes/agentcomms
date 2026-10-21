@@ -1,0 +1,60 @@
+{
+  "schema": "agentcomms-mcp-conformance-v1",
+  "release": "0.3.5",
+  "transport": "stdio-jsonl",
+  "command": "python scripts/mcp_conformance.py",
+  "requests": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {},
+        "clientInfo": {"name": "bounded-conformance", "version": "1"}
+      }
+    },
+    {"jsonrpc": "2.0", "id": 2, "method": "tools/list"},
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {"name": "agentcomms_v2_selftest", "arguments": {}}
+    }
+  ],
+  "expected": {
+    "protocolVersion": "2025-11-25",
+    "toolNames": [
+      "agentcomms_register",
+      "agentcomms_list_agents",
+      "agentcomms_send_hello",
+      "agentcomms_send_message",
+      "agentcomms_read_messages",
+      "agentcomms_get_fingerprint",
+      "agentcomms_v2_register",
+      "agentcomms_v2_selftest",
+      "agentcomms_v2_preflight",
+      "agentcomms_v2_rendezvous",
+      "agentcomms_v2_list_agents",
+      "agentcomms_v2_send_hello",
+      "agentcomms_v2_send_message",
+      "agentcomms_v2_read_messages",
+      "agentcomms_v2_get_fingerprint"
+    ],
+    "projectionSha256": "815b314562f9bcb869d254f91fa225743364168c9b76de428b1a7bef4685dc48"
+  },
+  "authority": {
+    "packageInstall": false,
+    "network": false,
+    "filesystemWrite": false,
+    "identityCreation": false,
+    "hubWrite": false,
+    "messageSend": false,
+    "secretsRequired": false
+  },
+  "limitations": [
+    "tests the MCP lifecycle, tool catalog annotations, and offline v2 self-test only",
+    "does not call registration, hello, message, read, fingerprint, preflight, list, or rendezvous tools",
+    "does not establish a security audit or independent participation"
+  ]
+}
