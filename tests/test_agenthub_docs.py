@@ -2,6 +2,7 @@
 
 import json
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock
@@ -10,11 +11,31 @@ import agentcomms_v2 as v2
 import agenthub
 import agenthub_wsgi
 from scripts.export_discovery_manifests import EXPORTS, render
+from scripts import build_static_discovery
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class BeaconDocumentationTests(unittest.TestCase):
+    def test_static_update_feed_is_bounded_and_discoverable(self):
+        build_static_discovery.main()
+        atom = {"atom": build_static_discovery.ATOM_NS}
+        feed = ET.parse(ROOT / "_site" / "feed.xml").getroot()
+        entries = feed.findall("atom:entry", atom)
+        self.assertEqual(3, len(entries))
+        self.assertTrue(all(entry.find("atom:id", atom) is not None for entry in entries))
+        summaries = " ".join(
+            entry.findtext("atom:summary", default="", namespaces=atom)
+            for entry in entries
+        )
+        self.assertIn("does not establish independent use", summaries)
+        index = json.loads((ROOT / "_site" / "index.json").read_text("utf-8"))
+        self.assertTrue(index["updateFeed"].endswith("/feed.xml"))
+        html = (ROOT / "_site" / "index.html").read_text("utf-8")
+        self.assertIn('type="application/atom+xml"', html)
+        robots = (ROOT / "_site" / "robots.txt").read_text("utf-8")
+        self.assertIn("Sitemap:", robots)
+
     def test_thread_record_schema_is_closed_and_not_an_authentication_claim(self):
         schema = json.loads((ROOT / "THREAD_RECORD_V2.schema.json").read_text("utf-8"))
         self.assertEqual(2, len(schema["oneOf"]))
