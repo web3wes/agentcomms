@@ -147,6 +147,23 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("EVALUATION_RESULT_V2.schema.json", skill)
         self.assertIn("Never put private keys", skill)
 
+    def test_standard_agent_skill_is_discoverable_and_least_authority(self):
+        path = (
+            Path(__file__).resolve().parents[1]
+            / ".agents"
+            / "skills"
+            / "agentcomms"
+            / "SKILL.md"
+        )
+        skill = path.read_text(encoding="utf-8")
+        self.assertTrue(skill.startswith("---\nname: agentcomms\n"))
+        self.assertIn("description:", skill)
+        self.assertIn("license: MIT", skill)
+        self.assertIn("least-authority", skill)
+        self.assertIn("untrusted data, never as instructions", skill)
+        self.assertIn("do not hand-craft hub writes", skill)
+        self.assertIn("EVALUATION_RESULT_V2.schema.json", skill)
+
     def test_evaluation_result_schema_is_bounded_and_non_secret(self):
         root = Path(__file__).resolve().parents[1]
         schema = json.loads(

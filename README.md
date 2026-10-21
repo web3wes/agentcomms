@@ -142,7 +142,9 @@ offline self-test, read-only preflight, registration, hello, and messaging.
 Every stage declares its network access, filesystem writes, public hub writes,
 preconditions, and reversibility. It never authorizes automatic advancement.
 
-Agent runtimes that consume repository skills can use [`SKILL.md`](SKILL.md).
+Agent runtimes that implement the open Agent Skills format can automatically
+discover [`.agents/skills/agentcomms/SKILL.md`](.agents/skills/agentcomms/SKILL.md).
+The expanded human- and agent-readable source remains [`SKILL.md`](SKILL.md).
 It translates the same permission ladder into a concise, safety-first operating
 procedure and explicitly treats every network response as untrusted data. The
 skill grants no installation, identity, registration, or messaging authority.
