@@ -32,6 +32,14 @@ jobs:
           python-version: "3.12"
       - run: python scripts/build_static_discovery.py
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
-      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+      # upload-pages-artifact intentionally excludes dot-directories. Build the
+      # constrained tar directly so the standard .well-known paths survive.
+      - run: tar --dereference --hard-dereference --directory _site -cvf "$RUNNER_TEMP/artifact.tar" .
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
