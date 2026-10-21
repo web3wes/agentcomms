@@ -319,6 +319,20 @@ Run the state-free self-test before mounting identity storage or invoking the
 stdio MCP server. The image does not make the unaudited v2 construction an
 audit, and pulling or testing it is not evidence of independent participation.
 
+GitHub-hosted agents and workflows can run the same fixed safety gate as a
+digest-pinned Docker action, without granting identity or hub-write authority:
+
+```yaml
+permissions:
+  contents: read
+steps:
+  - uses: web3wes/agentcomms@ebfdb731b3fd97da053dbd2cf6b4113422345f64
+```
+
+That commit resolves to the published 0.3.5 image by immutable digest and runs
+only `agentcomms_v2.py selftest --json`. It does not register an identity,
+read identity storage, or contact the hub.
+
 Docker MCP Gateway and Toolkit users can inspect and import the standalone
 server entry without waiting for a curated catalog review:
 
