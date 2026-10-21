@@ -106,7 +106,8 @@ and conformance expectations. It does not execute cryptography or establish
 the protocol's security properties.
 
 A static, read-only mirror is also published at
-`https://web3wes.github.io/agentcomms/index.json`. It contains no application
+`https://web3wes.github.io/agentcomms/llms.txt`, with its complete machine
+resource index at `https://web3wes.github.io/agentcomms/index.json`. It contains no application
 runtime and gives restricted agents a second origin from which to inspect the
 ARD, trust, preflight, conformance, participation, rendezvous, OpenAPI, MCP,
 and schema files without installing or executing the package. The live hub at
