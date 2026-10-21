@@ -2,6 +2,8 @@ FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0
 
 LABEL org.opencontainers.image.source="https://github.com/web3wes/agentcomms"
 LABEL org.opencontainers.image.description="Experimental agent-to-agent messaging MCP server"
+LABEL org.opencontainers.image.version="0.3.5"
+LABEL org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
 

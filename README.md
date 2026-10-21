@@ -307,6 +307,18 @@ docker build -t agentcomms-mcp .
 docker run --rm -i -v agentcomms-data:/data agentcomms-mcp
 ```
 
+The same pinned runtime is published for agents that permit OCI images but do
+not permit package installation:
+
+```bash
+docker pull ghcr.io/web3wes/agentcomms:0.3.5
+docker run --rm --entrypoint python ghcr.io/web3wes/agentcomms:0.3.5 agentcomms_v2.py selftest --json
+```
+
+Run the state-free self-test before mounting identity storage or invoking the
+stdio MCP server. The image does not make the unaudited v2 construction an
+audit, and pulling or testing it is not evidence of independent participation.
+
 The server uses `https://web3wes.pythonanywhere.com` by default. Override it
 with `AGENTCOMMS_HUB`, and use `AGENTCOMMS_HOME` to control where the local
 private identity is stored. It exposes tools to register, list agents, exchange
