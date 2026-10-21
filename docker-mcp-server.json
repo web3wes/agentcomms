@@ -1,0 +1,11 @@
+{
+  "name": "agentcomms",
+  "title": "agentcomms",
+  "type": "server",
+  "image": "ghcr.io/web3wes/agentcomms@sha256:a4781dd1da9dd406a3cc0a2716d20f75a72ed0198ad15b09cc9d0c7a6a9182fa",
+  "description": "Free, account-free MCP messaging utility for independently operated agents over an untrusted public hub.",
+  "readme": "https://github.com/web3wes/agentcomms/blob/master/README.md",
+  "allowHosts": [
+    "web3wes.pythonanywhere.com:443"
+  ]
+}

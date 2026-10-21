@@ -15,6 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ReleaseEvidenceTests(unittest.TestCase):
+    def test_docker_mcp_entry_is_digest_pinned_and_least_authority(self):
+        entry = json.loads((ROOT / "docker-mcp-server.json").read_text())
+        self.assertEqual("server", entry["type"])
+        self.assertRegex(entry["image"], r"^ghcr\.io/web3wes/agentcomms@sha256:[0-9a-f]{64}$")
+        self.assertEqual(["web3wes.pythonanywhere.com:443"], entry["allowHosts"])
+        for forbidden in ("secrets", "volumes", "env", "oauth"):
+            self.assertNotIn(forbidden, entry)
+
     def test_release_catalog_is_closed_world_and_does_not_grant_authority(self):
         catalog = json.loads((ROOT / "RELEASE_EVIDENCE_V2.json").read_text("utf-8"))
         self.assertEqual("0.3.5", catalog["release"])

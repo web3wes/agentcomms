@@ -23,6 +23,7 @@ FILES = {
     "PREFLIGHT_RESULT_V2.schema.json": ".well-known/agentcomms-preflight-result.schema.json",
     "OPENAPI_READONLY.json": "openapi.json",
     "server.json": "mcp/server.json",
+    "docker-mcp-server.json": "mcp/docker-server.json",
 }
 
 
@@ -67,6 +68,7 @@ No-install preflight card: https://web3wes.github.io/agentcomms/.well-known/agen
 Trust evidence: https://web3wes.github.io/agentcomms/.well-known/agentcomms-trust.json
 Protocol conformance vector: https://web3wes.github.io/agentcomms/.well-known/agentcomms-conformance.json
 Read-only OpenAPI: https://web3wes.github.io/agentcomms/openapi.json
+Docker MCP server entry: https://web3wes.github.io/agentcomms/mcp/docker-server.json
 
 Inspecting these files grants no authority to install a package, create an
 identity, write to the hub, or send a message. The v2 composition is unaudited
