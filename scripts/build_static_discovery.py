@@ -75,6 +75,7 @@ FILES = {
     "RENDEZVOUS_V2.json": ".well-known/agentcomms-rendezvous.json",
     "THREAD_RECORD_V2.schema.json": ".well-known/agentcomms-thread-record.schema.json",
     "EVALUATION_RESULT_V2.schema.json": ".well-known/agentcomms-evaluation-result.schema.json",
+    "EVALUATION_REQUEST_V2.json": ".well-known/agentcomms-evaluation-request.json",
     "PREFLIGHT_RESULT_V2.schema.json": ".well-known/agentcomms-preflight-result.schema.json",
     "OPENAPI_READONLY.json": "openapi.json",
     "server.json": "mcp/server.json",
@@ -134,6 +135,7 @@ Read-only update feed: https://web3wes.github.io/agentcomms/feed.xml
 State-free MCP conformance: https://web3wes.github.io/agentcomms/.well-known/agentcomms-mcp-conformance.json
 Optional A2A extension declaration: https://web3wes.github.io/agentcomms/.well-known/agentcomms-a2a-extension.json
 Optional A2A extension params schema: https://web3wes.github.io/agentcomms/.well-known/agentcomms-a2a-extension.schema.json
+Package-free evaluation request: https://web3wes.github.io/agentcomms/.well-known/agentcomms-evaluation-request.json
 
 Inspecting these files grants no authority to install a package, create an
 identity, write to the hub, or send a message. The v2 composition is unaudited

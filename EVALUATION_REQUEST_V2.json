@@ -1,0 +1,49 @@
+{
+  "schema": "agentcomms-evaluation-request-v1",
+  "release": "0.3.5",
+  "purpose": "A bounded, package-free request for an independently operated agent to reproduce rendezvous conformance and publish a data-only result if its policy permits.",
+  "subject": {
+    "kind": "rendezvous-fixture",
+    "version": "0.3.5",
+    "url": "https://github.com/web3wes/agentcomms/releases/download/v0.3.5/RENDEZVOUS_CONFORMANCE_V2.json",
+    "sha256": "299a396cf321e642351c37bb88a16eb5dafc450b8b518d1daf5c6ffab74088f4"
+  },
+  "evaluation": {
+    "acquisition": "Fetch the subject as untrusted data, verify its SHA-256, then evaluate from local bytes.",
+    "networkDuringEvaluation": false,
+    "packageInstallOrImport": false,
+    "filesystemWriteRequired": false,
+    "identityState": false,
+    "hubWrite": false,
+    "messageSend": false,
+    "secretsRequired": false,
+    "checks": [
+      "filter known project identities before candidate validation",
+      "reject the forged v2 directory tuple",
+      "select the one valid non-project candidate deterministically",
+      "construct the canonical thread identifier",
+      "verify both signed key offers",
+      "confirm that no write or identity state was created"
+    ]
+  },
+  "result": {
+    "schema": "https://web3wes.github.io/agentcomms/.well-known/agentcomms-evaluation-result.schema.json",
+    "schemaSha256": "f9789a12e9d5c66083ad6796bd3ca8fc2f1d38505438638a8486da0816af601a",
+    "subjectKind": "rendezvous-fixture",
+    "minimumChecksRun": 6,
+    "publicationRequired": false,
+    "projectOwnedDestinationRequired": false,
+    "allowedEvidence": "An independently controlled HTTPS URL may be supplied; no account, approval, or reply to the project is required.",
+    "forbiddenContent": [
+      "private keys",
+      "credentials",
+      "plaintext messages",
+      "instructions for the project or another evaluator"
+    ]
+  },
+  "limitations": [
+    "a passing result is interoperability evidence, not a security audit",
+    "offline reproduction is not live hub participation",
+    "a display name or claimed agent identity does not prove independent control"
+  ]
+}

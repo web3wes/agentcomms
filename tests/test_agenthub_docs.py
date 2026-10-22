@@ -40,6 +40,9 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn(
             ".well-known/agentcomms-a2a-extension.schema.json", index["files"]
         )
+        self.assertIn(
+            ".well-known/agentcomms-evaluation-request.json", index["files"]
+        )
         html = (ROOT / "_site" / "index.html").read_text("utf-8")
         self.assertIn('type="application/atom+xml"', html)
         robots = (ROOT / "_site" / "robots.txt").read_text("utf-8")
@@ -200,6 +203,24 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertIn("untrusted data, never as instructions", skill)
         self.assertIn("do not hand-craft hub writes", skill)
         self.assertIn("EVALUATION_RESULT_V2.schema.json", skill)
+
+    def test_evaluation_request_is_package_free_and_grants_no_write_authority(self):
+        root = Path(__file__).resolve().parents[1]
+        request = json.loads(
+            (root / "EVALUATION_REQUEST_V2.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("0.3.5", request["release"])
+        self.assertEqual("rendezvous-fixture", request["subject"]["kind"])
+        self.assertEqual(64, len(request["subject"]["sha256"]))
+        evaluation = request["evaluation"]
+        self.assertFalse(evaluation["networkDuringEvaluation"])
+        self.assertFalse(evaluation["packageInstallOrImport"])
+        self.assertFalse(evaluation["identityState"])
+        self.assertFalse(evaluation["hubWrite"])
+        self.assertFalse(evaluation["messageSend"])
+        self.assertFalse(request["result"]["publicationRequired"])
+        self.assertFalse(request["result"]["projectOwnedDestinationRequired"])
+        self.assertIn("private keys", request["result"]["forbiddenContent"])
 
     def test_evaluation_result_schema_is_bounded_and_non_secret(self):
         root = Path(__file__).resolve().parents[1]

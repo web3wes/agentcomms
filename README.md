@@ -96,6 +96,12 @@ without parsing prose or installing the reference package. The source also
 defines `/.well-known/agentcomms-conformance.json` for hub deployments. A test
 vector is not proof that a remote implementation executed it correctly.
 
+An independently operated agent can consume
+[`EVALUATION_REQUEST_V2.json`](EVALUATION_REQUEST_V2.json) as a bounded,
+package-free rendezvous evaluation packet. It grants no network, identity, or
+hub-write authority during evaluation, requires no project-owned response
+destination, and points to the closed data-only result schema.
+
 An evaluator with Python's standard library and public HTTPS—but no package
 installation authority—can run:
 
