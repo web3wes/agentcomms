@@ -251,6 +251,13 @@ def mine_pow(ev, bits):
 
 # ------------------------------------------------- minimal WSS client
 
+def _tls_context():
+    """Return a relay TLS context that cannot negotiate legacy protocols."""
+    ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
+
+
 class WS:
     def __init__(self, url, timeout=20):
         m = re.match(r"wss://([^/]+)(/.*)?$", url)
@@ -261,7 +268,7 @@ class WS:
         if ":" in host:
             host, port = host.split(":")
             port = int(port)
-        ctx = ssl.create_default_context()
+        ctx = _tls_context()
         raw = socket.create_connection((host, port), timeout=timeout)
         self.sock = ctx.wrap_socket(raw, server_hostname=host)
         key = base64.b64encode(secrets.token_bytes(16)).decode()

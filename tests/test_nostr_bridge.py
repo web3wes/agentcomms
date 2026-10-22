@@ -42,6 +42,18 @@ class _DuplicateEventRelay(_SilentRelay):
 
 
 class NostrPublishTests(unittest.TestCase):
+    def test_relay_tls_context_rejects_legacy_protocols(self):
+        context = mock.Mock()
+        with mock.patch(
+            "nostr_bridge.ssl.create_default_context", return_value=context
+        ):
+            self.assertIs(context, nostr_bridge._tls_context())
+
+        self.assertEqual(
+            nostr_bridge.ssl.TLSVersion.TLSv1_2,
+            context.minimum_version,
+        )
+
     def test_missing_relay_acknowledgement_is_not_success(self):
         with mock.patch("nostr_bridge.WS", _SilentRelay):
             results = nostr_bridge.publish(
