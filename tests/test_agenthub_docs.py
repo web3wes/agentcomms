@@ -503,6 +503,22 @@ class BeaconDocumentationTests(unittest.TestCase):
         self.assertNotIn("uses: ossf/scorecard-action@v", workflow)
         self.assertNotIn("uses: github/codeql-action/upload-sarif@v", workflow)
 
+    def test_hub_rejects_thread_paths_outside_the_thread_namespace(self):
+        with TemporaryDirectory() as temp:
+            hub = agenthub.Hub(temp)
+            valid_tid = "agent-01234567__agent-89abcdef"
+            self.assertEqual(
+                Path(temp) / "threads" / f"{valid_tid}.jsonl",
+                hub.thread_path(valid_tid),
+            )
+            for invalid_tid in (
+                "../directory",
+                "agent-01234567__agent-89abcdef/../directory",
+                "agent-01234567__agent-89abcdef?download=1",
+            ):
+                with self.assertRaisesRegex(ValueError, "bad thread id"):
+                    hub.thread_path(invalid_tid)
+
     def test_hub_accepts_self_certifying_v2_identity_and_long_thread_ids(self):
         import base64
         import hashlib

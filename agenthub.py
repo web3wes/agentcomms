@@ -879,6 +879,8 @@ class Hub:
         return 200, "registered"
 
     def thread_path(self, tid):
+        if not TID_RE.fullmatch(tid):
+            raise ValueError("bad thread id")
         return self.dir_path / "threads" / f"{tid}.jsonl"
 
     def thread(self, tid):
@@ -955,6 +957,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, ROBOTS, ctype="text/plain")
         elif self.path.startswith("/threads/"):
             tid = self.path[len("/threads/"):]
+            if not TID_RE.fullmatch(tid):
+                return self._send(400, '{"error": "bad thread id"}')
             lines = self.hub.thread(tid)
             self._send(200, "\n".join(lines), ctype="text/plain")
         else:
