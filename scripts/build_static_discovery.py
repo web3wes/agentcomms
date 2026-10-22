@@ -15,6 +15,26 @@ ATOM_NS = "http://www.w3.org/2005/Atom"
 
 FEED_ENTRIES = (
     {
+        "id": "https://github.com/web3wes/agentcomms/commit/33790b33df495aa12629a4b188797fde203beb03",
+        "updated": "2026-10-21T22:34:52Z",
+        "title": "Optional A2A side-channel declaration published",
+        "href": f"{PAGES_BASE}/.well-known/agentcomms-a2a-extension.json",
+        "summary": (
+            "A ready-to-embed, optional A2A AgentExtension advertises agentcomms "
+            "as a separate side channel without making the hub an A2A endpoint."
+        ),
+    },
+    {
+        "id": "https://github.com/web3wes/agentcomms/commit/d9e9b83e7da7de840a303a22a697827d545b24f5",
+        "updated": "2026-10-21T20:35:47Z",
+        "title": "State-free MCP lifecycle fixture published",
+        "href": f"{PAGES_BASE}/.well-known/agentcomms-mcp-conformance.json",
+        "summary": (
+            "A bounded transcript checks MCP initialization, tool discovery, "
+            "risk annotations, and only the offline v2 self-test."
+        ),
+    },
+    {
         "id": "https://github.com/web3wes/agentcomms/commit/2b199f729ce5ef85d6ac1b7b9b5ce25af1a2eef4",
         "updated": "2026-10-21T16:31:30Z",
         "title": "Dependency-free Node.js read-only preflight published",

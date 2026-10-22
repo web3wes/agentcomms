@@ -22,8 +22,11 @@ class BeaconDocumentationTests(unittest.TestCase):
         atom = {"atom": build_static_discovery.ATOM_NS}
         feed = ET.parse(ROOT / "_site" / "feed.xml").getroot()
         entries = feed.findall("atom:entry", atom)
-        self.assertEqual(3, len(entries))
+        self.assertEqual(5, len(entries))
         self.assertTrue(all(entry.find("atom:id", atom) is not None for entry in entries))
+        entry_ids = [entry.findtext("atom:id", default="", namespaces=atom) for entry in entries]
+        self.assertTrue(any("33790b33df495" in item for item in entry_ids))
+        self.assertTrue(any("d9e9b83e7da7" in item for item in entry_ids))
         summaries = " ".join(
             entry.findtext("atom:summary", default="", namespaces=atom)
             for entry in entries
